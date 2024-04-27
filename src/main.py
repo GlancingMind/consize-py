@@ -16,3 +16,6 @@ def dup(stack):
     """
     stack +=  stack[-1]
 
+def drop(stack):
+    stack.pop()
+
