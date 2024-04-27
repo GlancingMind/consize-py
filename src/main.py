@@ -42,3 +42,7 @@ def identical(stack):
 def emptystack(stack):
     stack.append([])
 
+def push(stack):
+    top = stack.pop()
+    stack[-1] += top
+
