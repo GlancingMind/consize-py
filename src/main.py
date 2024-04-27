@@ -11,3 +11,8 @@ def swap(stack):
     """
     stack[-1], stack[-2] = stack[-2], stack[-1]
 
+def dup(stack):
+    """
+    """
+    stack +=  stack[-1]
+
