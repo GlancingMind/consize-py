@@ -19,3 +19,6 @@ def dup(stack):
 def drop(stack):
     stack.pop()
 
+def rot(stack):
+    x, y, z = -1, -2, -3
+    stack[x], stack[z], stack[y] = stack[z], stack[y], stack[x]
