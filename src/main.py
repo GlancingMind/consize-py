@@ -1,3 +1,5 @@
+import sys
+
 def wordstack(s) -> bool:
     """
     Determines if s is a list of strings - aka. a wordstack.
@@ -50,5 +52,7 @@ def top(stack):
     match stack[-1]:
         case "nil" | []: stack[-1] = "nil"
         case list(): stack[-1] = stack[-1][0]
-        case _: print(f"error: stack underflow for {stack[-1]}")
+        case _: print(f"error: stack underflow for {stack[-1]}", file=sys.stderr)
 
+def pop(stack):
+    return stack[1:]
