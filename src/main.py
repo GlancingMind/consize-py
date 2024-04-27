@@ -35,3 +35,6 @@ def type(stack):
 
 def equal(stack):
     stack += "t" if stack.pop() == stack.pop() else "f"
+
+def identical(stack):
+    stack += "t" if stack.pop() is stack.pop() else "f"
