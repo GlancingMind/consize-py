@@ -38,3 +38,7 @@ def equal(stack):
 
 def identical(stack):
     stack += "t" if stack.pop() is stack.pop() else "f"
+
+def emptystack(stack):
+    stack.append([])
+
