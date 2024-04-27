@@ -22,3 +22,14 @@ def drop(stack):
 def rot(stack):
     x, y, z = -1, -2, -3
     stack[x], stack[z], stack[y] = stack[z], stack[y], stack[x]
+
+# TODO currently all values on the stack a basic words. Therefor stack, dict etc wont work.
+def type(stack):
+    match stack.pop():
+        case str(): stack += ["wrd"]
+        case list(): stack += ["stk"]
+        case dict(): stack += ["map"]
+        case function(): stack += ["fct"]
+        #case nil: stack += ["nil"]
+        case _: stack += ["_|_"]
+
