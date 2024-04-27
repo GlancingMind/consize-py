@@ -5,3 +5,9 @@ def wordstack(s) -> bool:
     :return: true, when s is a list of strings. Otherwise, false.
     """
     return isinstance(s, list) and s != [] and all(isinstance(item, str) for item in s)
+
+def swap(stack):
+    """
+    """
+    stack[-1], stack[-2] = stack[-2], stack[-1]
+
