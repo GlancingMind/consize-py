@@ -46,3 +46,9 @@ def push(stack):
     top = stack.pop()
     stack[-1] += top
 
+def top(stack):
+    match stack[-1]:
+        case "nil" | []: stack[-1] = "nil"
+        case list(): stack[-1] = stack[-1][0]
+        case _: print(f"error: stack underflow for {stack[-1]}")
+
