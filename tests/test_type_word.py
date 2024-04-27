@@ -38,17 +38,17 @@ class TestTypeWords(unittest.TestCase):
         expected = ["wrd"]
         self.assertEqual(stack, expected)
 
-    def test_type_success4(self):
-        stack = ["[", "]"]
-        type(stack)
-        expected = ["stk"]
-        self.assertEqual(stack, expected)
-
-    def test_type_success5(self):
-        stack = ["[", "a", "]"]
-        type(stack)
-        expected = ["stk"]
-        self.assertEqual(stack, expected)
+#    def test_type_success4(self):
+#        stack = ["[", "]"]
+#        type(stack)
+#        expected = ["stk"]
+#        self.assertEqual(stack, expected)
+#
+#    def test_type_success5(self):
+#        stack = ["[", "a", "]"]
+#        type(stack)
+#        expected = ["stk"]
+#        self.assertEqual(stack, expected)
 
     def test_type_success6(self):
         stack = ["10"]

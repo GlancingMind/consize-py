@@ -33,3 +33,5 @@ def type(stack):
         #case nil: stack += ["nil"]
         case _: stack += ["_|_"]
 
+def equal(stack):
+    stack += "t" if stack.pop() == stack.pop() else "f"
