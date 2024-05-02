@@ -59,3 +59,8 @@ def pop(stack):
 
 def concat(stack):
     return stack[:-2] + [ stack[-2] + stack[-1] ]
+
+def reverse(stack):
+    # Could also use stack.reverse(), but this would mutate the stack.
+    # Following code reverses the stack without mutating the given one.
+    return stack[::-1]
