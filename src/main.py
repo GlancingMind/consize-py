@@ -56,3 +56,6 @@ def top(stack):
 
 def pop(stack):
     return stack[1:]
+
+def concat(stack):
+    return stack[:-2] + [ stack[-2] + stack[-1] ]
