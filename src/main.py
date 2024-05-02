@@ -68,3 +68,7 @@ def reverse(stack):
 def mapping(stack):
     dictDesc = stack[-1]
     return stack[:-1] + [{k: v for k,v in zip(dictDesc[0::2], dictDesc[1::2])}]
+
+def unmap(stack):
+    dictionary = stack[-1]
+    return stack[:-1] + [[element for item in dictionary.items() for element in item]]

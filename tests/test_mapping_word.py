@@ -14,21 +14,20 @@ class TestMappingWord(unittest.TestCase):
         expected = [{}]
         self.assertEqual(stack, expected)
 
-    def test_pop_success1(self):
+    def test_mapping_success1(self):
         stack = [["a", 1]]
         stack = mapping(stack)
         expected = [{"a": 1}]
         self.assertEqual(stack, expected)
 
-    def test_pop_success2(self):
+    def test_mapping_success2(self):
         stack = ["z", ["a", 1]]
         stack = mapping(stack)
         expected = ["z", {"a": 1}]
         self.assertEqual(stack, expected)
 
-    def test_pop_success3(self):
+    def test_mapping_success3(self):
         stack = ["z", ["a", 1, "b", 2]]
         stack = mapping(stack)
         expected = ["z", {"a": 1, "b": 2}]
         self.assertEqual(stack, expected)
-
