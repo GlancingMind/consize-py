@@ -25,3 +25,15 @@ class TestConcatWord(unittest.TestCase):
         stack = concat(stack)
         expected = [["a"], ["b", "c"]]
         self.assertEqual(stack, expected)
+
+    def test_concat_success3(self):
+        stack = [["a"], ["b"], [], ["c"]]
+        stack = concat(stack)
+        expected = [["a"], ["b"], ["c"]]
+        self.assertEqual(stack, expected)
+
+    def test_concat_success4(self):
+        stack = [["a"], ["b"], ["c"], []]
+        stack = concat(stack)
+        expected = [["a"], ["b"], ["c"]]
+        self.assertEqual(stack, expected)

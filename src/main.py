@@ -64,3 +64,7 @@ def reverse(stack):
     # Could also use stack.reverse(), but this would mutate the stack.
     # Following code reverses the stack without mutating the given one.
     return stack[::-1]
+
+def mapping(stack):
+    dictDesc = stack[-1]
+    return stack[:-1] + [{k: v for k,v in zip(dictDesc[0::2], dictDesc[1::2])}]
