@@ -75,3 +75,7 @@ def unmap(stack):
 
 def keys(stack):
     return stack[:-1] + [ list(stack[-1].keys()) ]
+
+def assoc(stack):
+    *rest, key, value, dict = stack
+    return rest + [ {**dict, key: value} ]
