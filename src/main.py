@@ -10,8 +10,11 @@ def wordstack(s) -> bool:
 
 def swap(stack):
     """
+    :return: New stack with the top two words swapped places.
+    E.g: swap([x y]) returns [y x]
     """
-    stack[-1], stack[-2] = stack[-2], stack[-1]
+    *rest, x, y = stack
+    return rest + [y, x]
 
 def dup(stack):
     """
