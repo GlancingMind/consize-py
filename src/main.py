@@ -79,10 +79,15 @@ def emptystack(stack):
     return stack + [[]]
 
 def push(stack):
-    top = stack.pop()
-    stack[-1] += top
+    """
+    :return: New stack with the top most element pushed into the below sitting stack.
+    E.g: push([[], "a"]) returns [["a"]]
+    """
+    *rest, stk, top = stack
+    return rest + [stk + [top]]
 
 def top(stack):
+
     match stack[-1]:
         case "nil" | []: stack[-1] = "nil"
         case list(): stack[-1] = stack[-1][0]
