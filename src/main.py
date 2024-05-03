@@ -64,7 +64,7 @@ def equal(stack):
 def identical(stack):
     """
     :return: New stack with the two top elements replaced by their identity-equality.
-    E.g: equal([x y]) returns [f]
+    E.g: identical([x y]) returns [f]
     Note: This function is the same as equality and not required for a
     functioning consize implementation. See respective documentation in
     consize.pdf.
@@ -72,7 +72,11 @@ def identical(stack):
     return equal(stack)
 
 def emptystack(stack):
-    stack.append([])
+    """
+    :return: New stack with an empty stack as top element.
+    E.g: emptystack([]) returns [[]] or emptystack(["a"]) returns ["a", []]
+    """
+    return stack + [[]]
 
 def push(stack):
     top = stack.pop()
