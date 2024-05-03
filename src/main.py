@@ -48,7 +48,7 @@ def type(stack):
         case str():     return rest + ["wrd"]
         case list():    return rest + ["stk"]
         case dict():    return rest + ["map"]
-        case function(): return rest + ["fct"]
+        case _ if callable(top): return rest + ["fct"]
         case None:      return rest + ["nil"]
         case _:         return rest + ["_|_"]
 

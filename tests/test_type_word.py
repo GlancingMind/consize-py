@@ -56,6 +56,36 @@ class TestTypeWords(unittest.TestCase):
         expected = ["wrd"]
         self.assertEqual(stack, expected)
 
+    def test_type_success7(self):
+        stack = [{}]
+        stack = type(stack)
+        expected = ["map"]
+        self.assertEqual(stack, expected)
+
+    def test_type_success8(self):
+        stack = [{"a": 1}]
+        stack = type(stack)
+        expected = ["map"]
+        self.assertEqual(stack, expected)
+
+    def test_type_success9(self):
+        stack = [(lambda: "Hello World!")]
+        stack = type(stack)
+        expected = ["fct"]
+        self.assertEqual(stack, expected)
+
+    def test_type_success10(self):
+        stack = [None]
+        stack = type(stack)
+        expected = ["nil"]
+        self.assertEqual(stack, expected)
+
+    def test_type_replace_only_top_element(self):
+        stack = ["x", {"a": 1}]
+        stack = type(stack)
+        expected = ["x", "map"]
+        self.assertEqual(stack, expected)
+
     def test_immutability_of_type(self):
         stack = ["a", "b"]
         type(stack)
