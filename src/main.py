@@ -62,7 +62,14 @@ def equal(stack):
     return rest + ["t" if x == y else "f"]
 
 def identical(stack):
-    stack += "t" if stack.pop() is stack.pop() else "f"
+    """
+    :return: New stack with the two top elements replaced by their identity-equality.
+    E.g: equal([x y]) returns [f]
+    Note: This function is the same as equality and not required for a
+    functioning consize implementation. See respective documentation in
+    consize.pdf.
+    """
+    return equal(stack)
 
 def emptystack(stack):
     stack.append([])

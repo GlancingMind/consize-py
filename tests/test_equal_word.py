@@ -38,7 +38,7 @@ class TestEqualWords(unittest.TestCase):
         expected = ["x", "f"]
         self.assertEqual(stack, expected)
 
-    def test_immutability_of_drop(self):
+    def test_immutability_of_equal(self):
         stack = ["x", "y"]
         equal(stack)
         expected = ["x", "y"]
