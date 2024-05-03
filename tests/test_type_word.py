@@ -10,49 +10,54 @@ from main import type
 class TestTypeWords(unittest.TestCase):
     def test_type_success(self):
         stack = ["a"]
-        type(stack)
+        stack = type(stack)
         expected = ["wrd"]
         self.assertEqual(stack, expected)
 
     def test_type_success1(self):
         stack = ["a", "a"]
-        type(stack)
+        stack = type(stack)
         expected = ["a", "wrd"]
         self.assertEqual(stack, expected)
 
     def test_type_success2(self):
         stack = ["wrd"]
-        type(stack)
+        stack = type(stack)
         expected = ["wrd"]
         self.assertEqual(stack, expected)
 
     def test_type_success3(self):
         stack = ["[]"]
-        type(stack)
+        stack = type(stack)
         expected = ["wrd"]
         self.assertEqual(stack, expected)
 
     def test_type_success3(self):
         stack = ["stk"]
-        type(stack)
+        stack = type(stack)
         expected = ["wrd"]
         self.assertEqual(stack, expected)
 
-#    def test_type_success4(self):
-#        stack = ["[", "]"]
-#        type(stack)
-#        expected = ["stk"]
-#        self.assertEqual(stack, expected)
-#
-#    def test_type_success5(self):
-#        stack = ["[", "a", "]"]
-#        type(stack)
-#        expected = ["stk"]
-#        self.assertEqual(stack, expected)
+    def test_type_success4(self):
+        stack = [[]]
+        stack = type(stack)
+        expected = ["stk"]
+        self.assertEqual(stack, expected)
+
+    def test_type_success5(self):
+        stack = [["a"]]
+        stack = type(stack)
+        expected = ["stk"]
+        self.assertEqual(stack, expected)
 
     def test_type_success6(self):
         stack = ["10"]
-        type(stack)
+        stack = type(stack)
         expected = ["wrd"]
         self.assertEqual(stack, expected)
 
+    def test_immutability_of_type(self):
+        stack = ["a", "b"]
+        type(stack)
+        expected = ["a", "b"]
+        self.assertEqual(stack, expected)

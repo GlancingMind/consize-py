@@ -38,15 +38,19 @@ def rot(stack):
     *rest, x, y, z = stack
     return rest + [y, z, x]
 
-# TODO currently all values on the stack a basic words. Therefor stack, dict etc wont work.
 def type(stack):
-    match stack.pop():
-        case str(): stack += ["wrd"]
-        case list(): stack += ["stk"]
-        case dict(): stack += ["map"]
-        case function(): stack += ["fct"]
-        #case nil: stack += ["nil"]
-        case _: stack += ["_|_"]
+    """
+    :return: New stack with the top element replaced by its type.
+    E.g.: type([x y z]) returns [x y wrd]
+    """
+    *rest, top = stack
+    match top:
+        case str():     return rest + ["wrd"]
+        case list():    return rest + ["stk"]
+        case dict():    return rest + ["map"]
+        case function(): return rest + ["fct"]
+        case None:      return rest + ["nil"]
+        case _:         return rest + ["_|_"]
 
 def equal(stack):
     stack += "t" if stack.pop() == stack.pop() else "f"
