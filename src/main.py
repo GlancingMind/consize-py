@@ -18,8 +18,10 @@ def swap(stack):
 
 def dup(stack):
     """
+    :return: New stack with the top word duplicated.
+    E.g: swap([x]) returns [x x]
     """
-    stack +=  stack[-1]
+    return stack + [stack[-1]]
 
 def drop(stack):
     stack.pop()
