@@ -31,8 +31,12 @@ def drop(stack):
     return stack[:-1]
 
 def rot(stack):
-    x, y, z = -1, -2, -3
-    stack[x], stack[z], stack[y] = stack[z], stack[y], stack[x]
+    """
+    :return: New stack with the top three words rotated left-wise by one position.
+    E.g.: rot([x y z]) returns [y z x]
+    """
+    *rest, x, y, z = stack
+    return rest + [y, z, x]
 
 # TODO currently all values on the stack a basic words. Therefor stack, dict etc wont work.
 def type(stack):
