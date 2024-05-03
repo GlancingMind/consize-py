@@ -24,7 +24,11 @@ def dup(stack):
     return stack + [stack[-1]]
 
 def drop(stack):
-    stack.pop()
+    """
+    :return: New stack with the top word removed.
+    E.g: drop([x y z]) returns [x y]
+    """
+    return stack[:-1]
 
 def rot(stack):
     x, y, z = -1, -2, -3
