@@ -10,24 +10,30 @@ from main import top
 class TestTopWord(unittest.TestCase):
     def test_top_success(self):
         stack = [["a"]]
-        top(stack)
+        stack = top(stack)
         expected = ["a"]
         self.assertEqual(stack, expected)
 
     def test_top_success1(self):
         stack = [["a", "b"]]
-        top(stack)
+        stack = top(stack)
         expected = ["a"]
         self.assertEqual(stack, expected)
 
     def test_top_success2(self):
         stack = [[]]
-        top(stack)
+        stack = top(stack)
         expected = ["nil"]
         self.assertEqual(stack, expected)
 
     def test_top_success3(self):
-        stack = ["nil"]
-        top(stack)
+        stack = [None]
+        stack = top(stack)
         expected = ["nil"]
+        self.assertEqual(stack, expected)
+
+    def test_immutability_of_top(self):
+        stack = ["a", "b"]
+        top(stack)
+        expected = ["a", "b"]
         self.assertEqual(stack, expected)

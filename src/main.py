@@ -87,11 +87,15 @@ def push(stack):
     return rest + [stk + [top]]
 
 def top(stack):
-
-    match stack[-1]:
-        case "nil" | []: stack[-1] = "nil"
-        case list(): stack[-1] = stack[-1][0]
-        case _: print(f"error: stack underflow for {stack[-1]}", file=sys.stderr)
+    """
+    :return: New stack where the top element (here a stack) is replaced by it's
+    first element, or "nil" when the top element is en empty stack or None.
+    E.g: top(["a", [1, 2, 3, 4]]) returns ["a", 1]
+    """
+    *rest, top = stack
+    match top:
+        case None | []: return rest + ["nil"]
+        case _: return rest + [top[0]]
 
 def pop(stack):
     return stack[1:]
