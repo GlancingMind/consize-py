@@ -41,7 +41,7 @@ def rot(stack):
 def type(stack):
     """
     :return: New stack with the top element replaced by its type.
-    E.g.: type([x y z]) returns [x y wrd]
+    E.g: type([x y z]) returns [x y wrd]
     """
     *rest, top = stack
     match top:
@@ -53,7 +53,13 @@ def type(stack):
         case _:         return rest + ["_|_"]
 
 def equal(stack):
-    stack += "t" if stack.pop() == stack.pop() else "f"
+    """
+    :return: New stack with the two top elements replaced by their equality
+    value: "t" when both are equal and "f" when they are not.
+    E.g: equal([x y]) returns [f]
+    """
+    *rest, x, y = stack
+    return rest + ["t" if x == y else "f"]
 
 def identical(stack):
     stack += "t" if stack.pop() is stack.pop() else "f"
