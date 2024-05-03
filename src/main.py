@@ -72,3 +72,6 @@ def mapping(stack):
 def unmap(stack):
     dictionary = stack[-1]
     return stack[:-1] + [[element for item in dictionary.items() for element in item]]
+
+def keys(stack):
+    return stack[:-1] + [ list(stack[-1].keys()) ]
