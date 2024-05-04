@@ -163,3 +163,12 @@ def dissoc(stack):
     """
     *rest, key, dict = stack
     return rest + [ {k: v for k, v in dict.items() if k != key} ]
+
+def get(stack):
+    """
+    :return: New stack with the value of the dictionary as top element.
+    E.g.: get([a {a:1, b: 2, c: 3} z]) returns [1] or when 'a' would existins in
+    dictionary: ['z'].
+    """
+    *rest, key, dict, default = stack
+    return rest + [ dict.get(key, default) ]
