@@ -189,3 +189,7 @@ def word(stack):
     """
     *rest, wordstack = stack
     return rest + [[ "".join(wordstack) ]]
+
+def unword(stack):
+    *rest, word = stack
+    return rest + [[character for character in word]]
