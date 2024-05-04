@@ -150,7 +150,16 @@ def assoc(stack):
     """
     :return: Add the value under the specified key into the top most dictionary
     of stack.
-    E.g.: keys([val key {a:1, b: 2, c: 3}]) returns [{a:1, b: 2, c: 3, key: value}]
+    E.g.: assoc([val key {a:1, b: 2, c: 3}]) returns [{a:1, b: 2, c: 3, key: value}]
     """
     *rest, key, value, dict = stack
     return rest + [ {**dict, key: value} ]
+
+def dissoc(stack):
+    """
+    :return: New stack with the respective entry removed from the top most
+    dictionary.
+    E.g.: dissoc([c {a:1, b: 2, c: 3}]) returns [{a:1, b: 2}]
+    """
+    *rest, key, dict = stack
+    return rest + [ {k: v for k, v in dict.items() if k != key} ]

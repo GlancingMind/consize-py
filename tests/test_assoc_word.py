@@ -26,7 +26,7 @@ class TestAssocWord(unittest.TestCase):
         expected = ["x", {"a": 1, "b": 2}]
         self.assertEqual(stack, expected)
 
-    def test_assoc_assoc(self):
+    def test_immutability_of_assoc(self):
         stack = ["x", "a", 1, {"b": 2}]
         assoc(stack)
         expected = ["x", "a", 1, {"b": 2}]
