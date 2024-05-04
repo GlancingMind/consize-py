@@ -167,8 +167,16 @@ def dissoc(stack):
 def get(stack):
     """
     :return: New stack with the value of the dictionary as top element.
-    E.g.: get([a {a:1, b: 2, c: 3} z]) returns [1] or when 'a' would existins in
+    E.g.: get([a {a: 1, b: 2, c: 3} z]) returns [1] or when 'a' would existins in
     dictionary: ['z'].
     """
     *rest, key, dict, default = stack
     return rest + [ dict.get(key, default) ]
+
+def merge(stack):
+    """
+    :return: New stack with the top two dictionaries merges into one.
+    E.g.: get([{a: 1, b: 2} {a:2, c: 3}]) returns [{a: 2, b: 2, c: 3}].
+    """
+    *rest, dict1, dict2 = stack
+    return rest + [ dict1 | dict2 ]
