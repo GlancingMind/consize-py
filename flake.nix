@@ -12,6 +12,8 @@
       devShells.default = pkgs.mkShellNoCC {
         packages = with pkgs; [
           python3
+          python3Packages.requests
+          python3Packages.requests-file
         ];
 
         shellHook = ''

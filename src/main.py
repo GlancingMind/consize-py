@@ -231,3 +231,38 @@ def flush(stack):
 
 def readLine(stack):
     return stack + [input()]
+
+def slurp(stack):
+    from urllib.parse import urlparse
+    import requests
+    from requests_file import FileAdapter
+
+    session = requests.Session()
+    session.mount('file://', FileAdapter())
+
+    *rest, source = stack
+
+    if(urlparse(source).scheme == ""):
+        # seems to be not a valid URI. Will use local file read.
+        try:
+            with open(source, "r") as file:
+                return rest + [file.read()]
+        except FileNotFoundError:
+            print("File not found:", source)
+        except PermissionError:
+            print("Permission denied to read file:", source)
+        except IOError as e:
+            print("An error occurred while reading the file:", e)
+    else:
+        # some URI schema was detected will try fetching remote resource.
+        try:
+            response = session.get(r""+source)
+            if response.status_code == 200:
+                return rest + [response.text]
+            else:
+                print("Error:", response.status_code)
+                return rest
+        except requests.RequestException as e:
+            print("error:", e)
+            return rest
+    return rest
