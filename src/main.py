@@ -224,3 +224,7 @@ def _print(stack):
     *rest, word = stack
     print(word) if isinstance(word, str) else print("error: top element isn't of type string")
     return rest
+
+def flush(stack):
+    sys.stdout.flush()
+    return stack
