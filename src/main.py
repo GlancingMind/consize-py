@@ -228,3 +228,6 @@ def _print(stack):
 def flush(stack):
     sys.stdout.flush()
     return stack
+
+def readLine(stack):
+    return stack + [input()]
