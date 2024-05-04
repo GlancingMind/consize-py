@@ -193,3 +193,29 @@ def word(stack):
 def unword(stack):
     *rest, word = stack
     return rest + [[character for character in word]]
+
+def char(stack):
+    """
+    :return: New stack with the top most element being the interpreted
+    character.
+
+    NOTE: Top element on the stack should be a raw string, otherwise
+    interpretation will fail.
+
+    E.g: char([r"\\u0040"]) will return ["@"]
+         char([r"\\o100"]) will return ["@"]
+    """
+    *rest, characterCode = stack
+    match characterCode:
+        case r"\space":     return rest + [" "]
+        case r"\newline":   return rest + ["\n"]
+        case r"\formfeed":  return rest + ["\f"]
+        case r"\return":    return rest + ["\r"]
+        case r"\backspace": return rest + ["\b"]
+        case r"\tab":       return rest + ["\t"]
+        case _ if characterCode.startswith(r"\o"):
+            return rest + [chr(int(characterCode[2:], 8))]
+        case _ if characterCode.startswith(r"\u"):
+            return rest + [bytes(characterCode, "utf-8").decode("unicode_escape")]
+        case _:
+            return [fr"error: {characterCode} isn't a valid character codec"]
