@@ -176,7 +176,16 @@ def get(stack):
 def merge(stack):
     """
     :return: New stack with the top two dictionaries merges into one.
-    E.g.: get([{a: 1, b: 2} {a:2, c: 3}]) returns [{a: 2, b: 2, c: 3}].
+    E.g.: merge([{a: 1, b: 2} {a:2, c: 3}]) returns [{a: 2, b: 2, c: 3}].
     """
     *rest, dict1, dict2 = stack
     return rest + [ dict1 | dict2 ]
+
+def word(stack):
+    """
+    :return: New stack with all word within the top most wordstack compressed
+    into one continues word.
+    E.g.: word(["it's", "me", "!"]) returns ["it'sme!"].
+    """
+    *rest, wordstack = stack
+    return rest + [[ "".join(wordstack) ]]

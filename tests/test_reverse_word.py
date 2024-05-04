@@ -14,13 +14,13 @@ class TestReverseWord(unittest.TestCase):
         expected = []
         self.assertEqual(stack, expected)
 
-    def test_pop_success1(self):
+    def test_reverse_success1(self):
         stack = ["a"]
         stack = reverse(stack)
         expected = ["a"]
         self.assertEqual(stack, expected)
 
-    def test_pop_success2(self):
+    def test_reverse_success2(self):
         stack = ["a", "b", "c"]
         stack = reverse(stack)
         expected = ["c", "b", "a"]
