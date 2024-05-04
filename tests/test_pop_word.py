@@ -25,3 +25,9 @@ class TestPopWord(unittest.TestCase):
         stack = pop(stack)
         expected = ["b", "c"]
         self.assertEqual(stack, expected)
+
+    def test_immutability_of_pop(self):
+        stack = ["a", "b"]
+        pop(stack)
+        expected = ["a", "b"]
+        self.assertEqual(stack, expected)

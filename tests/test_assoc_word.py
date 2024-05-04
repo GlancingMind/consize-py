@@ -25,3 +25,9 @@ class TestAssocWord(unittest.TestCase):
         stack = assoc(stack)
         expected = ["x", {"a": 1, "b": 2}]
         self.assertEqual(stack, expected)
+
+    def test_assoc_assoc(self):
+        stack = ["x", "a", 1, {"b": 2}]
+        assoc(stack)
+        expected = ["x", "a", 1, {"b": 2}]
+        self.assertEqual(stack, expected)

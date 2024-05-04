@@ -37,3 +37,9 @@ class TestUnmapWord(unittest.TestCase):
         stack = unmap(stack)
         expected = ["b", ["a", 1]]
         self.assertEqual(stack, expected)
+
+    def test_immutablility_of_unmap_(self):
+        stack = ["b", {"a": 1}]
+        unmap(stack)
+        expected = ["b", {"a": 1}]
+        self.assertEqual(stack, expected)

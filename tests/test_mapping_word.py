@@ -31,3 +31,9 @@ class TestMappingWord(unittest.TestCase):
         stack = mapping(stack)
         expected = ["z", {"a": 1, "b": 2}]
         self.assertEqual(stack, expected)
+
+    def test_immutability_of_mapping(self):
+        stack = ["z", ["a", 1, "b", 2]]
+        mapping(stack)
+        expected = ["z", ["a", 1, "b", 2]]
+        self.assertEqual(stack, expected)

@@ -90,7 +90,7 @@ def top(stack):
     """
     :return: New stack where the top element (here a stack) is replaced by it's
     first element, or "nil" when the top element is en empty stack or None.
-    E.g: top(["a", [1, 2, 3, 4]]) returns ["a", 1]
+    E.g: top(["a", [1, 2, 3, 4]]) returns [["a", 1]]
     """
     *rest, top = stack
     match top:
@@ -98,27 +98,59 @@ def top(stack):
         case _: return rest + [top[0]]
 
 def pop(stack):
+    """
+    :return: New stack without the top most element.
+    E.g.: pop([x y z]) returns [[x y]]
+    """
     return stack[1:]
 
 def concat(stack):
-    return stack[:-2] + [ stack[-2] + stack[-1] ]
+    """
+    :return: New stack with the top two stacks concatenated into one.
+    E.g.: concat([[a b c] [x y z]]) returns [[a b c x y z]]
+    """
+    *rest, stack1, stack2 = stack
+    return rest + [ stack1 + stack2 ]
 
 def reverse(stack):
-    # Could also use stack.reverse(), but this would mutate the stack.
-    # Following code reverses the stack without mutating the given one.
+    """
+    :return: New stack in reversed order.
+    E.g.: reverse([[a b c]]) returns [[c b a]]
+    """
     return stack[::-1]
 
 def mapping(stack):
-    dictDesc = stack[-1]
-    return stack[:-1] + [{k: v for k,v in zip(dictDesc[0::2], dictDesc[1::2])}]
+    """
+    :return: New stack with the top most stack converted to a dictionary.
+    E.g.: mapping([[a 1 b 2 c 3]]) returns [{a:1, b: 2, c: 3}]
+    """
+    *rest, dictDescStack = stack
+    keys = dictDescStack[0::2]
+    values = dictDescStack[1::2]
+    return rest + [{k: v for k,v in zip(keys, values)}]
 
 def unmap(stack):
-    dictionary = stack[-1]
-    return stack[:-1] + [[element for item in dictionary.items() for element in item]]
+    """
+    :return: New stack with the top most dictionary element converted to a stack.
+    E.g.: unmap([{a:1, b: 2, c: 3}]) returns [[a 1 b 2 c 3]]
+    """
+    *rest, dictionary = stack
+    return rest + [[element for item in dictionary.items() for element in item]]
 
 def keys(stack):
-    return stack[:-1] + [ list(stack[-1].keys()) ]
+    """
+    :return: New stack with the top most dictionary on the stack being replaced
+    by a stack containing the dictionaries keys.
+    E.g.: keys([{a:1, b: 2, c: 3}]) returns [[a b c]]
+    """
+    *rest, dictionary = stack
+    return rest + [ list(dictionary.keys()) ]
 
 def assoc(stack):
+    """
+    :return: Add the value under the specified key into the top most dictionary
+    of stack.
+    E.g.: keys([val key {a:1, b: 2, c: 3}]) returns [{a:1, b: 2, c: 3, key: value}]
+    """
     *rest, key, value, dict = stack
     return rest + [ {**dict, key: value} ]

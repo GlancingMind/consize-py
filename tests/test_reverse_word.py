@@ -25,3 +25,9 @@ class TestReverseWord(unittest.TestCase):
         stack = reverse(stack)
         expected = ["c", "b", "a"]
         self.assertEqual(stack, expected)
+
+    def test_immutability_of_reverse(self):
+        stack = [["a", "b"]]
+        reverse(stack)
+        expected = [["a", "b"]]
+        self.assertEqual(stack, expected)

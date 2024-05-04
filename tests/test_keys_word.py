@@ -31,3 +31,9 @@ class TestKeysWord(unittest.TestCase):
         stack = keys(stack)
         expected = ["x", ["a", "b"]]
         self.assertEqual(stack, expected)
+
+    def test_immutablity_of_keys(self):
+        stack = ["x", {"a": 1, "b": 2}]
+        keys(stack)
+        expected = ["x", {"a": 1, "b": 2}]
+        self.assertEqual(stack, expected)
