@@ -219,3 +219,8 @@ def char(stack):
             return rest + [bytes(characterCode, "utf-8").decode("unicode_escape")]
         case _:
             return [fr"error: {characterCode} isn't a valid character codec"]
+
+def _print(stack):
+    *rest, word = stack
+    print(word) if isinstance(word, str) else print("error: top element isn't of type string")
+    return rest
