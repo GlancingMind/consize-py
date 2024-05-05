@@ -304,3 +304,9 @@ def spitOn(stack):
         except IOError as e:
             print("An error occurred while writing the file:", e)
     return rest
+
+def uncomment(stack):
+    import re
+    *rest, word = stack
+    parts = re.split(r"\s*%.*[(\r\n)\r\n]", word)
+    return rest + ["\r\n".join(parts)]
