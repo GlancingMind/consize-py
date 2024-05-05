@@ -11,19 +11,19 @@ class TestWordWord(unittest.TestCase):
     def test_word_emptystack(self):
         stack = [[]]
         stack = word(stack)
-        expected = [['']]
+        expected = ['']
         self.assertEqual(stack, expected)
 
     def test_word_success1(self):
         stack = [["a"]]
         stack = word(stack)
-        expected = [["a"]]
+        expected = ["a"]
         self.assertEqual(stack, expected)
 
     def test_word_success2(self):
         stack = [["a", "b", "c"]]
         stack = word(stack)
-        expected = [["abc"]]
+        expected = ["abc"]
         self.assertEqual(stack, expected)
 
     def test_immutability_of_word(self):

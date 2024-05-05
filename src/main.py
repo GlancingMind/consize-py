@@ -185,10 +185,10 @@ def word(stack):
     """
     :return: New stack with all word within the top most wordstack compressed
     into one continues word.
-    E.g.: word(["it's", "me", "!"]) returns ["it'sme!"].
+    E.g.: word([["it's", "me", "!"]]) returns ["it'sme!"].
     """
     *rest, wordstack = stack
-    return rest + [[ "".join(wordstack) ]]
+    return rest + ["".join(wordstack)]
 
 def unword(stack):
     *rest, word = stack
