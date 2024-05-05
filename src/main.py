@@ -285,3 +285,22 @@ def spit(stack):
         except IOError as e:
             print("An error occurred while writing the file:", e)
     return rest
+
+def spitOn(stack):
+    from urllib.parse import urlparse
+
+    *rest, data, uri = stack
+
+    pr = urlparse(uri)
+    if(pr.scheme == "file" or pr.scheme == ""):
+        # seems to be not a valid URI. Will use local file read.
+        try:
+            with open(pr.path, "a") as file:
+                file.write(data)
+        except FileNotFoundError:
+            print("File not found:", pr.path)
+        except PermissionError:
+            print("Permission denied to write file:", pr.path)
+        except IOError as e:
+            print("An error occurred while writing the file:", e)
+    return rest
