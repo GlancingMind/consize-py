@@ -84,7 +84,7 @@ def push(stack):
     E.g: push([[], "a"]) returns [["a"]]
     """
     *rest, stk, top = stack
-    return rest + [stk + [top]]
+    return rest + [[top] + stk]
 
 def top(stack):
     """
