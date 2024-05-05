@@ -310,3 +310,9 @@ def uncomment(stack):
     *rest, word = stack
     parts = re.split(r"\s*%.*[(\r\n)\r\n]", word)
     return rest + ["\r\n".join(parts)]
+
+def tokenize(stack):
+    import re
+    *rest, word = stack
+    parts = re.split(r"\s+", word.strip())
+    return rest + [parts] if parts != [""] else []
