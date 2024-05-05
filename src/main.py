@@ -316,3 +316,9 @@ def tokenize(stack):
     *rest, word = stack
     parts = re.split(r"\s+", word.strip())
     return rest + [parts] if parts != [""] else []
+
+def undocument(stack):
+    import re
+    *rest, word = stack
+    parts = re.findall(r"(?m)^%?>> (.*)$", word)
+    return rest + ["\r\n".join(parts)]
