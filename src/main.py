@@ -381,3 +381,6 @@ def divide(stack):
     *rest, x, y = stack
     return rest + [int(x/y)]
 
+def modulus(stack):
+    *rest, x, y = stack
+    return rest + [x%y]
