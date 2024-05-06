@@ -376,3 +376,8 @@ def minus(stack):
 def multiply(stack):
     *rest, x, y = stack
     return rest + [x*y]
+
+def divide(stack):
+    *rest, x, y = stack
+    return rest + [int(x/y)]
+
