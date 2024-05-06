@@ -352,3 +352,7 @@ def func(stack):
 def stepcc(stack):
     *rest, dict, datastack, callstack = stack
     return []
+
+def integer(stack):
+    *rest, word = stack
+    return rest + ["t" if word == int() else "f"]
