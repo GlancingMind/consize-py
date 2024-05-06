@@ -355,4 +355,12 @@ def stepcc(stack):
 
 def integer(stack):
     *rest, word = stack
-    return rest + ["t" if word == int() else "f"]
+
+    if isinstance(word, int):
+        return rest + ["t"]
+
+    # check if a given string represents an integer
+    if word == str() and word.startswith('-'):
+       word = word[1:] # remove the minus from string
+
+    return rest + ["t" if word.isdigit() else "f"]
