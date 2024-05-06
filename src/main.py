@@ -322,3 +322,7 @@ def undocument(stack):
     *rest, word = stack
     parts = re.findall(r"(?m)^%?>> (.*)$", word)
     return rest + ["\r\n".join(parts)]
+
+def currentTimeInMilliSeconds(stack):
+    import time
+    return stack + [int(time.time() * 1000)]
