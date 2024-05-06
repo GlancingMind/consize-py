@@ -368,3 +368,7 @@ def integer(stack):
 def plus(stack):
     *rest, x, y = stack
     return rest + [x+y]
+
+def minus(stack):
+    *rest, x, y = stack
+    return rest + [x-y]
