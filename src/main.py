@@ -364,3 +364,7 @@ def integer(stack):
        word = word[1:] # remove the minus from string
 
     return rest + ["t" if word.isdigit() else "f"]
+
+def plus(stack):
+    *rest, x, y = stack
+    return rest + [x+y]
