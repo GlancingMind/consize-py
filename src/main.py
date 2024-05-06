@@ -338,3 +338,17 @@ def apply(stack):
 def compose(stack):
     *rest, func1, func2 = stack
     return rest + [(lambda ds: func2(func1(ds)))]
+
+def func(stack):
+    *rest, quote, dict = stack
+
+    def runcc(callstack, datastack, dict):
+        while callstack != []:
+            callstack, datastack, dict = stepcc(callstack, datastack, dict)
+        return datastack
+
+    return rest + [lambda ds: runcc(callstack=quote, datastack=ds, dict=dict)]
+
+def stepcc(stack):
+    *rest, dict, datastack, callstack = stack
+    return []
