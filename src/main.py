@@ -372,3 +372,7 @@ def plus(stack):
 def minus(stack):
     *rest, x, y = stack
     return rest + [x-y]
+
+def multiply(stack):
+    *rest, x, y = stack
+    return rest + [x*y]
