@@ -396,3 +396,7 @@ def moreThan(stack):
 def lessThanEqual(stack):
     *rest, x, y = stack
     return rest + ["t" if x <= y else "f"]
+
+def moreThanEqual(stack):
+    *rest, x, y = stack
+    return rest + ["t" if x >= y else "f"]
