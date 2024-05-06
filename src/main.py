@@ -334,3 +334,7 @@ def operatingSystem(stack):
 def apply(stack):
     *rest, stk, func = stack
     return rest + [func(stk)]
+
+def compose(stack):
+    *rest, func1, func2 = stack
+    return rest + [(lambda ds: func2(func1(ds)))]
