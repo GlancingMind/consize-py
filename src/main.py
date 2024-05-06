@@ -326,3 +326,7 @@ def undocument(stack):
 def currentTimeInMilliSeconds(stack):
     import time
     return stack + [int(time.time() * 1000)]
+
+def operatingSystem(stack):
+    import platform
+    return stack + [platform.platform()]
