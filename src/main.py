@@ -384,3 +384,7 @@ def divide(stack):
 def modulus(stack):
     *rest, x, y = stack
     return rest + [x%y]
+
+def lessThan(stack):
+    *rest, x, y = stack
+    return rest + ["t" if x < y else "f"]
