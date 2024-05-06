@@ -330,3 +330,7 @@ def currentTimeInMilliSeconds(stack):
 def operatingSystem(stack):
     import platform
     return stack + [platform.platform()]
+
+def apply(stack):
+    *rest, stk, func = stack
+    return rest + [func(stk)]
