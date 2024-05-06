@@ -388,3 +388,7 @@ def modulus(stack):
 def lessThan(stack):
     *rest, x, y = stack
     return rest + ["t" if x < y else "f"]
+
+def moreThan(stack):
+    *rest, x, y = stack
+    return rest + ["t" if x > y else "f"]
