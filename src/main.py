@@ -370,6 +370,11 @@ def callCC(stack):
     *dsTail, dsHead = datastack
     return rest + [[dsTail], callstack] + [dsHead]
 
+def continuee(stack):
+    *rest, datastack, callstack = stack
+    ds2, ds1 = datastack
+    return rest + [ds2, ds1]
+
 def integer(stack):
     *rest, word = stack
 
