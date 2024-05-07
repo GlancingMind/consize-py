@@ -353,6 +353,11 @@ def stepcc(stack):
     *rest, dict, datastack, callstack = stack
     return []
 
+def call(stack):
+    *rest, datastack, callstack = stack
+    *dsTail, dsHead = datastack
+    return rest + dsTail + [dsHead + callstack]
+
 def integer(stack):
     *rest, word = stack
 
