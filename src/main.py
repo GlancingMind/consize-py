@@ -523,4 +523,14 @@ def main():
     print("Consize returns", result)
 
 if __name__ == "__main__":
+    from functools import partial
+
+    def log(k, func, s):
+        print(f"[{k}] called with {s}")
+        result = func(s)
+        print(f"[{k}] returned: {result}")
+
+    for k,func in VM.items():
+        VM[k] = partial(log, k, func)
+
     main()
