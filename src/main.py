@@ -510,3 +510,15 @@ VM = {
     "run": print("TODO: run"),
     "start": print("TODO: start"),
 }
+
+def main():
+    print("Consize started")
+    # joinedArgs = " ".join(sys.argv)
+    # words = tokenize(uncomment([joinedArgs]))
+    # firstWord = words[0]
+    # stack = VM[firstWord]
+    # result = apply(func([VM, stack]) + [[]])[0]
+    # print("Consize returns", result)
+
+if __name__ == "__main__":
+    main()
