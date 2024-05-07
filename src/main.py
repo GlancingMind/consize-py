@@ -344,7 +344,7 @@ def func(stack):
 
     def runcc(callstack, datastack, dict):
         while callstack != []:
-            callstack, datastack, dict = stepcc(callstack, datastack, dict)
+            callstack, datastack, dict = VM["stepcc"]([dict, datastack, callstack])
         return datastack
 
     return rest + [lambda ds: runcc(callstack=quote, datastack=ds, dict=dict)]
@@ -358,17 +358,17 @@ def stepcc(stack):
             res = dict.get(itm, None)
             match res:
                 case list():
-                    return rest + dict + [datastack] + [[res] + rcs]
+                    return rest + [dict, datastack, [res] + rcs]
                 case _ if callable(res):
-                    return rest + dict + [res(datastack)] + [rcs]
+                    return rest + [dict, res(datastack), rcs]
                 case _:
-                    return rest + dict + [datastack + [itm]] + [rcs + ["read-word"]]
+                    return rest + [dict, datastack + [itm], rcs + ["read-word"]]
         case dict():
-            return rest + dict + [datastack + [itm]] + [rcs + ["read-mapping"]]
+            return rest + [dict, datastack + [itm], rcs + ["read-mapping"]]
         case _ if callable(itm):
-            itm(rest + dict + [datastack] + [rcs])
+            itm(rest + [dict, datastack, rcs])
         case _:
-            return rest + dict + [datastack + [itm]] + [rcs]
+            return rest + [dict, datastack + [itm], rcs]
 
 def call(stack):
     *rest, datastack, callstack = stack
@@ -505,7 +505,7 @@ VM = {
     "==": equal,
     "<=": lessThanEqual,
     ">=": moreThanEqual,
-    # "\\"   '(("top") "quote"),
+    # "\\":   [["top"], "quote"],
     "\\":   [["dup", "top", "rot", "swap", "push", "swap", "pop", "continue"], "call/cc"],
     "load": ["slurp", "uncomment", "tokenize"],
     "run":  ["load", "call"],
@@ -515,22 +515,22 @@ VM = {
 def main():
     joinedArgs = " ".join(sys.argv[1:])
     program = tokenize(uncomment([joinedArgs]))[0]
-    stack = VM[program[0]]
-    print(stack)
-    continuation = func([VM, stack])
-    print([[]] + continuation)
-    result = apply([[]] + continuation)
+    quotation = VM[program[0]]
+    partialRunCC = func([quotation, VM])
+    datastack = []
+    #result = VM["apply"]([datastack] + partialRunCC)
+    result = partialRunCC[0]([datastack])
     print("Consize returns", result)
 
 if __name__ == "__main__":
     from functools import partial
 
-    def log(k, func, s):
-        print(f"[{k}] called with {s}")
-        result = func(s)
-        print(f"[{k}] returned: {result}")
+    # def log(k, f, s):
+    #    print(f"[\033[1m{k}\033[0m] called with \033[31m{s}\033[0m")
+    #    result = f(s)
+    #    print(f"[\033[1m{k}\033[0m] returned: \033[32m{result}\033[0m")
 
-    for k,func in VM.items():
-        VM[k] = partial(log, k, func)
+    # for k,f in VM.items():
+    #    VM[k] = partial(log, k, f)
 
     main()
