@@ -351,7 +351,24 @@ def func(stack):
 
 def stepcc(stack):
     *rest, dict, datastack, callstack = stack
-    return []
+    *rcs, itm = callstack
+
+    match itm:
+        case str():
+            res = dict.get(itm, None)
+            match res:
+                case list():
+                    return rest + dict + [datastack] + [[res] + rcs]
+                case _ if callable(res):
+                    return rest + dict + [res(datastack)] + [rcs]
+                case _:
+                    return rest + dict + [datastack + [itm]] + [rcs + ["read-word"]]
+        case dict():
+            return rest + dict + [datastack + [itm]] + [rcs + ["read-mapping"]]
+        case _ if callable(itm):
+            itm(rest + dict + [datastack] + [rcs])
+        case _:
+            return rest + dict + [datastack + [itm]] + [rcs]
 
 def call(stack):
     *rest, datastack, callstack = stack
