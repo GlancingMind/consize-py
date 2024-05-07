@@ -342,64 +342,74 @@ def compose(stack):
 def func(stack):
     *rest, quote, dict = stack
 
+    # print("qt: ", quote)
+    # print("dict: ", dict)
+
     def runcc(callstack, datastack, dict):
+        # print("runcc")
+        # print("callstack:", callstack) # should be the same code as from the cmdline
+        # print("datastack:", datastack)
+        # print(dict)
         while callstack != []:
-            callstack, datastack, dict = VM["stepcc"]([dict, datastack, callstack])
+            dict, datastack, callstack = VM["stepcc"]([dict, datastack, callstack])
         return datastack
 
     return rest + [lambda ds: runcc(callstack=quote, datastack=ds, dict=dict)]
 
 def stepcc(stack):
-    *rest, dict, datastack, callstack = stack
-    *rcs, itm = callstack
+    *rest, dictionary, datastack, callstack = stack
+    itm, *rcs = callstack
+    # TODO callstack oder might be reversed
 
+    # print("itm:", itm)
+    # print("dictionary:", dictionary)
     match itm:
         case str():
-            res = dict.get(itm, None)
+            res = dictionary.get(itm, None)
             match res:
                 case list():
-                    return rest + [dict, datastack, [res] + rcs]
+                    return rest + [dictionary, datastack, [res] + rcs]
                 case _ if callable(res):
-                    return rest + [dict, res(datastack), rcs]
+                    return rest + [dictionary, res(datastack), rcs]
                 case _:
-                    return rest + [dict, datastack + [itm], rcs + ["read-word"]]
+                    return rest + [dictionary, datastack + [itm], rcs + ["read-word"]]
         case dict():
-            return rest + [dict, datastack + [itm], rcs + ["read-mapping"]]
+            return rest + [dictionary, datastack + [itm], rcs + ["read-mapping"]]
         case _ if callable(itm):
-            itm(rest + [dict, datastack, rcs])
+            itm(rest + [dictionary, datastack, rcs])
         case _:
-            return rest + [dict, datastack + [itm], rcs]
+            return rest + [dictionary, datastack + [itm], rcs]
 
 def call(stack):
     *rest, datastack, callstack = stack
     *dsTail, dsHead = datastack
-    return rest + dsTail + [dsHead + callstack]
+    return [rest + dsTail + [dsHead + callstack]]
 
 def quote(stack):
     *rest, datastack, callstack = stack
     *dsTail, dsHead = datastack
     csHead = [] if csHead == [] else [callstack[-1]]
     csTail = callstack[:-1]
-    return rest + [ dsTail + [csHead] + [dsHead] ] + [csTail + ["call"]]
+    return [rest + [ dsTail + [csHead] + [dsHead] ] + [csTail + ["call"]]]
 
 def callCC(stack):
     *rest, datastack, callstack = stack
     *dsTail, dsHead = datastack
-    return rest + [[dsTail], callstack] + [dsHead]
+    return [rest + [[dsTail], callstack, dsHead]]
 
 def continuee(stack):
     *rest, datastack, callstack = stack
     ds2, ds1 = datastack
-    return rest + [ds2, ds1]
+    return [rest + [ds2, ds1]]
 
 def getDict(stack):
     *rest, dict, datastack, callstack = stack
-    return rest + [dict] + [datastack + [dict]] + callstack
+    return [rest + [dict] + [datastack + [dict]] + callstack]
 
 def setDict(stack):
     *rest, dict, datastack, callstack = stack
     *dsTail, dsHead = datastack
-    return rest + [dsHead] + [dsTail] + callstack
+    return [rest + [dsHead] + [dsTail] + callstack]
 
 def integer(stack):
     *rest, word = stack
@@ -514,12 +524,13 @@ VM = {
 
 def main():
     joinedArgs = " ".join(sys.argv[1:])
-    program = tokenize(uncomment([joinedArgs]))[0]
-    quotation = VM[program[0]]
+    wrappedQuotation = tokenize(uncomment([joinedArgs]))
+    print(wrappedQuotation)
+    quotation = wrappedQuotation[0]
+    print(quotation)
     partialRunCC = func([quotation, VM])
     datastack = []
-    #result = VM["apply"]([datastack] + partialRunCC)
-    result = partialRunCC[0]([datastack])
+    result = apply([datastack] + partialRunCC)
     print("Consize returns", result)
 
 if __name__ == "__main__":
