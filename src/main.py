@@ -365,6 +365,11 @@ def quote(stack):
     csTail = callstack[:-1]
     return rest + [ dsTail + [csHead] + [dsHead] ] + [csTail + ["call"]]
 
+def callCC(stack):
+    *rest, datastack, callstack = stack
+    *dsTail, dsHead = datastack
+    return rest + [[dsTail], callstack] + [dsHead]
+
 def integer(stack):
     *rest, word = stack
 
