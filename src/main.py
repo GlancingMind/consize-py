@@ -379,6 +379,11 @@ def getDict(stack):
     *rest, dict, datastack, callstack = stack
     return rest + [dict] + [datastack + [dict]] + callstack
 
+def setDict(stack):
+    *rest, dict, datastack, callstack = stack
+    *dsTail, dsHead = datastack
+    return rest + [dsHead] + [dsTail] + callstack
+
 def integer(stack):
     *rest, word = stack
 
