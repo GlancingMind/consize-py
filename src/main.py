@@ -358,6 +358,13 @@ def call(stack):
     *dsTail, dsHead = datastack
     return rest + dsTail + [dsHead + callstack]
 
+def quote(stack):
+    *rest, datastack, callstack = stack
+    *dsTail, dsHead = datastack
+    csHead = [] if csHead == [] else [callstack[-1]]
+    csTail = callstack[:-1]
+    return rest + [ dsTail + [csHead] + [dsHead] ] + [csTail + ["call"]]
+
 def integer(stack):
     *rest, word = stack
 
