@@ -485,7 +485,7 @@ VM = {
     "current-time-millis": currentTimeInMilliSeconds,
     "operating-system": operatingSystem,
     "call": call,
-    "quote": quote,
+    # "quote": quote,
     "call/cc": callCC,
     "continue": continuee,
     "get-dict": getDict,
@@ -505,20 +505,22 @@ VM = {
     "==": equal,
     "<=": lessThanEqual,
     ">=": moreThanEqual,
-    "\\": print("TODO: \\"),
-    "load": print("TODO: load"),
-    "run": print("TODO: run"),
-    "start": print("TODO: start"),
+    # "\\"   '(("top") "quote"),
+    "\\":   [["dup", "top", "rot", "swap", "push", "swap", "pop", "continue"], "call/cc"],
+    "load": ["slurp", "uncomment", "tokenize"],
+    "run":  ["load", "call"],
+    "start": ["slurp", "uncomment", "tokenize", "get-dict", "func", "emptystack", "swap", "apply"],
 }
 
 def main():
-    print("Consize started")
-    # joinedArgs = " ".join(sys.argv)
-    # words = tokenize(uncomment([joinedArgs]))
-    # firstWord = words[0]
-    # stack = VM[firstWord]
-    # result = apply(func([VM, stack]) + [[]])[0]
-    # print("Consize returns", result)
+    joinedArgs = " ".join(sys.argv[1:])
+    program = tokenize(uncomment([joinedArgs]))[0]
+    stack = VM[program[0]]
+    print(stack)
+    continuation = func([VM, stack])
+    print([[]] + continuation)
+    result = apply([[]] + continuation)
+    print("Consize returns", result)
 
 if __name__ == "__main__":
     main()
