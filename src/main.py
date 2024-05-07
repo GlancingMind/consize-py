@@ -375,6 +375,10 @@ def continuee(stack):
     ds2, ds1 = datastack
     return rest + [ds2, ds1]
 
+def getDict(stack):
+    *rest, dict, datastack, callstack = stack
+    return rest + [dict] + [datastack + [dict]] + callstack
+
 def integer(stack):
     *rest, word = stack
 
