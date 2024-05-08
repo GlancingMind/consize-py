@@ -375,7 +375,7 @@ def stepcc(stack):
 def call(stack):
     *rest, datastack, callstack = stack
     *dsTail, dsHead = datastack
-    return rest + dsTail + [dsHead + callstack]
+    return rest + [dsTail] + [dsHead + callstack]
 
 def quote(stack):
     *rest, datastack, callstack = stack
