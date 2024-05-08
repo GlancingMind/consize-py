@@ -372,33 +372,33 @@ def stepcc(stack):
 def call(stack):
     *rest, datastack, callstack = stack
     *dsTail, dsHead = datastack
-    return [rest + dsTail + [dsHead + callstack]]
+    return rest + dsTail + [dsHead + callstack]
 
 def quote(stack):
     *rest, datastack, callstack = stack
     *dsTail, dsHead = datastack
     csHead = [] if csHead == [] else [callstack[-1]]
     csTail = callstack[:-1]
-    return [rest + [ dsTail + [csHead] + [dsHead] ] + [["call"] + csTail]]
+    return rest + [ dsTail + [csHead] + [dsHead] ] + [["call"] + csTail]
 
 def callCC(stack):
     *rest, datastack, callstack = stack
     *dsTail, dsHead = datastack
-    return [rest + [dsTail + callstack], dsHead]
+    return rest + [dsTail + callstack], dsHead
 
 def continuee(stack):
     *rest, datastack, callstack = stack
     ds2, ds1 = datastack
-    return [rest + ds2 + ds1]
+    return rest + ds2 + ds1
 
 def getDict(stack):
     *rest, dict, datastack, callstack = stack
-    return [rest + [dict] + [datastack + [dict]] + callstack]
+    return rest + [dict] + [datastack + [dict]] + callstack
 
 def setDict(stack):
     *rest, dict, datastack, callstack = stack
     *dsTail, dsHead = datastack
-    return [rest + [dsHead], dsTail, callstack]
+    return rest + [dsHead] + dsTail + callstack
 
 def integer(stack):
     *rest, word = stack
@@ -483,12 +483,12 @@ VM = {
     "undocument": undocument,
     "current-time-millis": currentTimeInMilliSeconds,
     "operating-system": operatingSystem,
-    "call": call,
-    # "quote": quote,
-    "call/cc": callCC,
-    "continue": continuee,
-    "get-dict": getDict,
-    "set-dict": setDict,
+    "call": [call],
+    # "quote": [quote],
+    "call/cc": [callCC],
+    "continue": [continuee],
+    "get-dict": [getDict],
+    "set-dict": [setDict],
     "stepcc": stepcc,
     "apply": apply,
     "compose": compose,
