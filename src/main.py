@@ -372,13 +372,13 @@ def stepcc(stack):
                 case _ if callable(res):
                     return rest + [dictionary, res(datastack), rcs]
                 case _:
-                    return rest + [dictionary, datastack + [itm], rcs + ["read-word"]]
+                    return rest + [dictionary, [itm] + datastack,  ["read-word"] + rcs]
         case dict():
-            return rest + [dictionary, datastack + [itm], rcs + ["read-mapping"]]
+            return rest + [dictionary, [itm] + datastack, ["read-mapping"] + rcs]
         case _ if callable(itm):
-            itm(rest + [dictionary, datastack, rcs])
+            return itm(rest + [dictionary, datastack, rcs])
         case _:
-            return rest + [dictionary, datastack + [itm], rcs]
+            return rest + [dictionary, [itm] + datastack, rcs]
 
 def call(stack):
     *rest, datastack, callstack = stack
