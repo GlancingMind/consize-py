@@ -21,7 +21,8 @@ def dup(stack):
     :return: New stack with the top word duplicated.
     E.g: swap([x]) returns [x x]
     """
-    return stack + [stack[-1]]
+    *rest, top = stack
+    return rest + [top, top]
 
 def drop(stack):
     """
@@ -102,7 +103,9 @@ def pop(stack):
     :return: New stack without the top most element.
     E.g.: pop([x y z]) returns [[x y]]
     """
-    return stack[1:]
+    *rest, innerStack = stack
+    topOfInnerStack, *restOfInnerStack, = innerStack
+    return rest + [restOfInnerStack]
 
 def concat(stack):
     """
@@ -384,12 +387,12 @@ def quote(stack):
 def callCC(stack):
     *rest, datastack, callstack = stack
     *dsTail, dsHead = datastack
-    return rest + [dsTail + callstack, dsHead]
+    return rest + [[dsTail, callstack]] + [dsHead]
 
 def continuee(stack):
     *rest, datastack, callstack = stack
-    ds2, ds1 = datastack
-    return rest + ds2 + ds1
+    newDataStack, newCallStack = datastack
+    return rest + [newDataStack] + [newCallStack]
 
 def getDict(stack):
     *rest, dict, datastack, callstack = stack
