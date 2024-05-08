@@ -384,7 +384,7 @@ def quote(stack):
 def callCC(stack):
     *rest, datastack, callstack = stack
     *dsTail, dsHead = datastack
-    return rest + [dsTail + callstack], dsHead
+    return rest + [dsTail + callstack, dsHead]
 
 def continuee(stack):
     *rest, datastack, callstack = stack
