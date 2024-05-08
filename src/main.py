@@ -395,12 +395,12 @@ def quote(stack):
 def callCC(stack):
     *rest, datastack, callstack = stack
     *dsTail, dsHead = datastack
-    return [rest + [[dsTail], callstack, dsHead]]
+    return [rest + [dsTail + callstack], dsHead]
 
 def continuee(stack):
     *rest, datastack, callstack = stack
     ds2, ds1 = datastack
-    return [rest + [ds2, ds1]]
+    return [rest + ds2 + ds1]
 
 def getDict(stack):
     *rest, dict, datastack, callstack = stack
@@ -409,7 +409,7 @@ def getDict(stack):
 def setDict(stack):
     *rest, dict, datastack, callstack = stack
     *dsTail, dsHead = datastack
-    return [rest + [dsHead] + [dsTail] + callstack]
+    return [rest + [dsHead], dsTail, callstack]
 
 def integer(stack):
     *rest, word = stack
