@@ -342,14 +342,7 @@ def compose(stack):
 def func(stack):
     *rest, quote, dict = stack
 
-    # print("qt: ", quote)
-    # print("dict: ", dict)
-
     def runcc(callstack, datastack, dict):
-        # print("runcc")
-        # print("callstack:", callstack) # should be the same code as from the cmdline
-        # print("datastack:", datastack)
-        # print(dict)
         while callstack != []:
             dict, datastack, callstack = VM["stepcc"]([dict, datastack, callstack])
         return datastack
@@ -359,16 +352,12 @@ def func(stack):
 def stepcc(stack):
     *rest, dictionary, datastack, callstack = stack
     itm, *rcs = callstack
-    # TODO callstack oder might be reversed
-
-    # print("itm:", itm)
-    # print("dictionary:", dictionary)
     match itm:
         case str():
             res = dictionary.get(itm, None)
             match res:
                 case list():
-                    return rest + [dictionary, datastack, [res] + rcs]
+                    return rest + [dictionary, datastack, res + rcs]
                 case _ if callable(res):
                     return rest + [dictionary, res(datastack), rcs]
                 case _:
@@ -390,7 +379,7 @@ def quote(stack):
     *dsTail, dsHead = datastack
     csHead = [] if csHead == [] else [callstack[-1]]
     csTail = callstack[:-1]
-    return [rest + [ dsTail + [csHead] + [dsHead] ] + [csTail + ["call"]]]
+    return [rest + [ dsTail + [csHead] + [dsHead] ] + [["call"] + csTail]]
 
 def callCC(stack):
     *rest, datastack, callstack = stack
@@ -525,9 +514,7 @@ VM = {
 def main():
     joinedArgs = " ".join(sys.argv[1:])
     wrappedQuotation = tokenize(uncomment([joinedArgs]))
-    print(wrappedQuotation)
     quotation = wrappedQuotation[0]
-    print(quotation)
     partialRunCC = func([quotation, VM])
     datastack = []
     result = apply([datastack] + partialRunCC)
