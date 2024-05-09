@@ -77,7 +77,7 @@ def emptystack(stack):
     :return: New stack with an empty stack as top element.
     E.g: emptystack([]) returns [[]] or emptystack(["a"]) returns ["a", []]
     """
-    return stack + [[]]
+    return [[]] + stack
 
 def push(stack):
     """
@@ -386,7 +386,7 @@ def quote(stack):
 
 def callCC(stack):
     *rest, datastack, callstack = stack
-    *dsTail, dsHead = datastack
+    dsHead, *dsTail = datastack
     return rest + [[dsTail, callstack]] + [dsHead]
 
 def continuee(stack):
