@@ -177,8 +177,17 @@ def get(stack):
     E.g.: get([a {a: 1, b: 2, c: 3} z]) returns [1] or when 'a' would exist in
     dictionary: ['z'].
     """
+    def list_to_tuples(lst):
+        if isinstance(lst, list):
+            return tuple(list_to_tuples(x) for x in lst)
+        else:
+            return lst
+
     default, dict, key, *rest = stack
+    if isinstance(key, list):
+        key = list_to_tuples(key)
     return [ dict.get(key, default) ] + rest
+
 
 def merge(stack):
     """
@@ -317,6 +326,9 @@ def uncomment(stack):
     word, *rest = stack
     parts = re.split(r"\s*%.*[(\r\n)\r\n]", word)
     # parts = re.split(r"(?m)\s*%.*$", word)
+
+    # TODO last newline is kept and printed when using uncomment
+
     return ["\r\n".join(parts)] + rest
 
 def tokenize(stack):
@@ -381,6 +393,8 @@ def call(stack):
     callstack, datastack, *rest = stack
     if datastack == []: return [callstack] + [[]] + rest
     dsHead, *dsTail = datastack
+    if not isinstance(dsHead, list):
+        dsHead = [dsHead]
     return [dsHead + callstack] + [dsTail] + rest
 
 def quote(stack):
