@@ -105,7 +105,7 @@ def pop(stack):
     E.g.: pop([x y z]) returns [[x y]]
     """
     innerStack, *rest = stack
-    topOfInnerStack, *restOfInnerStack, = innerStack
+    topOfInnerStack, *restOfInnerStack, = innerStack or ([],[])
     return [restOfInnerStack] + rest
 
 def concat(stack):
@@ -114,14 +114,15 @@ def concat(stack):
     E.g.: concat([[a b c] [x y z]]) returns [[a b c x y z]]
     """
     stack1, stack2, *rest = stack
-    return [ stack1 + stack2 ] + rest
+    return [ stack2 + stack1 ] + rest
 
 def reverse(stack):
     """
     :return: New stack in reversed order.
     E.g.: reverse([[a b c]]) returns [[c b a]]
     """
-    return stack[::-1]
+    stk, *rest = stack
+    return stk[::-1] + rest
 
 def mapping(stack):
     """
@@ -192,7 +193,7 @@ def word(stack):
     E.g.: word([["it's", "me", "!"]]) returns ["it'sme!"].
     """
     wordstack, *rest = stack
-    return ["".join(wordstack)] + wordstack
+    return ["".join(wordstack)] + rest
 
 def unword(stack):
     word, *rest = stack
