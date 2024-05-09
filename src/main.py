@@ -105,6 +105,9 @@ def pop(stack):
     E.g.: pop([x y z]) returns [[x y]]
     """
     innerStack, *rest = stack
+    if isinstance(innerStack, str):
+        print(f"error: '{innerStack}' isnt a stack. Did not perform pop. Current stack is:")
+        return stack
     return [innerStack[1:]] + rest
 
 def concat(stack):
@@ -320,7 +323,7 @@ def tokenize(stack):
     import re
     word, *rest = stack
     parts = re.split(r"\s+", word.strip())
-    return ([parts] if parts != [""] else []) + rest
+    return ([] if parts == [""] else [parts]) + rest
 
 def undocument(stack):
     import re
@@ -376,6 +379,7 @@ def stepcc(stack):
 
 def call(stack):
     callstack, datastack, *rest = stack
+    if datastack == []: return [callstack] + [[]] + rest
     dsHead, *dsTail = datastack
     return [dsHead + callstack] + [dsTail] + rest
 
