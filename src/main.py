@@ -29,7 +29,7 @@ def drop(stack):
     :return: New stack with the top word removed.
     E.g: drop([x y z]) returns [x y]
     """
-    top, *rest = stack
+    top, *rest = stack or ([],[])
     return rest
 
 def rot(stack):
@@ -122,7 +122,7 @@ def reverse(stack):
     E.g.: reverse([[a b c]]) returns [[c b a]]
     """
     stk, *rest = stack
-    return stk[::-1] + rest
+    return [stk[::-1]] + rest
 
 def mapping(stack):
     """
@@ -227,7 +227,7 @@ def char(stack):
 
 def _print(stack):
     word, *rest = stack
-    print(word) if isinstance(word, str) else print("error: top element isn't of type string")
+    print(word, end="") if isinstance(word, str) else print("error: top element isn't of type string")
     return rest
 
 def flush(stack):
@@ -357,7 +357,6 @@ def func(stack):
 def stepcc(stack):
     callstack, datastack, dictionary, *rest = stack
     itm, *rcs = callstack
-    print(itm)
     match itm:
         case str():
             res = dictionary.get(itm, None)
