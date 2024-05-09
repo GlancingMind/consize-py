@@ -13,45 +13,46 @@ def swap(stack):
     :return: New stack with the top two words swapped places.
     E.g: swap([x y]) returns [y x]
     """
-    *rest, x, y = stack
-    return rest + [y, x]
+    x, y, *rest, = stack
+    return [y, x] + rest
 
 def dup(stack):
     """
     :return: New stack with the top word duplicated.
     E.g: swap([x]) returns [x x]
     """
-    *rest, top = stack
-    return rest + [top, top]
+    top, *rest = stack
+    return [top, top] + rest
 
 def drop(stack):
     """
     :return: New stack with the top word removed.
     E.g: drop([x y z]) returns [x y]
     """
-    return stack[:-1]
+    top, *rest = stack
+    return rest
 
 def rot(stack):
     """
     :return: New stack with the top three words rotated left-wise by one position.
     E.g.: rot([x y z]) returns [y z x]
     """
-    *rest, x, y, z = stack
-    return rest + [y, z, x]
+    x, y, z, *rest = stack
+    return [y, z, x] + rest
 
 def type(stack):
     """
     :return: New stack with the top element replaced by its type.
     E.g: type([x y z]) returns [x y wrd]
     """
-    *rest, top = stack
+    top, *rest = stack
     match top:
-        case str():     return rest + ["wrd"]
-        case list():    return rest + ["stk"]
-        case dict():    return rest + ["map"]
-        case _ if callable(top): return rest + ["fct"]
-        case None:      return rest + ["nil"]
-        case _:         return rest + ["_|_"]
+        case str():     return ["wrd"] + rest
+        case list():    return ["stk"] + rest
+        case dict():    return ["map"] + rest
+        case _ if callable(top): return ["fct"]+ rest
+        case None:      return ["nil"] + rest
+        case _:         return ["_|_"] + rest
 
 def equal(stack):
     """
@@ -59,8 +60,8 @@ def equal(stack):
     value: "t" when both are equal and "f" when they are not.
     E.g: equal([x y]) returns [f]
     """
-    *rest, x, y = stack
-    return rest + ["t" if x == y else "f"]
+    x, y, *rest = stack
+    return ["t" if x == y else "f"] + rest
 
 def identical(stack):
     """
@@ -84,8 +85,8 @@ def push(stack):
     :return: New stack with the top most element pushed into the below sitting stack.
     E.g: push([[], "a"]) returns [["a"]]
     """
-    *rest, stk, top = stack
-    return rest + [[top] + stk]
+    stk, top, stk, *rest = stack
+    return [[top] + stk] + rest
 
 def top(stack):
     """
@@ -93,27 +94,27 @@ def top(stack):
     first element, or "nil" when the top element is en empty stack or None.
     E.g: top(["a", [1, 2, 3, 4]]) returns [["a", 1]]
     """
-    *rest, top = stack
+    top, *rest = stack
     match top:
-        case None | []: return rest + ["nil"]
-        case _: return rest + [top[0]]
+        case None | []: return ["nil"] + rest
+        case _: return [top[0]] + rest
 
 def pop(stack):
     """
     :return: New stack without the top most element.
     E.g.: pop([x y z]) returns [[x y]]
     """
-    *rest, innerStack = stack
+    innerStack, *rest = stack
     topOfInnerStack, *restOfInnerStack, = innerStack
-    return rest + [restOfInnerStack]
+    return [restOfInnerStack] + rest
 
 def concat(stack):
     """
     :return: New stack with the top two stacks concatenated into one.
     E.g.: concat([[a b c] [x y z]]) returns [[a b c x y z]]
     """
-    *rest, stack1, stack2 = stack
-    return rest + [ stack1 + stack2 ]
+    stack1, stack2, *rest = stack
+    return [ stack1 + stack2 ] + rest
 
 def reverse(stack):
     """
@@ -127,18 +128,18 @@ def mapping(stack):
     :return: New stack with the top most stack converted to a dictionary.
     E.g.: mapping([[a 1 b 2 c 3]]) returns [{a:1, b: 2, c: 3}]
     """
-    *rest, dictDescStack = stack
+    dictDescStack, *rest = stack
     keys = dictDescStack[0::2]
     values = dictDescStack[1::2]
-    return rest + [{k: v for k,v in zip(keys, values)}]
+    return [{k: v for k,v in zip(keys, values)}] + rest
 
 def unmap(stack):
     """
     :return: New stack with the top most dictionary element converted to a stack.
     E.g.: unmap([{a:1, b: 2, c: 3}]) returns [[a 1 b 2 c 3]]
     """
-    *rest, dictionary = stack
-    return rest + [[element for item in dictionary.items() for element in item]]
+    dictionary, *rest = stack
+    return [[element for item in dictionary.items() for element in item]] + rest
 
 def keys(stack):
     """
@@ -146,8 +147,8 @@ def keys(stack):
     by a stack containing the dictionaries keys.
     E.g.: keys([{a:1, b: 2, c: 3}]) returns [[a b c]]
     """
-    *rest, dictionary = stack
-    return rest + [ list(dictionary.keys()) ]
+    dictionary, *rest = stack
+    return [ list(dictionary.keys()) ] + rest
 
 def assoc(stack):
     """
@@ -155,8 +156,8 @@ def assoc(stack):
     of stack.
     E.g.: assoc([val key {a:1, b: 2, c: 3}]) returns [{a:1, b: 2, c: 3, key: value}]
     """
-    *rest, key, value, dict = stack
-    return rest + [ {**dict, key: value} ]
+    dict, value, key, *rest = stack
+    return [ {**dict, key: value} ] + rest
 
 def dissoc(stack):
     """
@@ -164,8 +165,8 @@ def dissoc(stack):
     dictionary.
     E.g.: dissoc([c {a:1, b: 2, c: 3}]) returns [{a:1, b: 2}]
     """
-    *rest, key, dict = stack
-    return rest + [ {k: v for k, v in dict.items() if k != key} ]
+    dict, key, *rest = stack
+    return [ {k: v for k, v in dict.items() if k != key} ] + rest
 
 def get(stack):
     """
@@ -173,16 +174,16 @@ def get(stack):
     E.g.: get([a {a: 1, b: 2, c: 3} z]) returns [1] or when 'a' would existins in
     dictionary: ['z'].
     """
-    *rest, key, dict, default = stack
-    return rest + [ dict.get(key, default) ]
+    default, dict, key, *rest = stack
+    return [ dict.get(key, default) ] + rest
 
 def merge(stack):
     """
     :return: New stack with the top two dictionaries merges into one.
     E.g.: merge([{a: 1, b: 2} {a:2, c: 3}]) returns [{a: 2, b: 2, c: 3}].
     """
-    *rest, dict1, dict2 = stack
-    return rest + [ dict1 | dict2 ]
+    dict1, dict2, *rest = stack
+    return [ dict1 | dict2 ] + rest
 
 def word(stack):
     """
@@ -190,12 +191,12 @@ def word(stack):
     into one continues word.
     E.g.: word([["it's", "me", "!"]]) returns ["it'sme!"].
     """
-    *rest, wordstack = stack
-    return rest + ["".join(wordstack)]
+    wordstack, *rest = stack
+    return ["".join(wordstack)] + wordstack
 
 def unword(stack):
-    *rest, word = stack
-    return rest + [[character for character in word]]
+    word, *rest = stack
+    return [[character for character in word]] + rest
 
 def char(stack):
     """
@@ -208,23 +209,23 @@ def char(stack):
     E.g: char([r"\\u0040"]) will return ["@"]
          char([r"\\o100"]) will return ["@"]
     """
-    *rest, characterCode = stack
+    characterCode, *rest = stack
     match characterCode:
-        case r"\space":     return rest + [" "]
-        case r"\newline":   return rest + ["\n"]
-        case r"\formfeed":  return rest + ["\f"]
-        case r"\return":    return rest + ["\r"]
-        case r"\backspace": return rest + ["\b"]
-        case r"\tab":       return rest + ["\t"]
+        case r"\space":     return [" "] + rest
+        case r"\newline":   return ["\n"] + rest
+        case r"\formfeed":  return ["\f"] + rest
+        case r"\return":    return ["\r"] + rest
+        case r"\backspace": return ["\b"] + rest
+        case r"\tab":       return ["\t"] + rest
         case _ if characterCode.startswith(r"\o"):
-            return rest + [chr(int(characterCode[2:], 8))]
+            return [chr(int(characterCode[2:], 8))] + rest
         case _ if characterCode.startswith(r"\u"):
-            return rest + [bytes(characterCode, "utf-8").decode("unicode_escape")]
+            return [bytes(characterCode, "utf-8").decode("unicode_escape")] + rest
         case _:
-            return [fr"error: {characterCode} isn't a valid character codec"]
+            return [fr"error: {characterCode} isn't a valid character codec"] + rest
 
 def _print(stack):
-    *rest, word = stack
+    word, *rest = stack
     print(word) if isinstance(word, str) else print("error: top element isn't of type string")
     return rest
 
@@ -233,7 +234,7 @@ def flush(stack):
     return stack
 
 def readLine(stack):
-    return stack + [input()]
+    return [input()] + stack
 
 def slurp(stack):
     from urllib.parse import urlparse
@@ -243,13 +244,13 @@ def slurp(stack):
     session = requests.Session()
     session.mount('file://', FileAdapter())
 
-    *rest, source = stack
+    source, *rest = stack
 
     if(urlparse(source).scheme == ""):
         # seems to be not a valid URI. Will use local file read.
         try:
             with open(source, "r") as file:
-                return rest + [file.read()]
+                return [file.read()] + rest
         except FileNotFoundError:
             print("File not found:", source)
         except PermissionError:
@@ -261,7 +262,7 @@ def slurp(stack):
         try:
             response = session.get(r""+source)
             if response.status_code == 200:
-                return rest + [response.text]
+                return [response.text] + rest
             else:
                 print("Error:", response.status_code)
                 return rest
@@ -273,7 +274,7 @@ def slurp(stack):
 def spit(stack):
     from urllib.parse import urlparse
 
-    *rest, data, uri = stack
+    uri, data, *rest = stack
 
     pr = urlparse(uri)
     if(pr.scheme == "file" or pr.scheme == ""):
@@ -292,7 +293,7 @@ def spit(stack):
 def spitOn(stack):
     from urllib.parse import urlparse
 
-    *rest, data, uri = stack
+    uri, data, *rest = stack
 
     pr = urlparse(uri)
     if(pr.scheme == "file" or pr.scheme == ""):
@@ -310,146 +311,145 @@ def spitOn(stack):
 
 def uncomment(stack):
     import re
-    *rest, word = stack
+    word, *rest = stack
     parts = re.split(r"\s*%.*[(\r\n)\r\n]", word)
-    return rest + ["\r\n".join(parts)]
+    return ["\r\n".join(parts)] + rest
 
 def tokenize(stack):
     import re
-    *rest, word = stack
+    word, *rest = stack
     parts = re.split(r"\s+", word.strip())
-    return rest + [parts] if parts != [""] else []
+    return ([parts] if parts != [""] else []) + rest
 
 def undocument(stack):
     import re
-    *rest, word = stack
+    word, *rest = stack
     parts = re.findall(r"(?m)^%?>> (.*)$", word)
-    return rest + ["\r\n".join(parts)]
+    return ["\r\n".join(parts)] + rest
 
 def currentTimeInMilliSeconds(stack):
     import time
-    return stack + [int(time.time() * 1000)]
+    return [int(time.time() * 1000)] + stack
 
 def operatingSystem(stack):
     import platform
-    return stack + [platform.platform()]
+    return [platform.platform()] + stack
 
 def apply(stack):
-    *rest, stk, func = stack
-    return rest + [func(stk)]
+    func, stk, *rest = stack
+    return [func(stk)] + stack
 
 def compose(stack):
-    *rest, func1, func2 = stack
-    return rest + [(lambda ds: func2(func1(ds)))]
+    funcO, funcI, *rest = stack
+    return [(lambda ds: funcO(funcI(ds)))] + rest
 
 def func(stack):
-    *rest, quote, dict = stack
+    dict, quote, *rest = stack
 
     def runcc(callstack, datastack, dict):
         while callstack != []:
-            dict, datastack, callstack = VM["stepcc"]([dict, datastack, callstack])
+            callstack, datastack, dic = VM["stepcc"]([callstack, datastack, dict])
         return datastack
 
-    return rest + [lambda ds: runcc(callstack=quote, datastack=ds, dict=dict)]
+    return [lambda ds: runcc(callstack=quote, datastack=ds, dict=dict)] + rest
 
 def stepcc(stack):
-    *rest, dictionary, datastack, callstack = stack
+    callstack, datastack, dictionary, *rest = stack
     itm, *rcs = callstack
     match itm:
         case str():
             res = dictionary.get(itm, None)
             match res:
                 case list():
-                    return rest + [dictionary, datastack, res + rcs]
+                    return [res + rcs, datastack, dictionary] + rest
                 case _ if callable(res):
-                    return rest + [dictionary, res(datastack), rcs]
+                    return [rcs, res(datastack), dictionary] + rest
                 case _:
-                    return rest + [dictionary, [itm] + datastack,  ["read-word"] + rcs]
+                    return [["read-word"] + rcs, [itm] + datastack, dictionary] + rest
         case dict():
-            return rest + [dictionary, [itm] + datastack, ["read-mapping"] + rcs]
+            return [["read-mapping"] + rcs, [itm] + datastack, dictionary] + rest
         case _ if callable(itm):
-            return itm(rest + [dictionary, datastack, rcs])
+            return itm([rcs, datastack, dictionary] + rest)
         case _:
-            return rest + [dictionary, [itm] + datastack, rcs]
+            return [rcs, [itm] + datastack, dictionary] + rest
 
 def call(stack):
-    *rest, datastack, callstack = stack
-    *dsTail, dsHead = datastack
-    return rest + [dsTail] + [dsHead + callstack]
+    callstack, datastack, *rest = stack
+    dsHead, *dsTail = datastack
+    return [dsHead + callstack] + [dsTail] + rest
 
 def quote(stack):
-    *rest, datastack, callstack = stack
-    *dsTail, dsHead = datastack
-    csHead = [] if csHead == [] else [callstack[-1]]
-    csTail = callstack[:-1]
-    return rest + [ dsTail + [csHead] + [dsHead] ] + [["call"] + csTail]
+    callstack, datastack, *rest = stack
+    dsHead, *dsTail = datastack
+    csHead, *csTail = callstack or ([],[])
+    return [["call"] + csTail] + [dsTail + [csHead, dsHead]] + rest
 
 def callCC(stack):
-    *rest, datastack, callstack = stack
+    callstack, datastack, *rest = stack
     dsHead, *dsTail = datastack
-    return rest + [[dsTail, callstack]] + [dsHead]
+    return [dsHead] + [[dsTail, callstack]] + rest
 
 def continuee(stack):
-    *rest, datastack, callstack = stack
-    newDataStack, newCallStack = datastack
-    return rest + [newDataStack] + [newCallStack]
+    callstack, datastack, *rest = stack
+    newCallStack, newDataStack, *rds = datastack
+    return [newCallStack] + [newDataStack] + rest
 
 def getDict(stack):
-    *rest, dict, datastack, callstack = stack
-    return rest + [dict] + [datastack + [dict]] + callstack
+    callstack, datastack, dict, *rest = stack
+    return callstack + [datastack + [dict]] + [dict] + rest
 
 def setDict(stack):
-    *rest, dict, datastack, callstack = stack
-    *dsTail, dsHead = datastack
-    return rest + [dsHead] + dsTail + callstack
+    callstack, datastack, dict, *rest = stack
+    dsHead, *dsTail = datastack
+    return callstack + dsTail + [dsHead] + rest
 
 def integer(stack):
-    *rest, word = stack
+    word, *rest = stack
 
     if isinstance(word, int):
-        return rest + ["t"]
+        return ["t"] + rest
 
     # check if a given string represents an integer
     if word == str() and word.startswith('-'):
        word = word[1:] # remove the minus from string
 
-    return rest + ["t" if word.isdigit() else "f"]
+    return ["t" if word.isdigit() else "f"] + rest
 
 def plus(stack):
-    *rest, x, y = stack
-    return rest + [x+y]
+    y, x, *rest = stack
+    return [x+y] + rest
 
 def minus(stack):
-    *rest, x, y = stack
-    return rest + [x-y]
+    y, x, *rest = stack
+    return [x-y] + rest
 
 def multiply(stack):
-    *rest, x, y = stack
-    return rest + [x*y]
+    y, x, *rest = stack
+    return [x*y] + rest
 
 def divide(stack):
-    *rest, x, y = stack
-    return rest + [int(x/y)]
+    y, x, *rest = stack
+    return [int(x/y)] + rest
 
 def modulus(stack):
-    *rest, x, y = stack
-    return rest + [x%y]
+    y, x, *rest = stack
+    return [x%y] + rest
 
 def lessThan(stack):
-    *rest, x, y = stack
-    return rest + ["t" if x < y else "f"]
+    y, x, *rest = stack
+    return ["t" if x < y else "f"] + rest
 
 def moreThan(stack):
-    *rest, x, y = stack
-    return rest + ["t" if x > y else "f"]
+    y, x, *rest = stack
+    return ["t" if x > y else "f"] + rest
 
 def lessThanEqual(stack):
-    *rest, x, y = stack
-    return rest + ["t" if x <= y else "f"]
+    y, x, *rest = stack
+    return ["t" if x <= y else "f"] + rest
 
 def moreThanEqual(stack):
-    *rest, x, y = stack
-    return rest + ["t" if x >= y else "f"]
+    y, x, *rest = stack
+    return ["t" if x >= y else "f"] + rest
 
 VM = {
     "swap": swap,
