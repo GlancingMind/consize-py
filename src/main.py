@@ -85,7 +85,7 @@ def push(stack):
     :return: New stack with the top most element pushed into the below sitting stack.
     E.g: push([[], "a"]) returns [["a"]]
     """
-    stk, top, stk, *rest = stack
+    top, stk, *rest = stack
     return [[top] + stk] + rest
 
 def top(stack):
@@ -337,7 +337,7 @@ def operatingSystem(stack):
 
 def apply(stack):
     func, stk, *rest = stack
-    return [func(stk)] + stack
+    return [func(stk)] + rest
 
 def compose(stack):
     funcO, funcI, *rest = stack
@@ -348,7 +348,7 @@ def func(stack):
 
     def runcc(callstack, datastack, dict):
         while callstack != []:
-            callstack, datastack, dic = VM["stepcc"]([callstack, datastack, dict])
+            callstack, datastack, dict = VM["stepcc"]([callstack, datastack, dict])
         return datastack
 
     return [lambda ds: runcc(callstack=quote, datastack=ds, dict=dict)] + rest
@@ -387,7 +387,7 @@ def quote(stack):
 def callCC(stack):
     callstack, datastack, *rest = stack
     dsHead, *dsTail = datastack
-    return [dsHead] + [[dsTail, callstack]] + rest
+    return [dsHead] + [[callstack, dsTail]] + rest
 
 def continuee(stack):
     callstack, datastack, *rest = stack
@@ -518,9 +518,9 @@ def main():
     joinedArgs = " ".join(sys.argv[1:])
     wrappedQuotation = tokenize(uncomment([joinedArgs]))
     quotation = wrappedQuotation[0]
-    partialRunCC = func([quotation, VM])
+    partialRunCC = func([VM, quotation])
     datastack = []
-    result = apply([datastack] + partialRunCC)
+    result = apply(partialRunCC + [datastack])
     print("Consize returns", result)
 
 if __name__ == "__main__":
