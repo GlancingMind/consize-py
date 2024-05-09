@@ -50,7 +50,7 @@ def type(stack):
         case str():     return ["wrd"] + rest
         case list():    return ["stk"] + rest
         case dict():    return ["map"] + rest
-        case _ if callable(top): return ["fct"]+ rest
+        case _ if callable(top): return ["fct"] + rest
         case None:      return ["nil"] + rest
         case _:         return ["_|_"] + rest
 
@@ -187,7 +187,6 @@ def get(stack):
     if isinstance(key, list):
         key = list_to_tuples(key)
     return [ dict.get(key, default) ] + rest
-
 
 def merge(stack):
     """
@@ -436,39 +435,39 @@ def integer(stack):
 
 def plus(stack):
     y, x, *rest = stack
-    return [x+y] + rest
+    return [str(int(x)+int(y))] + rest
 
 def minus(stack):
     y, x, *rest = stack
-    return [x-y] + rest
+    return [str(int(x)-int(y))] + rest
 
 def multiply(stack):
     y, x, *rest = stack
-    return [x*y] + rest
+    return [str(int(x)*int(y))] + rest
 
 def divide(stack):
     y, x, *rest = stack
-    return [int(x/y)] + rest
+    return [str(int(int(x)/int(y)))] + rest
 
 def modulus(stack):
     y, x, *rest = stack
-    return [x%y] + rest
+    return [str(int(x)%int(y))] + rest
 
 def lessThan(stack):
     y, x, *rest = stack
-    return ["t" if x < y else "f"] + rest
+    return ["t" if int(x) < int(y) else "f"] + rest
 
 def moreThan(stack):
     y, x, *rest = stack
-    return ["t" if x > y else "f"] + rest
+    return ["t" if int(x) > int(y) else "f"] + rest
 
 def lessThanEqual(stack):
     y, x, *rest = stack
-    return ["t" if x <= y else "f"] + rest
+    return ["t" if int(x) <= int(y) else "f"] + rest
 
 def moreThanEqual(stack):
     y, x, *rest = stack
-    return ["t" if x >= y else "f"] + rest
+    return ["t" if int(x) >= int(y) else "f"] + rest
 
 VM = {
     "swap": swap,

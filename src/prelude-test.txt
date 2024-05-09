@@ -289,15 +289,15 @@
 ( 1 ) [ 0 1 [ over 0  > ] [ over * [ 1 - ] dip ] while nip ] unit-test
 ( ( 1 2 3 4 5 6 ) prod ) % faculty function
       [ 6 1 [ over 0 == ] [ over * [ 1 - ] dip ] until nip ] unit-test
-( 1 ) [ 0 1 [ over 0 == ] [ over * [ 1 - ] dip ] until nip ] unit-test
+( 1 ) [ 0 1 [ over 0 == ] [ over * [ 1 - ] dip ] until nip ] unit-test 
 
 % tests for 'Y' implicitly test 'X'
 
-( [ swap 1 + ] 2 ) [ 1 [ swap 1 + ] X ] unit-test % existence of 'X'
+( [ swap 1 + ] 2 ) [ 1 [ swap 1 + ] X ] unit-test % existence of 'X'  
 ( 24 ) [ 4 1 [ swap dup 0 equal? [ drop 1 ] when [ * ] keep 1 - swap ] Y nip ] unit-test
 (  1 ) [ 0 1 [ swap dup 0 equal? [ drop 1 ] when [ * ] keep 1 - swap ] Y nip ] unit-test
 (  1 ) [ 1 1 [ swap dup 0 equal? [ drop 1 ] when [ * ] keep 1 - swap ] Y nip ] unit-test
-
+  
 % Compositional Combinators
 
 ( 4 ) [ 3 1 [ + ] curry call ] unit-test
