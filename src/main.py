@@ -38,7 +38,7 @@ def rot(stack):
     E.g.: rot([x y z]) returns [y z x]
     """
     x, y, z, *rest = stack
-    return [y, z, x] + rest
+    return [z, x, y] + rest
 
 def type(stack):
     """
@@ -183,7 +183,7 @@ def merge(stack):
     E.g.: merge([{a: 1, b: 2} {a:2, c: 3}]) returns [{a: 2, b: 2, c: 3}].
     """
     dict1, dict2, *rest = stack
-    return [ dict1 | dict2 ] + rest
+    return [ dict2 | dict1 ] + rest
 
 def word(stack):
     """
@@ -356,6 +356,7 @@ def func(stack):
 def stepcc(stack):
     callstack, datastack, dictionary, *rest = stack
     itm, *rcs = callstack
+    print(itm)
     match itm:
         case str():
             res = dictionary.get(itm, None)
@@ -396,12 +397,12 @@ def continuee(stack):
 
 def getDict(stack):
     callstack, datastack, dict, *rest = stack
-    return callstack + [datastack + [dict]] + [dict] + rest
+    return [callstack, [dict] + datastack, dict] + rest
 
 def setDict(stack):
     callstack, datastack, dict, *rest = stack
     dsHead, *dsTail = datastack
-    return callstack + dsTail + [dsHead] + rest
+    return [callstack, dsTail, dsHead] + rest
 
 def integer(stack):
     word, *rest = stack
