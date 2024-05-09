@@ -1,6 +1,6 @@
 import sys
 
-def wordstack(s) -> bool:
+def isWordstack(s) -> bool:
     """
     Determines if s is a list of strings - aka. a wordstack.
 
@@ -29,7 +29,7 @@ def drop(stack):
     :return: New stack with the top word removed.
     E.g: drop([x y z]) returns [x y]
     """
-    top, *rest = stack or ([],[])
+    top, *rest = stack
     return rest
 
 def rot(stack):
@@ -96,7 +96,7 @@ def top(stack):
     """
     top, *rest = stack
     match top:
-        case None | []: return ["nil"] + rest
+        case "nil" | None | []: return ["nil"] + rest
         case _: return [top[0]] + rest
 
 def pop(stack):
@@ -105,8 +105,7 @@ def pop(stack):
     E.g.: pop([x y z]) returns [[x y]]
     """
     innerStack, *rest = stack
-    topOfInnerStack, *restOfInnerStack, = innerStack or ([],[])
-    return [restOfInnerStack] + rest
+    return [innerStack[1:]] + rest
 
 def concat(stack):
     """
@@ -172,7 +171,7 @@ def dissoc(stack):
 def get(stack):
     """
     :return: New stack with the value of the dictionary as top element.
-    E.g.: get([a {a: 1, b: 2, c: 3} z]) returns [1] or when 'a' would existins in
+    E.g.: get([a {a: 1, b: 2, c: 3} z]) returns [1] or when 'a' would exist in
     dictionary: ['z'].
     """
     default, dict, key, *rest = stack
@@ -314,6 +313,7 @@ def uncomment(stack):
     import re
     word, *rest = stack
     parts = re.split(r"\s*%.*[(\r\n)\r\n]", word)
+    # parts = re.split(r"(?m)\s*%.*$", word)
     return ["\r\n".join(parts)] + rest
 
 def tokenize(stack):
