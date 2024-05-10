@@ -135,7 +135,7 @@ def mapping(stack):
     dictDescStack, *rest = stack
     keys = dictDescStack[0::2]
     values = dictDescStack[1::2]
-    return [{k: v for k,v in zip(keys, values)}] + rest
+    return [{toTuple(k): v for k,v in zip(keys, values)}] + rest
 
 def unmap(stack):
     """
@@ -160,7 +160,7 @@ def assoc(stack):
     of stack.
     E.g.: assoc([val key {a:1, b: 2, c: 3}]) returns [{a:1, b: 2, c: 3, key: value}]
     """
-    dict, value, key, *rest = stack
+    dict, key, value, *rest = stack
     return [ {**dict, toTuple(key): value} ] + rest
 
 def dissoc(stack):
@@ -170,6 +170,7 @@ def dissoc(stack):
     E.g.: dissoc([c {a:1, b: 2, c: 3}]) returns [{a:1, b: 2}]
     """
     dict, key, *rest = stack
+    key = toTuple(key)
     return [ {k: v for k, v in dict.items() if k != key} ] + rest
 
 def toTuple(ele):
