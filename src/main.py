@@ -160,7 +160,7 @@ def assoc(stack):
     E.g.: assoc([val key {a:1, b: 2, c: 3}]) returns [{a:1, b: 2, c: 3, key: value}]
     """
     dict, value, key, *rest = stack
-    return [ {**dict, key: value} ] + rest
+    return [ {**dict, toTuple(key): value} ] + rest
 
 def dissoc(stack):
     """
@@ -171,22 +171,25 @@ def dissoc(stack):
     dict, key, *rest = stack
     return [ {k: v for k, v in dict.items() if k != key} ] + rest
 
+def toTuple(ele):
+    if isinstance(ele, list):
+        return tuple(toTuple(x) for x in ele)
+    elif isinstance(ele, dict):
+        return tuple((k, toTuple(v)) for k, v in ele.items())
+    else:
+        return ele
+
+
 def get(stack):
     """
     :return: New stack with the value of the dictionary as top element.
     E.g.: get([a {a: 1, b: 2, c: 3} z]) returns [1] or when 'a' would exist in
     dictionary: ['z'].
     """
-    def list_to_tuples(lst):
-        if isinstance(lst, list):
-            return tuple(list_to_tuples(x) for x in lst)
-        else:
-            return lst
 
-    default, dict, key, *rest = stack
-    if isinstance(key, list):
-        key = list_to_tuples(key)
-    return [ dict.get(key, default) ] + rest
+    default, dictionary, key, *rest = stack
+    key = toTuple(key)
+    return [ dictionary.get(key, default) ] + rest
 
 def merge(stack):
     """
