@@ -96,7 +96,8 @@ def top(stack):
     """
     top, *rest = stack
     match top:
-        case "nil" | None | []: return ["nil"] + rest
+        case "nil": print("error: top cannot be used on nil")
+        case None | []: return [None] + rest
         case _: return [top[0]] + rest
 
 def pop(stack):
@@ -178,7 +179,6 @@ def toTuple(ele):
         return tuple((k, toTuple(v)) for k, v in ele.items())
     else:
         return ele
-
 
 def get(stack):
     """
@@ -542,7 +542,7 @@ def main():
     partialRunCC = func([VM, quotation])
     datastack = []
     result = apply(partialRunCC + [datastack])
-    print("Consize returns", result)
+    print("Consize returns", result[0])
 
 if __name__ == "__main__":
     from functools import partial
