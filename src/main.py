@@ -135,7 +135,7 @@ def mapping(stack):
     dictDescStack, *rest = stack
     keys = dictDescStack[0::2]
     values = dictDescStack[1::2]
-    return [{toTuple(k): v for k,v in zip(keys, values)}] + rest
+    return [{toDictKey(k): v for k,v in zip(keys, values)}] + rest
 
 def unmap(stack):
     """
@@ -152,7 +152,7 @@ def keys(stack):
     E.g.: keys([{a:1, b: 2, c: 3}]) returns [[a b c]]
     """
     dictionary, *rest = stack
-    return [ list(dictionary.keys()) ] + rest
+    return [ [restoreDictKey(k) for k in dictionary.keys()] ] + rest
 
 def assoc(stack):
     """
@@ -161,7 +161,7 @@ def assoc(stack):
     E.g.: assoc([val key {a:1, b: 2, c: 3}]) returns [{a:1, b: 2, c: 3, key: value}]
     """
     dict, key, value, *rest = stack
-    return [ {**dict, toTuple(key): value} ] + rest
+    return [ {**dict, toDictKey(key): value} ] + rest
 
 def dissoc(stack):
     """
@@ -170,16 +170,15 @@ def dissoc(stack):
     E.g.: dissoc([c {a:1, b: 2, c: 3}]) returns [{a:1, b: 2}]
     """
     dict, key, *rest = stack
-    key = toTuple(key)
+    key = toDictKey(key)
     return [ {k: v for k, v in dict.items() if k != key} ] + rest
 
-def toTuple(ele):
-    if isinstance(ele, list):
-        return tuple(toTuple(x) for x in ele)
-    elif isinstance(ele, dict):
-        return tuple((k, toTuple(v)) for k, v in ele.items())
-    else:
-        return ele
+def toDictKey(obj):
+    return str(f"{obj}")
+
+def restoreDictKey(key):
+    import ast
+    return ast.literal_eval(key)
 
 def get(stack):
     """
@@ -187,10 +186,8 @@ def get(stack):
     E.g.: get([a {a: 1, b: 2, c: 3} z]) returns [1] or when 'a' would exist in
     dictionary: ['z'].
     """
-
     default, dictionary, key, *rest = stack
-    key = toTuple(key)
-    return [ dictionary.get(key, default) ] + rest
+    return [ dictionary.get(toDictKey(key), default) ] + rest
 
 def merge(stack):
     """
@@ -367,7 +364,7 @@ def func(stack):
 
     def runcc(callstack, datastack, dict):
         while callstack != []:
-            callstack, datastack, dict = VM["stepcc"]([callstack, datastack, dict])
+            callstack, datastack, dict = VM[toDictKey("stepcc")]([callstack, datastack, dict])
         return datastack
 
     return [lambda ds: runcc(callstack=quote, datastack=ds, dict=dict)] + rest
@@ -377,7 +374,7 @@ def stepcc(stack):
     itm, *rcs = callstack
     match itm:
         case str():
-            res = dictionary.get(itm, None)
+            res = dictionary.get(toDictKey(itm), None)
             match res:
                 case list():
                     return [res + rcs, datastack, dictionary] + rest
@@ -474,66 +471,66 @@ def moreThanEqual(stack):
     return ["t" if int(x) >= int(y) else "f"] + rest
 
 VM = {
-    "swap": swap,
-    "dup": dup,
-    "drop": drop,
-    "rot": rot,
-    "type": type,
-    "equal?": equal,
-    "identical?": identical,
-    "emptystack": emptystack,
-    "push": push,
-    "top": top,
-    "pop": pop,
-    "concat": concat,
-    "reverse": reverse,
-    "mapping": mapping,
-    "unmap": unmap,
-    "keys": keys,
-    "assoc": assoc,
-    "dissoc": dissoc,
-    "get": get,
-    "merge": merge,
-    "word": word,
-    "unword": unword,
-    "char": char,
-    "print": _print,
-    "flush": flush,
-    "read-line": readLine,
-    "slurp": slurp,
-    "spit": spit,
-    "spit-on": spitOn,
-    "uncomment": uncomment,
-    "tokenize": tokenize,
-    "undocument": undocument,
-    "current-time-millis": currentTimeInMilliSeconds,
-    "operating-system": operatingSystem,
-    "call": [call],
-    # "quote": [quote],
-    "call/cc": [callCC],
-    "continue": [continuee],
-    "get-dict": [getDict],
-    "set-dict": [setDict],
-    "stepcc": stepcc,
-    "apply": apply,
-    "compose": compose,
-    "func": func,
-    "integer?": integer,
-    "+": plus,
-    "-": minus,
-    "*": multiply,
-    "div": divide,
-    "mod": modulus,
-    "<": lessThan,
-    ">": moreThan,
-    "==": equal,
-    "<=": lessThanEqual,
-    ">=": moreThanEqual,
-    # "\\":   [["top"], "quote"],
-    "\\":   [["dup", "top", "rot", "swap", "push", "swap", "pop", "continue"], "call/cc"],
-    "load": ["slurp", "uncomment", "tokenize"],
-    "run":  ["load", "call"],
-    "start": ["slurp", "uncomment", "tokenize", "get-dict", "func", "emptystack", "swap", "apply"],
+    toDictKey("swap"): swap,
+    toDictKey("dup"): dup,
+    toDictKey("drop"): drop,
+    toDictKey("rot"): rot,
+    toDictKey("type"): type,
+    toDictKey("equal?"): equal,
+    toDictKey("identical?"): identical,
+    toDictKey("emptystack"): emptystack,
+    toDictKey("push"): push,
+    toDictKey("top"): top,
+    toDictKey("pop"): pop,
+    toDictKey("concat"): concat,
+    toDictKey("reverse"): reverse,
+    toDictKey("mapping"): mapping,
+    toDictKey("unmap"): unmap,
+    toDictKey("keys"): keys,
+    toDictKey("assoc"): assoc,
+    toDictKey("dissoc"): dissoc,
+    toDictKey("get"): get,
+    toDictKey("merge"): merge,
+    toDictKey("word"): word,
+    toDictKey("unword"): unword,
+    toDictKey("char"): char,
+    toDictKey("print"): _print,
+    toDictKey("flush"): flush,
+    toDictKey("read-line"): readLine,
+    toDictKey("slurp"): slurp,
+    toDictKey("spit"): spit,
+    toDictKey("spit-on"): spitOn,
+    toDictKey("uncomment"): uncomment,
+    toDictKey("tokenize"): tokenize,
+    toDictKey("undocument"): undocument,
+    toDictKey("current-time-millis"): currentTimeInMilliSeconds,
+    toDictKey("operating-system"): operatingSystem,
+    toDictKey("call"): [call],
+    # toDictKey("quote"): [quote],
+    toDictKey("call/cc"): [callCC],
+    toDictKey("continue"): [continuee],
+    toDictKey("get-dict"): [getDict],
+    toDictKey("set-dict"): [setDict],
+    toDictKey("stepcc"): stepcc,
+    toDictKey("apply"): apply,
+    toDictKey("compose"): compose,
+    toDictKey("func"): func,
+    toDictKey("integer?"): integer,
+    toDictKey("+"): plus,
+    toDictKey("-"): minus,
+    toDictKey("*"): multiply,
+    toDictKey("div"): divide,
+    toDictKey("mod"): modulus,
+    toDictKey("<"): lessThan,
+    toDictKey(">"): moreThan,
+    toDictKey("=="): equal,
+    toDictKey("<="): lessThanEqual,
+    toDictKey(">="): moreThanEqual,
+    # toDictKey("\\"):   [["top"], "quote"],
+    toDictKey("\\"):   [["dup", "top", "rot", "swap", "push", "swap", "pop", "continue"], "call/cc"],
+    toDictKey("load"): ["slurp", "uncomment", "tokenize"],
+    toDictKey("run"):  ["load", "call"],
+    toDictKey("start"): ["slurp", "uncomment", "tokenize", "get-dict", "func", "emptystack", "swap", "apply"],
 }
 
 def main():
