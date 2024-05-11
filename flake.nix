@@ -5,20 +5,17 @@
 
   outputs = { self, nixpkgs, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system: let
-      pkgs = import nixpkgs {
-        inherit system;
+      pkgs = nixpkgs.legacyPackages.${system};
+      consize-py = with pkgs.python3Packages; buildPythonApplication {
+        pname = "consize-py";
+        version = "1.0";
+        propagatedBuildInputs = [
+          requests
+          requests-file
+        ];
+        src = ./.;
       };
     in {
-      devShells.default = pkgs.mkShellNoCC {
-        packages = with pkgs; [
-          python3
-          python3Packages.requests
-          python3Packages.requests-file
-        ];
-
-        shellHook = ''
-          echo "Welcome to the dev-shell!"
-        '';
-      };
+      packages.default = consize-py;
     });
 }

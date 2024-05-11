@@ -1,11 +1,10 @@
 .Phony = tests
 
-repl:
-	python -i src/main.py
-
 consize:
-	python src/main.py "\ src/prelude.txt run say-hi"
+	python src/main.py "\ prelude/prelude.txt run say-hi"
+
+prelude-test:
+	python src/main.py "\ prelude/prelude.txt run \ prelude/prelude-test.txt run"
 
 test:
-	#python -m unittest tests/*.py
-	python src/main.py "\ src/prelude.txt run \ src/prelude-test.txt run"
+	python -m unittest tests/*.py
