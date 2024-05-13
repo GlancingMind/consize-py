@@ -4,7 +4,7 @@ You can use the provided docker container:
 
 ```bash
 docker build -t consize-py . # to build the container image
-docker run -i -t consize-py  # to run the container
+docker run -i -t consize-py "\ prelude/prelude.txt run say-hi" # to run the container
 ```
 
 Or by invoking python directly:
