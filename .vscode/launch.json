@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "src/main.py",
             "console": "integratedTerminal",
-            "args": "\\\\ src/prelude.txt run say-hi"
+            "args": "\\\\ prelude/prelude.txt run say-hi"
         },
         {
             "name": "Debug: Prelude Tests",
@@ -18,7 +18,7 @@
             "request": "launch",
             "program": "src/main.py",
             "console": "integratedTerminal",
-            "args": "\\\\ src/prelude.txt run \\\\ src/prelude-test.txt run"
+            "args": "\\\\ prelude/prelude.txt run \\\\ src/prelude-test.txt run"
         }
     ]
 }
