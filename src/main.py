@@ -374,9 +374,15 @@ def func(stack):
 
     return [lambda ds: runcc(callstack=quote, datastack=ds, dict=dict)] + rest
 
+counter = 1
 def stepcc(stack):
     callstack, datastack, dictionary, *rest = stack
     itm, *rcs = callstack
+
+    global counter
+    print(f"{counter} Cs: {callstack}\nDs: {datastack}")
+    counter = counter + 1
+
     match itm:
         case str():
             res = dictionary.get(toDictKey(itm), None)
