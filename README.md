@@ -22,7 +22,7 @@ make consize
 # And how to run - The Prelude Tests?
 
 ```bash
-docker run -i -t consize-py
+docker run -i -t consize-py "\ prelude/prelude.txt run \ prelude/prelude-test.txt run"
 ```
 
 Or by invoking python directly:
