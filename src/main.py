@@ -450,7 +450,7 @@ def multiply(stack):
 
 def divide(stack):
     y, x, *rest = stack
-    return [str(int(int(x)/int(y)))] + rest
+    return [str(int(x)//int(y))] + rest
 
 def modulus(stack):
     y, x, *rest = stack
