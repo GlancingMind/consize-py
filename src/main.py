@@ -111,6 +111,8 @@ def pop(stack):
     if isinstance(innerStack, str):
         print(f"error: '{innerStack}' isnt a stack. Did not perform pop. Current stack is:")
         return stack
+    if innerStack == None:
+        return [[]] + rest
     return [innerStack[1:]] + rest
 
 def concat(stack):
@@ -366,7 +368,8 @@ def func(stack):
 
     def runcc(callstack, datastack, dict):
         while callstack != []:
-            callstack, datastack, dict = VM[toDictKey("stepcc")]([callstack, datastack, dict])
+            # callstack, datastack, dict = VM[toDictKey("stepcc")]([callstack, datastack, dict])
+            callstack, datastack, dict = stepcc([callstack, datastack, dict])
         return datastack
 
     return [lambda ds: runcc(callstack=quote, datastack=ds, dict=dict)] + rest
