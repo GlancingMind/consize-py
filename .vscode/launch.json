@@ -19,6 +19,22 @@
             "program": "src/main.py",
             "console": "integratedTerminal",
             "args": "\\\\ prelude/prelude.txt run \\\\ src/prelude-test.txt run"
+        },
+        {
+            "name": "Debug: Repl (plain Prelude)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "src/main.py",
+            "console": "integratedTerminal",
+            "args": "\\\\ prelude/prelude-plain.txt run say-hi"
+        },
+        {
+            "name": "Debug: Prelude Plain Tests",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "src/main.py",
+            "console": "integratedTerminal",
+            "args": "\\\\ prelude/prelude-plain.txt run \\\\ src/prelude-test.txt run"
         }
     ]
 }
