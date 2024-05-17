@@ -328,7 +328,7 @@ def spitOn(stack):
 def uncomment(stack):
     import re
     word, *rest = stack
-    return [re.sub(r"(?m)\s*%.*$", "", word)] + rest
+    return [re.sub(r"(?m)\s*%.*$", "", word).strip()] + rest
 
 def tokenize(stack):
     import re
@@ -543,14 +543,4 @@ def main():
     print("Consize returns", result[0])
 
 if __name__ == "__main__":
-    from functools import partial
-
-    # def log(k, f, s):
-    #    print(f"[\033[1m{k}\033[0m] called with \033[31m{s}\033[0m")
-    #    result = f(s)
-    #    print(f"[\033[1m{k}\033[0m] returned: \033[32m{result}\033[0m")
-
-    # for k,f in VM.items():
-    #    VM[k] = partial(log, k, f)
-
     main()
