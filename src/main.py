@@ -328,12 +328,7 @@ def spitOn(stack):
 def uncomment(stack):
     import re
     word, *rest = stack
-    parts = re.split(r"\s*%.*[(\r\n)\r\n]", word)
-    # parts = re.split(r"(?m)\s*%.*$", word)
-
-    # TODO last newline is kept and printed when using uncomment
-
-    return ["\r\n".join(parts)] + rest
+    return [re.sub(r"(?m)\s*%.*$", "", word)] + rest
 
 def tokenize(stack):
     import re
