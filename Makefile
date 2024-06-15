@@ -12,5 +12,8 @@ plain-consize:
 plain-prelude-test:
 	python src/main.py "\ prelude/prelude-plain.txt run \ prelude/prelude-test.txt run"
 
+pattern-matching-test:
+	python src/main.py "\ prelude/prelude-plain.txt run \ prelude/pattern-matching-test.txt run"
+
 test:
 	python -m unittest tests/*.py
