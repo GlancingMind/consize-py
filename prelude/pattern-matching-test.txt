@@ -1,4 +1,4 @@
-% test match
+% % test match
 ( { } ) [ [ ] [ ] match ] unit-test
 
 ( { } ) [ [ 1 2 3 4 ] [ 1 2 3 4 ] match ] unit-test
@@ -16,12 +16,12 @@
 ( { #F 1 @R [ ] } ) [ [ 1 ] [ #F @R ] match ] unit-test
 
 ( { #X 1 #Y [ 2 3 ] #Z 4 } ) [ [ 1 [ 2 3 ] 4 ] [ #X #Y #Z ] match ] unit-test
-( { #X 1 @Y [ [ 2 3 ] 4 ] } ) [ [ 1 [ 2 3 ] 4 ] [ #X @Y #Z ] match ] unit-test
+( { #X 1 @Y [ [ 2 3 ] 4 ] } ) [ [ 1 [ 2 3 ] 4 ] [ #X @Y ] match ] unit-test
 ( f ) [ [ 1 [ 2 3 ] 4 ] [ #X #Y #Z #U ] match ] unit-test
 ( f ) [ [ 1 2 3 ] [ #X #Y #X ] match ] unit-test
 ( { #X 1 #Y 2 } ) [ [ 1 2 1 ] [ #X #Y #X ] match ] unit-test
 ( { #F 1 #S { 2 3 } @R [ 4 5 ] @T [ 6 7 ] } ) [ [ [ 1 { 2 3 } 4 5 ] 6 7 ] [ [ #F #S @R ] @T ] match ] unit-test
-( { #1 [ 1 { 2 3 } 4 5 ]  #2 [ 6 7 ] } ) [ [ [ 1 { 2 3 } 4 5 ] 6 7 ] [ #1 @2 ] match ] unit-test
+( { #1 [ 1 { 2 3 } 4 5 ] @2 [ 6 7 ] } ) [ [ [ 1 { 2 3 } 4 5 ] 6 7 ] [ #1 @2 ] match ] unit-test
 
 % test instantiate
 % TODO

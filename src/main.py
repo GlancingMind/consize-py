@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import sys
+from collections import ChainMap
 
 def isWordstack(s) -> bool:
     """
@@ -42,7 +43,7 @@ def rot(stack):
     x, y, z, *rest = stack
     return [z, x, y] + rest
 
-def type(stack):
+def _type(stack):
     """
     :return: New stack with the top element replaced by its type.
     E.g: type([x y z]) returns [x y wrd]
@@ -470,12 +471,49 @@ def moreThanEqual(stack):
     y, x, *rest = stack
     return ["t" if int(x) >= int(y) else "f"] + rest
 
+def matches(stack):
+    pattern, data, *rest = stack
+
+    if pattern == [] and data == []:
+        return [{}]+rest
+    if pattern == []:
+        return ["f"]+rest
+
+    m = []
+    matcher, *rstPat = pattern
+    match matcher:
+        case list():
+            word, *rstData = data
+            m += matches([rstPat, rstData]) + matches([matcher, word])
+            if "f" in m:
+                return ["f"]+rest
+            return [dict(ChainMap(*m))]+rest
+        case str() if matcher.startswith('@'):
+            return [{ matcher: data }]
+        case str():
+            if data == []:
+                return ["f"]+rest
+            word, *rstData = data
+            if matcher.startswith('#'):
+                m +=  matches([rstPat, rstData]) + [{matcher: word}]
+            elif word != matcher:
+                return ["f"]+rest
+            elif word == matcher:
+                m += matches([rstPat, rstData]) + [{}]
+
+    if "f" in m:
+        return ["f"]+rest
+    if matcher in m[0].keys() and m[0][matcher] != word:
+        return ["f"]+rest
+    return [dict(ChainMap(*m))]+rest
+
+
 VM = {
     toDictKey("swap"): swap,
     toDictKey("dup"): dup,
     toDictKey("drop"): drop,
     toDictKey("rot"): rot,
-    toDictKey("type"): type,
+    toDictKey("type"): _type,
     toDictKey("equal?"): equal,
     toDictKey("identical?"): identical,
     toDictKey("emptystack"): emptystack,
@@ -531,6 +569,7 @@ VM = {
     toDictKey("load"): ["slurp", "uncomment", "tokenize"],
     toDictKey("run"):  ["load", "call"],
     toDictKey("start"): ["slurp", "uncomment", "tokenize", "get-dict", "func", "emptystack", "swap", "apply"],
+    toDictKey("match"): matches,
 }
 
 def main():

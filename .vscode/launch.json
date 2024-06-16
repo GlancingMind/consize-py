@@ -18,7 +18,7 @@
             "request": "launch",
             "program": "src/main.py",
             "console": "integratedTerminal",
-            "args": "\\\\ prelude/prelude.txt run \\\\ src/prelude-test.txt run"
+            "args": "\\\\ prelude/prelude.txt run \\\\ prelude/prelude-test.txt run"
         },
         {
             "name": "Debug: Repl (plain Prelude)",
@@ -34,7 +34,15 @@
             "request": "launch",
             "program": "src/main.py",
             "console": "integratedTerminal",
-            "args": "\\\\ prelude/prelude-plain.txt run \\\\ src/prelude-test.txt run"
-        }
+            "args": "\\\\ prelude/prelude-plain.txt run \\\\ prelude/prelude-test.txt run"
+        },
+        {
+            "name": "Debug: Pattern Tests",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "src/main.py",
+            "console": "integratedTerminal",
+            "args": "\\\\ prelude/prelude.txt run \\\\ prelude/pattern-matching-test.txt run"
+        },
     ]
 }
