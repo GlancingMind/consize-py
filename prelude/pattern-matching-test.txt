@@ -1,27 +1,34 @@
 % % test match
-( { } ) [ [ ] [ ] match ] unit-test
-
-( { } ) [ [ 1 2 3 4 ] [ 1 2 3 4 ] match ] unit-test
-( f ) [ [ 1 2 3 4 ] [ 1 2 3 1 ] match ] unit-test
-( f ) [ [ 1 2 3 4 ] [ 1 2 3 ] match ] unit-test
-
-( { @T [ 1 2 3 4 ] } ) [ [ 1 2 3 4 ] [ @T ] match ] unit-test
-( { @T [ ] } ) [ [ ] [ @T ] match ] unit-test
-
-( f ) [ [ ] [ #H ] match ] unit-test
-( f ) [ [ ] [ #H @T ] match ] unit-test
-
-( { #F 1 } ) [ [ 1 ] [ #F ] match ] unit-test
-( f ) [ [ 1 ] [ #F #S ] match ] unit-test
-( { #F 1 @R [ ] } ) [ [ 1 ] [ #F @R ] match ] unit-test
-
-( { #X 1 #Y [ 2 3 ] #Z 4 } ) [ [ 1 [ 2 3 ] 4 ] [ #X #Y #Z ] match ] unit-test
-( { #X 1 @Y [ [ 2 3 ] 4 ] } ) [ [ 1 [ 2 3 ] 4 ] [ #X @Y ] match ] unit-test
-( f ) [ [ 1 [ 2 3 ] 4 ] [ #X #Y #Z #U ] match ] unit-test
-( f ) [ [ 1 2 3 ] [ #X #Y #X ] match ] unit-test
-( { #X 1 #Y 2 } ) [ [ 1 2 1 ] [ #X #Y #X ] match ] unit-test
-( { #F 1 #S { 2 3 } @R [ 4 5 ] @T [ 6 7 ] } ) [ [ [ 1 { 2 3 } 4 5 ] 6 7 ] [ [ #F #S @R ] @T ] match ] unit-test
-( { #1 [ 1 { 2 3 } 4 5 ] @2 [ 6 7 ] } ) [ [ [ 1 { 2 3 } 4 5 ] 6 7 ] [ #1 @2 ] match ] unit-test
+% ( { } ) [ [ ] [ ] match ] unit-test
+%
+% ( { } ) [ [ 1 2 3 4 ] [ 1 2 3 4 ] match ] unit-test
+% ( f ) [ [ 1 2 3 4 ] [ 1 2 3 1 ] match ] unit-test
+% ( f ) [ [ 1 2 3 4 ] [ 1 2 3 ] match ] unit-test
+%
+% ( { @T [ 1 2 3 4 ] } ) [ [ 1 2 3 4 ] [ @T ] match ] unit-test
+% ( { @T [ ] } ) [ [ ] [ @T ] match ] unit-test
+%
+% ( f ) [ [ ] [ #H ] match ] unit-test
+% ( f ) [ [ ] [ #H @T ] match ] unit-test
+%
+% ( { #F 1 } ) [ [ 1 ] [ #F ] match ] unit-test
+% ( f ) [ [ 1 ] [ #F #S ] match ] unit-test
+% ( { #F 1 @R [ ] } ) [ [ 1 ] [ #F @R ] match ] unit-test
+%
+% ( { #X 1 #Y [ 2 3 ] #Z 4 } ) [ [ 1 [ 2 3 ] 4 ] [ #X #Y #Z ] match ] unit-test
+% ( { #X 1 @Y [ [ 2 3 ] 4 ] } ) [ [ 1 [ 2 3 ] 4 ] [ #X @Y ] match ] unit-test
+% ( f ) [ [ 1 [ 2 3 ] 4 ] [ #X #Y #Z #U ] match ] unit-test
+% ( f ) [ [ 1 2 3 ] [ #X #Y #X ] match ] unit-test
+% ( { #X 1 #Y 2 } ) [ [ 1 2 1 ] [ #X #Y #X ] match ] unit-test
+% ( { #F 1 #S { 2 3 } @R [ 4 5 ] @T [ 6 7 ] } ) [ [ [ 1 { 2 3 } 4 5 ] 6 7 ] [ [ #F #S @R ] @T ] match ] unit-test
+% ( { #1 [ 1 { 2 3 } 4 5 ] @2 [ 6 7 ] } ) [ [ [ 1 { 2 3 } 4 5 ] 6 7 ] [ #1 @2 ] match ] unit-test
 
 % test instantiate
+% TODO
+( [ 1 2 3 ] ) [ { #H 1 @T [ 2 3 ] } [ #H @T ] instantiate ] unit-test
+
+( [ 1 1 2 2 ] ) [ { #X 1 #Y 2 } [ #X 1 #Y 2 ] instantiate ] unit-test
+( [ 4 4 2 3 ] ) [ { @T [ 2 3 ] #H 4 } [ #H #H @T ] instantiate ] unit-test
+
+% test rewrite
 % TODO

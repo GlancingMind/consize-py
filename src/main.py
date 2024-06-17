@@ -507,6 +507,9 @@ def matches(stack):
         return ["f"]+rest
     return [dict(ChainMap(*m))]+rest
 
+def instantiate(stack):
+    pattern, data, *rest = stack
+    return [["1", "2", "3"]]+rest
 
 VM = {
     toDictKey("swap"): swap,
@@ -570,6 +573,7 @@ VM = {
     toDictKey("run"):  ["load", "call"],
     toDictKey("start"): ["slurp", "uncomment", "tokenize", "get-dict", "func", "emptystack", "swap", "apply"],
     toDictKey("match"): matches,
+    toDictKey("instantiate"): instantiate,
 }
 
 def main():
