@@ -24,7 +24,6 @@
 % ( { #1 [ 1 { 2 3 } 4 5 ] @2 [ 6 7 ] } ) [ [ [ 1 { 2 3 } 4 5 ] 6 7 ] [ #1 @2 ] match ] unit-test
 
 % test instantiate
-% TODO
 ( [ 1 2 3 ] ) [ { #H 1 @T [ 2 3 ] } [ #H @T ] instantiate ] unit-test
 
 ( [ 1 1 2 2 ] ) [ { #X 1 #Y 2 } [ #X 1 #Y 2 ] instantiate ] unit-test

@@ -509,7 +509,15 @@ def matches(stack):
 
 def instantiate(stack):
     pattern, data, *rest = stack
-    return [["1", "2", "3"]]+rest
+    stk = []
+    for matcher in pattern:
+        if matcher.startswith('@'):
+            stk += data[matcher]
+        elif matcher.startswith('#'):
+            stk += [data[matcher]]
+        else:
+            stk += [matcher]
+    return [stk]+rest
 
 VM = {
     toDictKey("swap"): swap,
