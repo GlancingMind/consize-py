@@ -514,11 +514,19 @@ def main():
         "#X #Y | swap -> #Y #X",
         "#X | dup -> #X #X",
         "#F | drop -> ",
-        "#X #Y #Z | rot -> #Z #X #Y"
+        "#X #Y #Z | rot -> #Z #X #Y",
+
+        # "#X #X | equal? -> t",
+        # "#X #Y | equal? -> f",
+
+        # "#X #X | identical? -> t",
+        # "#X #Y | identical? -> f",
+
+        "emptystack -> [ ]",
     )
 
-    InterpreterState.cs = ['swap']
-    InterpreterState.ds = ["1","2","3"]
+    InterpreterState.cs = ['emptystack']
+    InterpreterState.ds = ["1","2","2","3"]
     print(rules.apply(InterpreterState))
     # joinedArgs = " ".join(sys.argv[1:])
     # wrappedQuotation = tokenize(uncomment([joinedArgs]))

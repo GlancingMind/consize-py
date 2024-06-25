@@ -2,32 +2,65 @@ import re
 from dataclasses import dataclass
 from collections import ChainMap
 
+def parseLeftRuleSide(ruleStr):
+    """
+    Parses a rule of following form: (#DATA #PATTERN |)? CALLSTACK
+    """
+    tokenz = re.split(r"\s", ruleStr)
+    cs = []
+    ds = []
+    for token in tokenz:
+        if token == "|":
+            ds = cs
+            cs = []
+            continue
+        cs += [token]
+    return cs + ["@RCS"], ds + ["@RDS"]
+    # NOTE @RDS is appended to both patterns to match the remaining DS otherwise
+    # match will result in false. Reason:
+    #   [ 1 2 ] isn't matched by the sole pattern [ 1 ].
+    # By appending @RDS 2 will be matched by @RDS.
+    # NOTE @RDS can be always appended, as it will be the last element in the
+    # rule. If the user specifies @RDS himself, his @RDS will be filled first
+    # and the appended @RDS wont match anything. This also holds true, when the
+    # users uses a different name for the tail-matcher.
+
+def parseRightRuleSide(ruleStr):
+    """
+    Parses a rule of following form: #DATA #PATTERN (| CALLSTACK)?
+    """
+    tokenz = re.split(r"\s", ruleStr)
+    cs = []
+    ds = []
+    for token in tokenz:
+        if token == "|":
+            cs = ds
+            ds = []
+            continue
+        if token != '':
+            ds += [token]
+    return cs + ["@RCS"], ds + ["@RDS"]
+
+def parseRuleString(ruleStr):
+    """
+    Parses a rule of following form: #S #F | swap -> #F #S
+    """
+    lhs, rhs = re.split(r"\s*->\s*", ruleStr)
+    lhsRule = parseLeftRuleSide(lhs)
+    rhsRule = parseRightRuleSide(rhs)
+    return lhsRule + rhsRule
+
 @dataclass
 class Rule:
     def __repr__(self) -> str:
-        return self.csWrd
+        return self.ruleStr
 
-    def __init__(self, rulestr):
-        """
-        Parses a rule of following form:
-            #S #F | swap -> #F #S
-
-        Returns: a partial rewrite function
-        """
-        mp, self.csWrd, ip = re.split("\s*\|\s*|\s*->\s*", rulestr)
-        self.mp = mp.split() + ["@RDS"]
-        self.ip = ip.split() + ["@RDS"]
-        # NOTE @RDS is appended to both patterns to match the remaining DS otherwise
-        # match will result in false. Reason:
-        #   [ 1 2 ] isn't matched by the sole pattern [ 1 ].
-        # By appending @RDS 2 will be matched by @RDS.
-        # NOTE @RDS can be always appended, as it will be the last element in the
-        # rule. If the user specifies @RDS himself, his @RDS will be filled first
-        # and the appended @RDS wont match anything. This also holds true, when the
-        # users uses a different name for the tail-matcher.
+    def __init__(self, ruleStr):
+        self.ruleStr = ruleStr
+        self.cs, self.mp, self.ncs, self.ip = parseRuleString(ruleStr)
 
     def isApplicable(self, interpreter):
-        return interpreter.cs != [] and interpreter.cs[0] == self.csWrd and match(self.mp, interpreter.ds) != ['f']
+        return interpreter.cs != [] and interpreter.cs[0] == self.cs[0] and match(self.mp, interpreter.ds) != ['f']
 
     def execute(self, interpreter):
         return rewrite(self.mp, self.ip)(interpreter.ds)
@@ -69,6 +102,14 @@ def match(pattern, ds):
 def instantiate(pattern, data):
     stk = []
 
+    # When match doesn't match, 'f' is returned.
+    # But instantiate requires a dictionary as data,
+    # therefore we will propagate the error upwards.
+    # This also has the adventage, that the equal?-rule:
+    # Will implicitly return 'f' when the compared values wont match.
+    if data == 'f':
+        return data
+
     for matcher in pattern:
         if matcher.startswith('@'):
             stk += data[matcher]
@@ -79,5 +120,4 @@ def instantiate(pattern, data):
     return stk
 
 def rewrite(mpat, ipat):
-    # TODO get rid of [0]
     return lambda data: instantiate(ipat, match(mpat, data)[0])
