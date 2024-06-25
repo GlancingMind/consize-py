@@ -1,49 +1,9 @@
 #!/usr/bin/env python
 
 import sys
-from collections import ChainMap
-from functools import cache, partial
-import re
+from dataclasses import dataclass
 
-def isWordstack(s) -> bool:
-    """
-    Determines if s is a list of strings - aka. a wordstack.
-
-    :return: true, when s is a list of strings. Otherwise, false.
-    """
-    return isinstance(s, list) and s != [] and all(isinstance(item, str) for item in s)
-
-def swap(stack):
-    """
-    :return: New stack with the top two words swapped places.
-    E.g: swap([x y]) returns [y x]
-    """
-    x, y, *rest, = stack
-    return [y, x] + rest
-
-def dup(stack):
-    """
-    :return: New stack with the top word duplicated.
-    E.g: swap([x]) returns [x x]
-    """
-    top, *rest = stack
-    return [top, top] + rest
-
-def drop(stack):
-    """
-    :return: New stack with the top word removed.
-    E.g: drop([x y z]) returns [x y]
-    """
-    top, *rest = stack
-    return rest
-
-def rot(stack):
-    """
-    :return: New stack with the top three words rotated left-wise by one position.
-    E.g.: rot([x y z]) returns [y z x]
-    """
-    x, y, z, *rest = stack
-    return [z, x, y] + rest
+from RuleSet import RuleSet
 
 def _type(stack):
     """
@@ -83,6 +43,7 @@ def emptystack(stack):
     :return: New stack with an empty stack as top element.
     E.g: emptystack([]) returns [[]] or emptystack(["a"]) returns ["a", []]
     """
+    # x = rewrite("@RDS", "[ ] @RDS")(stack)
     return [[]] + stack
 
 def push(stack):
@@ -473,86 +434,20 @@ def moreThanEqual(stack):
     y, x, *rest = stack
     return ["t" if int(x) >= int(y) else "f"] + rest
 
-def match(pattern, ds):
-    if pattern == [] and ds == []:
-        return [{}]
-    if pattern == []:
-        return ["f"]
-
-    m = []
-    matcher, *rstPat = pattern
-    match matcher:
-        case list():
-            word, *rstData = ds
-            m += match([rstPat, rstData]) + match([matcher, word])
-            if "f" in m:
-                return ["f"]
-            return [dict(ChainMap(*m))]
-        case str() if matcher.startswith('@'):
-            return [{ matcher: ds }]
-        case str():
-            if ds == []:
-                return ["f"]
-            word, *rstData = ds
-            if matcher.startswith('#'):
-                m +=  match(rstPat, rstData) + [{matcher: word}]
-            elif word != matcher:
-                return ["f"]
-            elif word == matcher:
-                m += match(rstPat, rstData) + [{}]
-
-    if "f" in m:
-        return ["f"]
-    if matcher in m[0].keys() and m[0][matcher] != word:
-        return ["f"]
-    return [dict(ChainMap(*m))]
-
-def instantiate(pattern, data):
-    stk = []
-    for matcher in pattern:
-        if matcher.startswith('@'):
-            stk += data[matcher]
-        elif matcher.startswith('#'):
-            stk += [data[matcher]]
-        else:
-            stk += [matcher]
-    return stk
-
-@cache
-def rewrite(mpat, ipat):
-    # TODO get rid of [0]
-    return lambda data: instantiate(ipat.split(), match(mpat.split(), data)[0])
-
-@cache
-def strToRule(rule):
-    """
-    Parses a rule of following form:
-        #f #s | swap -> #s #f
-
-    Returns: a partial rewrite function
-    """
-    mp, cs, ip, *rest = re.split("\s*\|\s*|\s*->\s*", rule)
-    # NOTE @RDS is appended to both patterns to match the remaining DS otherwise
-    # match will result in false. Reason:
-    #   [ 1 2 ] isn't matched by the sole pattern [ 1 ].
-    # By appending @RDS 2 will be matched by @RDS.
-    # NOTE @RDS can be always appended, as it will be the last element in the
-    # rule. If the user specifies @RDS himself, his @RDS will be filled first
-    # and the appended @RDS wont match anything. This also holds true, when the
-    # users uses a different name for the tail-matcher.
-    return rewrite(f"{mp} @RDS", f"{ip} @RDS")
-
 VM = {
-    toDictKey("swap"): rewrite("#F #S @RDS", "#S #F @RDS"),
     # toDictKey("swap"): strToRule("#f #s | swap -> #s #f"),
-    toDictKey("dup"): dup,
-    toDictKey("drop"): drop,
-    toDictKey("rot"): rot,
-    toDictKey("type"): _type,
-    toDictKey("equal?"): equal,
+    # toDictKey("swap"): rewrite("#F #S @RDS", "#S #F @RDS"),
+    # toDictKey("dup"): rewrite("#F @RDS", "#F #F @RDS"),
+    # toDictKey("drop"): rewrite("#F @RDS", "@RDS"),
+    # toDictKey("rot"): rewrite("#X #Y #Z @RDS", "#Z #X #Y @RDS"),
+    # toDictKey("type"): _type,
+    # # toDictKey("equal?"): equal,
+    # toDictKey("equal?"): rewrite("#V #V @RDS", "t @RDS"),
     toDictKey("identical?"): identical,
     toDictKey("emptystack"): emptystack,
+    # toDictKey("emptystack"): rewrite("@RDS", "[ ] @RDS"),
     toDictKey("push"): push,
+    # toDictKey("push"): rewrite("[ @S ] #X", "#X @S"),
     toDictKey("top"): top,
     toDictKey("pop"): pop,
     toDictKey("concat"): concat,
@@ -605,18 +500,33 @@ VM = {
     toDictKey("run"):  ["load", "call"],
     toDictKey("start"): ["slurp", "uncomment", "tokenize", "get-dict", "func", "emptystack", "swap", "apply"],
     # toDictKey("match"): matches,
-    toDictKey("instantiate"): instantiate,
+    # toDictKey("instantiate"): instantiate,
     toDictKey("rewrite"): ["[", "match", "]", "dip", "over", "[", "instantiate", "]", "[", "drop", "]", "if"],
 }
 
+@dataclass
+class InterpreterState:
+    cs = []
+    ds = []
+
 def main():
-    joinedArgs = " ".join(sys.argv[1:])
-    wrappedQuotation = tokenize(uncomment([joinedArgs]))
-    quotation = wrappedQuotation[0]
-    partialRunCC = func([VM, quotation])
-    datastack = []
-    result = apply(partialRunCC + [datastack])
-    print("Consize returns", result[0])
+    rules = RuleSet(
+        "#X #Y | swap -> #Y #X",
+        "#X | dup -> #X #X",
+        "#F | drop -> ",
+        "#X #Y #Z | rot -> #Z #X #Y"
+    )
+
+    InterpreterState.cs = ['swap']
+    InterpreterState.ds = ["1","2","3"]
+    print(rules.apply(InterpreterState))
+    # joinedArgs = " ".join(sys.argv[1:])
+    # wrappedQuotation = tokenize(uncomment([joinedArgs]))
+    # quotation = wrappedQuotation[0]
+    # partialRunCC = func([VM, quotation])
+    # datastack = []
+    # result = apply(partialRunCC + [datastack])
+    # print("Consize returns", result[0])
 
 if __name__ == "__main__":
     main()
