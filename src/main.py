@@ -3,6 +3,8 @@
 import sys
 from dataclasses import dataclass
 
+from ConsizeRuleSet import CONSIZE_RULE_SET
+from Interpreter import Interpreter
 from RuleSet import RuleSet
 
 def _type(stack):
@@ -18,41 +20,6 @@ def _type(stack):
         case _ if callable(top): return ["fct"] + rest
         case None:      return ["nil"] + rest
         case _:         return ["_|_"] + rest
-
-def equal(stack):
-    """
-    :return: New stack with the two top elements replaced by their equality
-    value: "t" when both are equal and "f" when they are not.
-    E.g: equal([x y]) returns [f]
-    """
-    x, y, *rest = stack
-    return ["t" if x == y else "f"] + rest
-
-def identical(stack):
-    """
-    :return: New stack with the two top elements replaced by their identity-equality.
-    E.g: identical([x y]) returns [f]
-    Note: This function is the same as equality and not required for a
-    functioning consize implementation. See respective documentation in
-    consize.pdf.
-    """
-    return equal(stack)
-
-def emptystack(stack):
-    """
-    :return: New stack with an empty stack as top element.
-    E.g: emptystack([]) returns [[]] or emptystack(["a"]) returns ["a", []]
-    """
-    # x = rewrite("@RDS", "[ ] @RDS")(stack)
-    return [[]] + stack
-
-def push(stack):
-    """
-    :return: New stack with the top most element pushed into the below sitting stack.
-    E.g: push([[], "a"]) returns [["a"]]
-    """
-    top, stk, *rest = stack
-    return [[top] + stk] + rest
 
 def top(stack):
     """
@@ -435,19 +402,6 @@ def moreThanEqual(stack):
     return ["t" if int(x) >= int(y) else "f"] + rest
 
 VM = {
-    # toDictKey("swap"): strToRule("#f #s | swap -> #s #f"),
-    # toDictKey("swap"): rewrite("#F #S @RDS", "#S #F @RDS"),
-    # toDictKey("dup"): rewrite("#F @RDS", "#F #F @RDS"),
-    # toDictKey("drop"): rewrite("#F @RDS", "@RDS"),
-    # toDictKey("rot"): rewrite("#X #Y #Z @RDS", "#Z #X #Y @RDS"),
-    # toDictKey("type"): _type,
-    # # toDictKey("equal?"): equal,
-    # toDictKey("equal?"): rewrite("#V #V @RDS", "t @RDS"),
-    toDictKey("identical?"): identical,
-    toDictKey("emptystack"): emptystack,
-    # toDictKey("emptystack"): rewrite("@RDS", "[ ] @RDS"),
-    toDictKey("push"): push,
-    # toDictKey("push"): rewrite("[ @S ] #X", "#X @S"),
     toDictKey("top"): top,
     toDictKey("pop"): pop,
     toDictKey("concat"): concat,
@@ -491,7 +445,7 @@ VM = {
     toDictKey("mod"): modulus,
     toDictKey("<"): lessThan,
     toDictKey(">"): moreThan,
-    toDictKey("=="): equal,
+    # toDictKey("=="): equal,
     toDictKey("<="): lessThanEqual,
     toDictKey(">="): moreThanEqual,
     # toDictKey("\\"):   [["top"], "quote"],
@@ -504,30 +458,11 @@ VM = {
     toDictKey("rewrite"): ["[", "match", "]", "dip", "over", "[", "instantiate", "]", "[", "drop", "]", "if"],
 }
 
-@dataclass
-class InterpreterState:
-    cs = []
-    ds = []
-
 def main():
-    rules = RuleSet(
-        "#X #Y | swap -> #Y #X",
-        "#X | dup -> #X #X",
-        "#F | drop -> ",
-        "#X #Y #Z | rot -> #Z #X #Y",
-
-        # "#X #X | equal? -> t",
-        # "#X #Y | equal? -> f",
-
-        # "#X #X | identical? -> t",
-        # "#X #Y | identical? -> f",
-
-        "emptystack -> [ ]",
-    )
-
-    InterpreterState.cs = ['emptystack']
-    InterpreterState.ds = ["1","2","2","3"]
-    print(rules.apply(InterpreterState))
+    initialStack = ["emptystack", "1","2","2","3"]
+    i = Interpreter(rules=CONSIZE_RULE_SET, stack=initialStack)
+    i.run()
+    i.printState()
     # joinedArgs = " ".join(sys.argv[1:])
     # wrappedQuotation = tokenize(uncomment([joinedArgs]))
     # quotation = wrappedQuotation[0]
