@@ -36,8 +36,7 @@ class RuleParser:
         # Convert the ds_tokens into a nested list structure if ds_tokens is not empty
         # ds = parse_list_from_tokens(ds_tokens) if ds_tokens else []
 
-        return self.__parse_list_from_tokens(ds), self.__parse_list_from_tokens(cs)
-        return ds + ["@RDS"], cs + "@RCS"
+        return self.__parse_list_from_tokens(ds) + ["@RDS"], self.__parse_list_from_tokens(cs) + ["@RCS"]
         # NOTE @RDS is appended to both patterns to match the remaining DS otherwise
         # match will result in false. Reason:
         #   [ 1 2 ] isn't matched by the sole pattern [ 1 ].

@@ -6,11 +6,11 @@ class Rule:
     def __repr__(self) -> str:
         return self.ruleStr
 
-    def __init__(self, ocs, mp, ncs, ip):
-        self.cs = ocs
+    def __init__(self, mp, ocs, ip, ncs):
         self.mp = mp
-        self.ncs = ncs
+        self.cs = ocs
         self.ip = ip
+        self.ncs = ncs
 
     def isApplicable(self, interpreter):
         if interpreter.stack != [] and interpreter.stack[0] == self.cs[0]:
@@ -38,7 +38,7 @@ class Rule:
         match matcher:
             case list():
                 word, *rstData = ds
-                m += self.__match([rstPat, rstData]) + self.__match([matcher, word])
+                m += self.__match(rstPat, rstData) + self.__match(matcher, word)
                 if "f" in m:
                     return ["f"]
                 return [dict(ChainMap(*m))]
@@ -73,10 +73,11 @@ class Rule:
             return data
 
         for matcher in pattern:
-            if matcher.startswith('@'):
-                stk += data[matcher]
-            elif matcher.startswith('#'):
-                stk += [data[matcher]]
-            else:
-                stk += [matcher]
+            match matcher:
+                case str() if matcher.startswith('@'):
+                    stk += data[matcher]
+                case str() if matcher.startswith('#'):
+                    stk += [data[matcher]]
+                case _:
+                    stk += [matcher]
         return stk
