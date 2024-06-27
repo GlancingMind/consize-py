@@ -7,24 +7,37 @@ class RuleParser:
         Parses a rule of following form: #S #F | swap -> #F #S
         """
         lhs, rhs = re.split(r"\s*->\s*", ruleStr)
-        lhsRule = self.__parseLeftRuleSide(lhs)
-        rhsRule = self.__parseRightRuleSide(rhs)
+        lhsRule = self.__parseRuleSide(lhs)
+        rhsRule = self.__parseRuleSide(rhs, isLeftSide=False)
         return Rule(*(lhsRule + rhsRule))
 
-    def __parseLeftRuleSide(self, ruleStr):
+    def __parseRuleSide(self, ruleStr, isLeftSide=True):
         """
         Parses a rule of following form: (#DATA #PATTERN |)? CALLSTACK
         """
-        tokenz = re.split(r"\s", ruleStr)
+        tokens = re.split(r"\s+", ruleStr)
         cs = []
         ds = []
-        for token in tokenz:
-            if token == "|":
-                ds = cs
-                cs = []
-                continue
-            cs += [token]
-        return cs + ["@RCS"], ds + ["@RDS"]
+        # Find the index of the '|' symbol, if it exists
+        leftOfPipe, *rightOfPipe = re.split("\s*\|\s*", ruleStr, 1)
+
+        if rightOfPipe == [] and isLeftSide:
+            cs = "".join(leftOfPipe).split(" ")
+            ds = "".join(rightOfPipe).split(" ")
+        else:
+            ds = "".join(leftOfPipe).split(" ")
+            cs = "".join(rightOfPipe).split(" ")
+
+        if ds == [""]:
+            ds = []
+        if cs == [""]:
+            cs = []
+
+        # Convert the ds_tokens into a nested list structure if ds_tokens is not empty
+        # ds = parse_list_from_tokens(ds_tokens) if ds_tokens else []
+
+        return self.__parse_list_from_tokens(ds), self.__parse_list_from_tokens(cs)
+        return ds + ["@RDS"], cs + "@RCS"
         # NOTE @RDS is appended to both patterns to match the remaining DS otherwise
         # match will result in false. Reason:
         #   [ 1 2 ] isn't matched by the sole pattern [ 1 ].
@@ -34,18 +47,18 @@ class RuleParser:
         # and the appended @RDS wont match anything. This also holds true, when the
         # users uses a different name for the tail-matcher.
 
-    def __parseRightRuleSide(self, ruleStr):
-        """
-        Parses a rule of following form: #DATA #PATTERN (| CALLSTACK)?
-        """
-        tokenz = re.split(r"\s", ruleStr)
-        cs = []
-        ds = []
-        for token in tokenz:
-            if token == "|":
-                cs = ds
-                ds = []
-                continue
-            if token != '':
-                ds += [token]
-        return cs + ["@RCS"], ds + ["@RDS"]
+    def __parse_list_from_tokens(self, tokens):
+        stack = []
+        current = []
+        for token in tokens:
+            if token == '[':
+                stack.append(current)
+                current = []
+            elif token == ']':
+                if stack:
+                    temp = current
+                    current = stack.pop()
+                    current.append(temp)
+            else:
+                current.append(token)
+        return current
