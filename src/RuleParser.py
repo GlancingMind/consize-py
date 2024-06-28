@@ -16,9 +16,6 @@ class RuleParser:
         Parses a rule of following form: (#DATA #PATTERN |)? CALLSTACK
         """
         tokens = re.split(r"\s+", ruleStr)
-        cs = []
-        ds = []
-        # Find the index of the '|' symbol, if it exists
         leftOfPipe, *rightOfPipe = re.split("\s*\|\s*", ruleStr, 1)
 
         if rightOfPipe == [] and isLeftSide:

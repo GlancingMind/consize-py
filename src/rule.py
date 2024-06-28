@@ -33,10 +33,15 @@ class Rule:
         if pattern == []:
             return ["f"]
 
+        if type(ds) != type(pattern):
+            return ["f"]
+
         m = []
         matcher, *rstPat = pattern
         match matcher:
             case list():
+                # if ds != list:
+                #     return ["f"]
                 word, *rstData = ds
                 m += self.__match(rstPat, rstData) + self.__match(matcher, word)
                 if "f" in m:
@@ -47,6 +52,7 @@ class Rule:
             case str():
                 if ds == []:
                     return ["f"]
+                # nil ist ein Wort und wird hier aufgespalten! Das ist ein problem.
                 word, *rstData = ds
                 if matcher.startswith('#'):
                     m +=  self.__match(rstPat, rstData) + [{matcher: word}]
