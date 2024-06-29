@@ -38,26 +38,64 @@ def matches(ds: list, pattern: list):
         return ["f"]
     return [dict(ChainMap(*m))]
 
-assert matches(["1","2","3","4"],["#F","#S","@M","#L"]) == [{"#F": "1", "#S": "2", "@M": ["3"], "#L": "4"}], ""
-assert matches([],[]) == [{}], " "
-assert matches([],[]) == [{}], " "
-assert matches(["1","2","3","4"],["1","2","3","4"]) == [{}], ""
-assert matches(["1","2","3","4"],["1","2","3","1"]) == ["f"], ""
-assert matches(["1","2","3","4"],["1","2","3"]) == ["f"], ""
-assert matches(["1","2","3","4"],["@T"]) == [{"@T": ["1","2","3","4"]}], ""
-assert matches([],["@T"]) == [{"@T": []}], ""
-assert matches([],["#H"]) == ["f"], ""
-assert matches([],["#H", "@T"]) == ["f"], ""
-assert matches(["1"],["#F"]) == [{ "#F": "1"}], ""
-assert matches(["1"],["#F", "#S"]) == ["f"], ""
-assert matches(["1"],["#F", "@R"]) == [{"#F": "1", "@R": []}], ""
-assert matches(["1",["2","3"], "4"],["#X", "#Y", "#Z"]) == [{"#X": "1", "#Y": ["2", "3"], "#Z": "4"}], ""
-assert matches(["1",["2","3"], "4"],["#X", "@Y"]) == [{"#X": "1", "@Y": [["2", "3"], "4"]}], ""
-assert matches(["1",["2","3"], "4"],["#X", "#Y", "#Z", "#U"]) == ["f"], ""
-assert matches(["1","2","3"],["#X", "#Y", "#X"]) == ["f"], ""
-assert matches(["1","2","1"],["#X", "#Y", "#X"]) == [{"#X": "1", "#Y": "2"}], ""
-assert matches([["1",{"2": "3"},"4","5"],"6","7"],[["#F", "#S", "@R"], "@T"]) == [{ "#F": "1", "#S": { "2": "3" }, "@R": [ "4", "5" ], "@T": [ "6", "7" ] }], ""
-assert matches([["1",{"2": "3"},"4","5"],"6","7"],["#1", "@2"]) == [{ "#1": ["1", { "2": "3" }, "4", "5" ], "@2": [ "6", "7" ] }], ""
+
+def nm(ds: list, pattern: list):
+    if pattern == [] and ds == []:
+        return [{}]
+    if pattern == []:
+        return ["f"]
+    if type(ds) != type(pattern):
+        return ["f"]
+
+    matches = {}
+    while pattern != []:
+        matcher = pattern.pop(0)
+        match matcher:
+            case str() if matcher.startswith('#'):
+                e = ds.pop(0)
+                if matches.get(matcher, e) != e:
+                    return ["f"]
+                matches = matches | {matcher: e}
+            case str() if matcher.startswith('@'):
+                ds.reverse()
+                pattern.reverse()
+                m = nm(ds, pattern)
+                for match in matches.items():
+                    k, v = match
+                    if m[0].get(k,v) != v:
+                        return ["f"]
+                matches = matches | m[0]
+                if matches.get(matcher, ds) != ds:
+                    return ["f"]
+                matches = matches | {matcher: ds}
+            case str():
+                e = ds.pop(0)
+                if matcher != e:
+                    return ["f"]
+
+    return [matches]
+
+
+
+# assert nm(["1","2","3","4"],["#F","#S","@M","#L"]) == [{"#F": "1", "#S": "2", "@M": ["3"], "#L": "4"}], ""
+# assert nm([],[]) == [{}], " "
+# assert nm(["1","2","3","4"],["1","2","3","4"]) == [{}], ""
+# assert nm(["1","2","3","4"],["1","2","3","1"]) == ["f"], ""
+assert nm(["1","2","3","4"],["1","2","3"]) == ["f"], ""
+assert nm(["1","2","3","4"],["@T"]) == [{"@T": ["1","2","3","4"]}], ""
+assert nm([],["@T"]) == [{"@T": []}], ""
+assert nm([],["#H"]) == ["f"], ""
+assert nm([],["#H", "@T"]) == ["f"], ""
+assert nm(["1"],["#F"]) == [{ "#F": "1"}], ""
+assert nm(["1"],["#F", "#S"]) == ["f"], ""
+assert nm(["1"],["#F", "@R"]) == [{"#F": "1", "@R": []}], ""
+assert nm(["1",["2","3"], "4"],["#X", "#Y", "#Z"]) == [{"#X": "1", "#Y": ["2", "3"], "#Z": "4"}], ""
+assert nm(["1",["2","3"], "4"],["#X", "@Y"]) == [{"#X": "1", "@Y": [["2", "3"], "4"]}], ""
+assert nm(["1",["2","3"], "4"],["#X", "#Y", "#Z", "#U"]) == ["f"], ""
+assert nm(["1","2","3"],["#X", "#Y", "#X"]) == ["f"], ""
+assert nm(["1","2","1"],["#X", "#Y", "#X"]) == [{"#X": "1", "#Y": "2"}], ""
+assert nm([["1",{"2": "3"},"4","5"],"6","7"],[["#F", "#S", "@R"], "@T"]) == [{ "#F": "1", "#S": { "2": "3" }, "@R": [ "4", "5" ], "@T": [ "6", "7" ] }], ""
+assert nm([["1",{"2": "3"},"4","5"],"6","7"],["#1", "@2"]) == [{ "#1": ["1", { "2": "3" }, "4", "5" ], "@2": [ "6", "7" ] }], ""
 
 # % test instantiate
 # ( [ 1 2 3 ] ) [ { #H 1 @T [ 2 3 ] } [ #H @T ] instantiate ] unit-test
