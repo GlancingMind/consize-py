@@ -21,4 +21,7 @@ CONSIZE_RULE_SET = RuleSet(
     "[ #H @T ] | top -> #H",
     "[ ] | top -> nil",
     "nil | top -> nil",
+    "-rot -> rot rot rot"
+    # TODO Erlaube [ 1 2 3 4 5 ] [ #F #S @M #L ]
+    # TODO fuhre : als regel ein, so dass neue Regeln ins Regelwerk aufgenommen werden können.
 )

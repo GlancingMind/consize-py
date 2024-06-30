@@ -48,39 +48,56 @@ def nm(ds: list, pattern: list):
         return ["f"]
 
     matches = {}
+    tuples = []
+    popIdx = 0
+    containsAtMatcher = False
+
     while pattern != []:
-        matcher = pattern.pop(0)
+        matcher = pattern.pop(popIdx)
         match matcher:
-            case str() if matcher.startswith('#'):
-                e = ds.pop(0)
-                if matches.get(matcher, e) != e:
+            case str() if matcher.startswith("@"):
+                tuples.append((matcher, ds))
+                popIdx = -1
+                containsAtMatcher = True
+            case str() if matcher.startswith("#"):
+                if ds == []:
                     return ["f"]
-                matches = matches | {matcher: e}
-            case str() if matcher.startswith('@'):
-                ds.reverse()
-                pattern.reverse()
-                m = nm(ds, pattern)
-                for match in matches.items():
-                    k, v = match
-                    if m[0].get(k,v) != v:
-                        return ["f"]
-                matches = matches | m[0]
-                if matches.get(matcher, ds) != ds:
-                    return ["f"]
-                matches = matches | {matcher: ds}
-            case str():
-                e = ds.pop(0)
+                tuples.append((matcher, ds.pop(popIdx)))
+            case str(): # Literal
+                e = ds.pop(popIdx)
                 if matcher != e:
                     return ["f"]
+            case dict():
+                e = ds.pop(popIdx)
+                if matcher != e:
+                    return ["f"]
+            case list():
+                m = nm(ds.pop(popIdx), matcher)
+                for k,v in m[0].items():
+                    if matches.get(k, v) != v:
+                        return ["f"]
+                    matches[k] = v
+
+    if ds != [] and not containsAtMatcher:
+        return ["f"]
+
+    for t in tuples:
+        k,v = t
+        if matches.get(k, v) != v:
+            return ["f"]
+        matches[k] = v
 
     return [matches]
 
-
-
-# assert nm(["1","2","3","4"],["#F","#S","@M","#L"]) == [{"#F": "1", "#S": "2", "@M": ["3"], "#L": "4"}], ""
-# assert nm([],[]) == [{}], " "
-# assert nm(["1","2","3","4"],["1","2","3","4"]) == [{}], ""
-# assert nm(["1","2","3","4"],["1","2","3","1"]) == ["f"], ""
+assert nm([{}],[{}]) == [{}], " "
+assert nm([{"1":"Hello"}],[{"1":"Hello"}]) == [{}], " "
+assert nm([{"1":"Hello"}],[{"1":"World"}]) == ["f"], " "
+assert nm([{"2":"Hello"}],[{"1":"Hello"}]) == ["f"], " "
+assert nm(["1","2","3","4"],["#F","#S","@M","#L"]) == [{"#F": "1", "#S": "2", "@M": ["3"], "#L": "4"}], ""
+assert nm(["1","2","3","4","5"],["1","2","@T","#L"]) == [{"#L": "5", "@T": ["3","4"]}], ""
+assert nm([],[]) == [{}], " "
+assert nm(["1","2","3","4"],["1","2","3","4"]) == [{}], ""
+assert nm(["1","2","3","4"],["1","2","3","1"]) == ["f"], ""
 assert nm(["1","2","3","4"],["1","2","3"]) == ["f"], ""
 assert nm(["1","2","3","4"],["@T"]) == [{"@T": ["1","2","3","4"]}], ""
 assert nm([],["@T"]) == [{"@T": []}], ""

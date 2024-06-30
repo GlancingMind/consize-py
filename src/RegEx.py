@@ -39,3 +39,6 @@ print(instance)
 #    entsprechende Subsitution für das gematchte Element durchzuführen. Bei
 #    anderen RegEx-Engines wird evtl. kein Funktionsübergabe unterstützt. Das
 #    ersetzten muss u.U. anders vorgenommen werden.
+# 4. RegExp machen es schwer, das Pattern auf korrektheit zu überprüfen.
+#    Bspw. richtige Klammerung oder ob sich Regeln gegenseitig ausschließen.
+#    Es müssen demnach nachwievor die Patterns untersucht werden.
