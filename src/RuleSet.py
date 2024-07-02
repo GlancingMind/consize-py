@@ -12,7 +12,12 @@ from RuleParser import RuleParser
 @dataclass
 class RuleSet:
     def __init__(self, parser: RuleParser, *ruleStrings: str):
-        self.rules = map(lambda ruleStr: parser.parse(ruleStr) , ruleStrings)
+        # TODO somehow this lets all test (except the first one) fail...
+        # self.rules = map(lambda ruleStr: parser.parse(ruleStr) , ruleStrings)
+        self.rules = []
+        for ruleStr in ruleStrings:
+            self.rules.append(parser.parse(ruleStr))
+        self.ruleStrings = ruleStrings
 
     def apply(self, interpreter):
         rules = tuple(rule for rule in self.rules if rule.isApplicable(interpreter))
@@ -22,3 +27,6 @@ class RuleSet:
         for rule in rules:
             interpreter.stack = rule.execute(interpreter)
         return interpreter.stack
+
+    def __repr__(self) -> str:
+        return self.ruleStrings

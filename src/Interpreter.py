@@ -7,6 +7,7 @@ class Interpreter:
 
     def run(self):
         self.stack = self.rules.apply(self)
+        return self.stack
 
     def printState(self):
         print(self.stack)

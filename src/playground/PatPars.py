@@ -1,6 +1,6 @@
 # TODO Erlaube [ 1 2 3 4 5 ] [ #F #S @M #L ]
 # TODO vereinfache die stack annotationen noch weiter, so dass | nicht notwendig ist.
-# TODO fuhre : als regel ein, so dass neue Regeln ins Regelwekr aufgenommen werden können.
+# TODO führe : als Regel ein, so dass neue Regeln ins Regelwekr aufgenommen werden können.
 
 import re
 

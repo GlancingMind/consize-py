@@ -459,11 +459,11 @@ VM = {
 }
 
 def main():
-    # initialStack = ["swap", "1","2","2","3"]
+    initialStack = ["swap", "1","2","2","3"]
     # initialStack = ["emptystack", "1","2","2","3"]
     # initialStack = ["top", ["a", "b"], "1","2","2","3"]
     # initialStack = ["top", [], "1","2","2","3"]
-    initialStack = ["top", "nil", "1","2","2","3"]
+    # initialStack = ["top", "nil", "1","2","2","3"]
     i = Interpreter(rules=CONSIZE_RULE_SET, stack=initialStack)
     i.run()
     i.printState()

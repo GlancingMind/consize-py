@@ -4,7 +4,7 @@ from collections import ChainMap
 @dataclass
 class Rule:
     def __repr__(self) -> str:
-        return self.ruleStr
+        return f"{self.mp} | {self.cs} -> {self.ip} | {self.ncs}"
 
     def __init__(self, mp, ocs, ip, ncs):
         self.mp = mp
@@ -28,44 +28,60 @@ class Rule:
         return lambda data: self.__instantiate(ipat, self.__match(mpat, data)[0])
 
     def __match(self, pattern, ds):
+        pattern = pattern.copy()
+        # ds can also be a word (string) which doesn't have copy methode.
+        ds = ds.copy() if isinstance(ds, list) else ds
+
         if pattern == [] and ds == []:
             return [{}]
         if pattern == []:
             return ["f"]
-
         if type(ds) != type(pattern):
             return ["f"]
 
-        m = []
-        matcher, *rstPat = pattern
-        match matcher:
-            case list():
-                # if ds != list:
-                #     return ["f"]
-                word, *rstData = ds
-                m += self.__match(rstPat, rstData) + self.__match(matcher, word)
-                if "f" in m:
-                    return ["f"]
-                return [dict(ChainMap(*m))]
-            case str() if matcher.startswith('@'):
-                return [{ matcher: ds }]
-            case str():
-                if ds == []:
-                    return ["f"]
-                # nil ist ein Wort und wird hier aufgespalten! Das ist ein problem.
-                word, *rstData = ds
-                if matcher.startswith('#'):
-                    m +=  self.__match(rstPat, rstData) + [{matcher: word}]
-                elif word != matcher:
-                    return ["f"]
-                elif word == matcher:
-                    m += self.__match(rstPat, rstData) + [{}]
+        foundMatches = {}
+        tuples = []
+        popIdx = 0
+        containsAtMatcher = False
 
-        if "f" in m:
+        while pattern != []:
+            matcher = pattern.pop(popIdx)
+            match matcher:
+                case str() if matcher.startswith("@"):
+                    tuples.append((matcher, ds))
+                    popIdx = -1
+                    containsAtMatcher = True
+                case str() if matcher.startswith("#"):
+                    if ds == []:
+                        return ["f"]
+                    tuples.append((matcher, ds.pop(popIdx)))
+                case str(): # Literal
+                    e = ds.pop(popIdx)
+                    if matcher != e:
+                        return ["f"]
+                case dict():
+                    e = ds.pop(popIdx)
+                    if matcher != e:
+                        return ["f"]
+                case list():
+                    m = self.__match(matcher, ds.pop(popIdx))
+                    if m == ["f"]:
+                        return m
+                    for k,v in m[0].items():
+                        if foundMatches.get(k, v) != v:
+                            return ["f"]
+                        foundMatches[k] = v
+
+        if ds != [] and not containsAtMatcher:
             return ["f"]
-        if matcher in m[0].keys() and m[0][matcher] != word:
-            return ["f"]
-        return [dict(ChainMap(*m))]
+
+        for t in tuples:
+            k,v = t
+            if foundMatches.get(k, v) != v:
+                return ["f"]
+            foundMatches[k] = v
+
+        return [foundMatches]
 
     def __instantiate(self, pattern, data):
         stk = []

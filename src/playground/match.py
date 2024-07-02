@@ -1,5 +1,8 @@
 
 def matches(ds: list, pattern: list):
+    pattern = pattern.copy()
+    ds = ds.copy()
+
     if pattern == [] and ds == []:
         return [{}]
     if pattern == []:
@@ -33,6 +36,8 @@ def matches(ds: list, pattern: list):
                     return ["f"]
             case list():
                 m = matches(ds.pop(popIdx), matcher)
+                if m == ["f"]:
+                    return ["f"]
                 for k,v in m[0].items():
                     if foundMatches.get(k, v) != v:
                         return ["f"]
@@ -49,13 +54,14 @@ def matches(ds: list, pattern: list):
 
     return [foundMatches]
 
-assert matches([{}],[{}]) == [{}], " "
-assert matches([{"1":"Hello"}],[{"1":"Hello"}]) == [{}], " "
-assert matches([{"1":"Hello"}],[{"1":"World"}]) == ["f"], " "
-assert matches([{"2":"Hello"}],[{"1":"Hello"}]) == ["f"], " "
+assert matches(["nil", "1","2","3","4"], ["nil"]), ""
+assert matches([{}],[{}]) == [{}], ""
+assert matches([{"1":"Hello"}],[{"1":"Hello"}]) == [{}], ""
+assert matches([{"1":"Hello"}],[{"1":"World"}]) == ["f"], ""
+assert matches([{"2":"Hello"}],[{"1":"Hello"}]) == ["f"], ""
 assert matches(["1","2","3","4"],["#F","#S","@M","#L"]) == [{"#F": "1", "#S": "2", "@M": ["3"], "#L": "4"}], ""
 assert matches(["1","2","3","4","5"],["1","2","@T","#L"]) == [{"#L": "5", "@T": ["3","4"]}], ""
-assert matches([],[]) == [{}], " "
+assert matches([],[]) == [{}], ""
 assert matches(["1","2","3","4"],["1","2","3","4"]) == [{}], ""
 assert matches(["1","2","3","4"],["1","2","3","1"]) == ["f"], ""
 assert matches(["1","2","3","4"],["1","2","3"]) == ["f"], ""
