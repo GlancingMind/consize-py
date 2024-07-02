@@ -16,7 +16,7 @@ CONSIZE_RULE_SET = RuleSet(
     "#X #Y | identical? -> f",
 
     "emptystack -> [ ]",
-    "[ ] #X | push -> [ #X ]",
+    "[ @S ] #X | push -> [ #X @S ]",
 
     "[ #H @T ] | top -> #H",
     "[ ] | top -> nil",

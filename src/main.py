@@ -21,18 +21,6 @@ def _type(stack):
         case None:      return ["nil"] + rest
         case _:         return ["_|_"] + rest
 
-def top(stack):
-    """
-    :return: New stack where the top element (here a stack) is replaced by it's
-    first element, or "nil" when the top element is en empty stack or None.
-    E.g: top(["a", [1, 2, 3, 4]]) returns [["a", 1]]
-    """
-    top, *rest = stack
-    match top:
-        case "nil": print("error: top cannot be used on nil")
-        case None | []: return [None] + rest
-        case _: return [top[0]] + rest
-
 def pop(stack):
     """
     :return: New stack without the top most element.
@@ -402,7 +390,6 @@ def moreThanEqual(stack):
     return ["t" if int(x) >= int(y) else "f"] + rest
 
 VM = {
-    toDictKey("top"): top,
     toDictKey("pop"): pop,
     toDictKey("concat"): concat,
     toDictKey("reverse"): reverse,
