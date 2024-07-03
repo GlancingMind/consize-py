@@ -2,59 +2,93 @@ import re
 from Rule import Rule
 
 class RuleParser:
-    def parse(self, ruleStr: str) -> Rule:
-        """
-        Parses a rule of following form: #S #F | swap -> #F #S
-        """
-        lhs, rhs = re.split(r"\s*->\s*", ruleStr)
-        lhsRule = self.__parseRuleSide(lhs)
-        rhsRule = self.__parseRuleSide(rhs, isLeftSide=False)
-        return Rule(*(lhsRule + rhsRule))
+    def parse(self, ruleStr: str):
+        lhs, rhs = re.split(r"\s*->\s*", ruleStr, 1)
+        ls = self.__parseLeftRuleSide(lhs)
+        rs = self.__parseRightRuleSide(rhs)
+        print(f"{ls} -> {rs}")
+        return Rule(*(ls+rs))
 
-    def __parseRuleSide(self, ruleStr, isLeftSide=True):
-        """
-        Parses a rule of following form: (#DATA #PATTERN |)? CALLSTACK
-        """
-        tokens = re.split(r"\s+", ruleStr)
-        leftOfPipe, *rightOfPipe = re.split("\s*\|\s*", ruleStr, 1)
+    # Can parse a ruleside easiely by treating the whole words as a stack.
+    # At least the left side can be popped from continuesly until | is found, then
+    # the words are the callstack and everything after it is the datastack.
+    # The right side can be processed equally by treating the top of stack on the
+    # other side.
+    def __parseLeftRuleSide(self, str: str):
+        if str == "":
+            return []
 
-        if rightOfPipe == [] and isLeftSide:
-            cs = "".join(leftOfPipe).split(" ")
-            ds = "".join(rightOfPipe).split(" ")
+        tokens = re.split(r"\s+", str)
+
+        appendRDS = True
+        cs = []
+        ds = []
+        curStack = []
+        while tokens != []:
+            token = tokens.pop(0)
+            if token == "|":
+                ds = curStack
+                curStack = []
+            elif token == "[":
+                curStack.append(self.parseStack(tokens))
+            elif token != "":
+                if appendRDS:
+                    appendRDS = not token.startswith('@')
+                curStack.append(token)
+
+        if cs == []:
+            cs = curStack
         else:
-            ds = "".join(leftOfPipe).split(" ")
-            cs = "".join(rightOfPipe).split(" ")
+            ds = curStack
 
-        if ds == [""]:
-            ds = []
-        if cs == [""]:
-            cs = []
+        if appendRDS:
+            ds = ["@RDS"] + ds
 
-        # Convert the ds_tokens into a nested list structure if ds_tokens is not empty
-        # ds = parse_list_from_tokens(ds_tokens) if ds_tokens else []
+        return ds, cs
 
-        return self.__parse_list_from_tokens(ds) + ["@RDS"], self.__parse_list_from_tokens(cs) + ["@RCS"]
-        # NOTE @RDS is appended to both patterns to match the remaining DS otherwise
-        # match will result in false. Reason:
-        #   [ 1 2 ] isn't matched by the sole pattern [ 1 ].
-        # By appending @RDS 2 will be matched by @RDS.
-        # NOTE @RDS can be always appended, as it will be the last element in the
-        # rule. If the user specifies @RDS himself, his @RDS will be filled first
-        # and the appended @RDS wont match anything. This also holds true, when the
-        # users uses a different name for the tail-matcher.
+    def __parseRightRuleSide(self, str: str):
+        tokens = re.split(r"\s+", str)
 
-    def __parse_list_from_tokens(self, tokens):
+        appendRCS = True
+        appendRDS = True
+        cs = []
+        ds = []
+        curStack = []
+        while tokens != []:
+            token = tokens.pop(0)
+            if token == "|":
+                ds = curStack
+                curStack = []
+            elif token == "[":
+                curStack.append(self.parseStack(tokens))
+            elif token != "":
+                if appendRDS:
+                    appendRDS = not token.startswith('@')
+                if appendRCS:
+                    appendRCS = not token.startswith('@')
+                curStack.append(token)
+
+        if ds == []:
+            ds = curStack
+        else:
+            cs = curStack
+
+        if appendRCS:
+            cs.append("@RCS")
+        if appendRDS:
+            ds = ["@RDS"] + ds
+
+        return ds, cs
+
+    def parseStack(self, tokens: list):
         stack = []
-        current = []
-        for token in tokens:
-            if token == '[':
-                stack.append(current)
-                current = []
-            elif token == ']':
-                if stack:
-                    temp = current
-                    current = stack.pop()
-                    current.append(temp)
+        while tokens != []:
+            token = tokens.pop(0)
+            if token == "]":
+                return stack
+            elif token == "[":
+                stack.append(self.parseStack(tokens))
             else:
-                current.append(token)
-        return current
+                stack.append(token)
+
+        return stack

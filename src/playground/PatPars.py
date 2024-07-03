@@ -1,4 +1,4 @@
-# TODO führe : als Regel ein, so dass neue Regeln ins Regelwekr aufgenommen werden können.
+# TODO führe : als Regel ein, so dass neue Regeln ins Regelwerk aufgenommen werden können.
 
 import re
 
@@ -62,7 +62,6 @@ def parseLeftRuleSide(str: str):
         ds = curStack
 
     if appendRDS:
-        # TODO für erste Regel sollte RDS nicht existieren, da @M existiert
         ds = ["@RDS"] + ds
 
     return ds, cs
