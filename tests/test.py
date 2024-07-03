@@ -15,28 +15,29 @@ class Test(unittest.TestCase):
         self.assertEqual(output, resultStack)
 
     def test_swap(self):
-        self.__test(["swap", "1","2","2","3"],["1","2","3","2"])
+        self.__test(["1","2","2","3", "swap"],["1","2","3","2"])
 
     def test_dup(self):
-        self.__test(["dup", "1","2","2","3"],["1","2","2","3","3"])
+        self.__test(["1","2","2","3", "dup"],["1","2","2","3","3"])
 
     def test_drop(self):
-        self.__test(["drop", "1","2","2","3"],["1","2","2"])
+        self.__test(["1","2","2","3","drop"],["1","2","2"])
 
     def test_rot(self):
-        self.__test(["rot", "1","2","3","4"],["1","4","2","3"])
+        self.__test(["1","2","3","4","rot"],["1","4","2","3"])
 
     def test_emptystack(self):
-        self.__test(["emptystack", "1","2","2","3"],["1","2","2","3",[]])
+        self.__test(["1","2","2","3","emptystack"],["1","2","2","3",[]])
 
     def test_push(self):
-        self.__test(["push", "1","2","2","3",["4"], "5"],["1","2","2","3",["4","5"]])
+        self.__test(["1","2","2","3",["4"],"5","push"],["1","2","2","3",["4","5"]])
 
     def test_top(self):
-        self.__test(["top", "1","2","2","3",["a"]],["1","2","2","3","a"])
-        self.__test(["top", "1","2","2","3",["a", "b"]],["1","2","2","3","a"])
-        self.__test(["top", "1","2","2","3",[]],["1","2","2","3","nil"])
-        self.__test(["top", "1","2","2","3","nil"],["1","2","2","3","nil"])
+        self.__test(["1","2","2","3",["a"],"top"],["1","2","2","3","a"])
+        self.__test(["1","2","2","3",["a", "b"],"top"],["1","2","2","3","a"])
+        self.__test(["1","2","2","3",[],"top"],["1","2","2","3","nil"])
+        self.__test(["1","2","2","3","nil","top"],["1","2","2","3","nil"])
+
 
 
     # def test_unpush(self):

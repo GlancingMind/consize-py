@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from collections import ChainMap
+
+# from Interpreter import Interpreter
 
 @dataclass
 class Rule:
@@ -13,15 +14,14 @@ class Rule:
         self.ncs = ncs
 
     def isApplicable(self, interpreter):
-        if interpreter.stack != [] and interpreter.stack[0] == self.cs[0]:
-            # TODO can this be done differently, so that the duplicate code in
-            # execute also cleans up?
-            cs, *r = interpreter.stack
-            return self.__match(self.mp, r) != ['f']
+        *ds, word = interpreter.stack
+        ruleWord, *_ =  self.cs
+        if word == ruleWord:
+            return self.__match(self.mp, ds) != ['f']
         return False
 
     def execute(self, interpreter):
-        cs, *r = interpreter.stack
+        *r, cs = interpreter.stack
         return self.__rewrite(self.mp, self.ip)(r)
 
     def __rewrite(self, mpat, ipat):
