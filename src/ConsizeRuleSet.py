@@ -22,6 +22,8 @@ CONSIZE_RULE_SET = RuleSet(
     "[ ] | top -> nil",
     "nil | top -> nil",
 
+    "[ #H @T ] | pop -> [ @T ]",
+    "[ ] | pop -> [ ]",
     # "[ ] | unpush -> [ ] nil",
     # "[ #H @T ] | unpush -> [ @T ] #H"
     # TODO fuhre : als regel ein, so dass neue Regeln ins Regelwerk aufgenommen werden können.

@@ -38,6 +38,8 @@ class Test(unittest.TestCase):
         self.__test(["1","2","2","3",[],"top"],["1","2","2","3","nil"])
         self.__test(["1","2","2","3","nil","top"],["1","2","2","3","nil"])
 
+    def test_pop(self):
+        self.__test(["1","2","2","3",["a", "b", "c"],"pop"],["1","2","2","3",["b","c"]])
 
 
     # def test_unpush(self):

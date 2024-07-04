@@ -96,11 +96,11 @@ class Rule:
 
         for matcher in pattern:
             match matcher:
-                # TODO if matcher is a list, instantiate each element of the
-                # TODO könnte evtl. auch pop nehmen
                 case list():
                     matcher.reverse()
                     stk += [self.__instantiate(matcher, data)]
+                case str() if matcher == "@RDS":
+                    stk += data[matcher]
                 case str() if matcher.startswith('@'):
                     stk += data[matcher]
                 case str() if matcher.startswith('#'):

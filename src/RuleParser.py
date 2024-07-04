@@ -6,7 +6,7 @@ class RuleParser:
         lhs, rhs = re.split(r"\s*->\s*", ruleStr, 1)
         ls = self.__parseLeftRuleSide(lhs)
         rs = self.__parseRightRuleSide(rhs)
-        print(f"{ls} -> {rs}")
+        # print(f"{ls} -> {rs}")
         return Rule(*(ls+rs))
 
     # Can parse a ruleside easiely by treating the whole words as a stack.
@@ -50,7 +50,6 @@ class RuleParser:
         tokens = re.split(r"\s+", str)
 
         appendRCS = True
-        appendRDS = True
         cs = []
         ds = []
         curStack = []
@@ -62,8 +61,6 @@ class RuleParser:
             elif token == "[":
                 curStack.append(self.parseStack(tokens))
             elif token != "":
-                if appendRDS:
-                    appendRDS = not token.startswith('@')
                 if appendRCS:
                     appendRCS = not token.startswith('@')
                 curStack.append(token)
@@ -75,8 +72,8 @@ class RuleParser:
 
         if appendRCS:
             cs.append("@RCS")
-        if appendRDS:
-            ds = ["@RDS"] + ds
+
+        ds = ["@RDS"] + ds
 
         return ds, cs
 
