@@ -2,13 +2,10 @@ from RuleSet import RuleSet
 
 class Interpreter:
 
-    def __init__(self, rules: RuleSet, stack: list):
-        self.stack = stack
+    def __init__(self, rules: RuleSet, cs: list = [], ds: list = []):
         self.rules = rules
+        self.ds = ds
+        self.cs = cs
 
     def run(self):
-        self.stack = self.rules.apply(self)
-        return self.stack
-
-    def printState(self):
-        print(self.stack)
+        self.rules.apply(self)

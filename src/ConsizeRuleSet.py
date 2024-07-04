@@ -32,9 +32,6 @@ CONSIZE_RULE_SET = RuleSet(
 
     "[ ] | reverse -> [ ]",
     "[ #H @T ] | reverse -> [ @T ] | reverse [ #H ] concat"
-    # TODO reverse is applied only on [ @T ], but currently recursive reverse is
-    # applied on "[ #H ]" as this is it element preceeding reverse!
-    # Might need to treat call- and datastack separate!
 
     # TODO fuhre : als regel ein, so dass neue Regeln ins Regelwerk aufgenommen werden können.
 )

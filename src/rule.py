@@ -10,22 +10,29 @@ class Rule:
     def __init__(self, mp, ocs, ip, ncs):
         self.mp = mp
         self.cs = ocs
-        self.ip = ip
+        self.nds = ip
         self.ncs = ncs
 
     def isApplicable(self, interpreter):
-        *ds, word = interpreter.stack
-        ruleWord, *_ =  self.cs
-        if word == ruleWord:
-            return self.__match(self.mp, ds) != ['f']
+        # TODO reverse mit dem emptystack wird nicht richtig angewandt, da der cs
+        # anscheinend falsch herum ist.
+        csm = self.__match(self.cs, interpreter.cs)
+        dsm = self.__match(self.mp, interpreter.ds)
+
+        # TODO return early if csm or dsm is "f" to avoid unnecessary
+        # computation.
+        if csm != "f" and dsm != "f":
+            return True
+
         return False
 
     def execute(self, interpreter):
-        *r, cs = interpreter.stack
-        return self.__rewrite(self.mp, self.ip+self.ncs)(r)
-
-    def __rewrite(self, mpat, ipat):
-        return lambda data: self.__instantiate(ipat, self.__match(mpat, data)[0])
+        # TODO isApplicable does this calulation too. Maybe we can reuse it.
+        csm = self.__match(self.cs, interpreter.cs)
+        dsm = self.__match(self.mp, interpreter.ds)
+        matches = csm | dsm
+        interpreter.cs = self.__instantiate(self.ncs, matches)
+        interpreter.ds = self.__instantiate(self.nds, matches)
 
     def __match(self, pattern, ds):
         pattern = pattern.copy()
@@ -33,11 +40,11 @@ class Rule:
         ds = ds.copy() if isinstance(ds, list) else ds
 
         if pattern == [] and ds == []:
-            return [{}]
+            return {}
         if pattern == []:
-            return ["f"]
+            return "f"
         if type(ds) != type(pattern):
-            return ["f"]
+            return "f"
 
         foundMatches = {}
         tuples = []
@@ -53,35 +60,41 @@ class Rule:
                     containsAtMatcher = True
                 case str() if matcher.startswith("#"):
                     if ds == []:
-                        return ["f"]
+                        return "f"
                     tuples.append((matcher, ds.pop(popIdx)))
                 case str(): # Literal
+                    if ds == []:
+                        return "f"
                     e = ds.pop(popIdx)
                     if matcher != e:
-                        return ["f"]
+                        return "f"
                 case dict():
+                    if ds == []:
+                        return "f"
                     e = ds.pop(popIdx)
                     if matcher != e:
-                        return ["f"]
+                        return "f"
                 case list():
+                    if ds == []:
+                        return "f"
                     m = self.__match(matcher, ds.pop(popIdx))
-                    if m == ["f"]:
+                    if m == "f":
                         return m
-                    for k,v in m[0].items():
+                    for k,v in m.items():
                         if foundMatches.get(k, v) != v:
-                            return ["f"]
+                            return "f"
                         foundMatches[k] = v
 
         if ds != [] and not containsAtMatcher:
-            return ["f"]
+            return "f"
 
         for t in tuples:
             k,v = t
             if foundMatches.get(k, v) != v:
-                return ["f"]
+                return "f"
             foundMatches[k] = v
 
-        return [foundMatches]
+        return foundMatches
 
     def __instantiate(self, pattern, data):
         stk = []
@@ -98,8 +111,6 @@ class Rule:
             match matcher:
                 case list():
                     stk += [self.__instantiate(matcher, data)]
-                case str() if matcher == "@RDS":
-                    stk += data[matcher]
                 case str() if matcher.startswith('@'):
                     stk += data[matcher]
                 case str() if matcher.startswith('#'):

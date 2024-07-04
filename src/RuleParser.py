@@ -44,6 +44,9 @@ class RuleParser:
         if appendRDS:
             ds = ["@RDS"] + ds
 
+        cs = ["@RCS"] + cs
+        # cs.append("@RCS")
+
         return ds, cs
 
     def __parseRightRuleSide(self, str: str):
@@ -71,7 +74,8 @@ class RuleParser:
             cs = curStack
 
         # if appendRCS:
-            # cs.append("@RCS")
+        cs = ["@RCS"] + cs
+        # cs.append("@RCS")
 
         ds = ["@RDS"] + ds
 

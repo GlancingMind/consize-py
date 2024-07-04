@@ -30,11 +30,9 @@ class RuleSet:
                 break
 
             for rule in rules:
-                print(f"{interpreter.stack} =")
-                interpreter.stack = rule.execute(interpreter)
-                print(interpreter.stack)
-
-        return interpreter.stack
+                print(f"{interpreter.ds} | {interpreter.cs} =")
+                rule.execute(interpreter)
+                print(f"{interpreter.ds} | {interpreter.cs} =")
 
     def __repr__(self) -> str:
         return self.ruleStrings
