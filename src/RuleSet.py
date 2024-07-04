@@ -1,6 +1,9 @@
 from dataclasses import dataclass
+from sys import stderr
 
 from RuleParser import RuleParser
+
+import functools
 
 # TODO RuleSet could construct a dictionary from rules to lookup rules matching
 # word instead of iterating over them.
@@ -20,12 +23,17 @@ class RuleSet:
         self.ruleStrings = ruleStrings
 
     def apply(self, interpreter):
-        rules = tuple(rule for rule in self.rules if rule.isApplicable(interpreter))
-        if not any(rules):
-            return "No more rules possible for further substitution"
+        while(True):
+            rules = tuple(rule for rule in self.rules if rule.isApplicable(interpreter))
+            if not any(rules):
+                print("No more rules possible for further substitution", file=stderr)
+                break
 
-        for rule in rules:
-            interpreter.stack = rule.execute(interpreter)
+            for rule in rules:
+                print(f"{interpreter.stack} =")
+                interpreter.stack = rule.execute(interpreter)
+                print(interpreter.stack)
+
         return interpreter.stack
 
     def __repr__(self) -> str:

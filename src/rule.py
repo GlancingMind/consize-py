@@ -22,7 +22,7 @@ class Rule:
 
     def execute(self, interpreter):
         *r, cs = interpreter.stack
-        return self.__rewrite(self.mp, self.ip)(r)
+        return self.__rewrite(self.mp, self.ip+self.ncs)(r)
 
     def __rewrite(self, mpat, ipat):
         return lambda data: self.__instantiate(ipat, self.__match(mpat, data)[0])
@@ -97,7 +97,6 @@ class Rule:
         for matcher in pattern:
             match matcher:
                 case list():
-                    matcher.reverse()
                     stk += [self.__instantiate(matcher, data)]
                 case str() if matcher == "@RDS":
                     stk += data[matcher]

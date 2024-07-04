@@ -30,7 +30,7 @@ class Test(unittest.TestCase):
         self.__test(["1","2","2","3","emptystack"],["1","2","2","3",[]])
 
     def test_push(self):
-        self.__test(["1","2","2","3",["4"],"5","push"],["1","2","2","3",["4","5"]])
+        self.__test(["1","2","2",["4","3"],"5","push"],["1","2","2",["5","4","3"]])
 
     def test_top(self):
         self.__test(["1","2","2","3",["a"],"top"],["1","2","2","3","a"])
@@ -48,3 +48,10 @@ class Test(unittest.TestCase):
         self.__test(["1","2","2","3",["a","b"],"unpush"],["1","2","2","3",["b"],"a"])
         self.__test(["1","2","2","3",["a", "b", "c"],"unpush"],["1","2","2","3",["b", "c"],"a"])
 
+    def test_concat(self):
+        self.__test([[],[],"concat"],[[]])
+        self.__test([["a"],["b"],"concat"],[["a","b"]])
+        self.__test([["a","b"],["c","d"],"concat"],[["a","b","c","d"]])
+
+    def test_reverse(self):
+        self.__test([["1",["2","3"],"4"],"reverse"],[["4",["2","3"],"1"]])

@@ -70,11 +70,12 @@ class RuleParser:
         else:
             cs = curStack
 
-        if appendRCS:
-            cs.append("@RCS")
+        # if appendRCS:
+            # cs.append("@RCS")
 
         ds = ["@RDS"] + ds
 
+        cs.reverse()
         return ds, cs
 
     def parseStack(self, tokens: list):
