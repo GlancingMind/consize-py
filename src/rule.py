@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from sys import stderr
 
-# from Interpreter import Interpreter
-
 @dataclass
 class Rule:
     def __repr__(self) -> str:
@@ -15,12 +13,11 @@ class Rule:
         self.ncs = ncs
 
     def execute(self, interpreter):
-        # TODO Maybe we can avoid this via a decision tree.
         csm = self.__match(self.cs, interpreter.cs)
         dsm = self.__match(self.mp, interpreter.ds)
         if csm == "f" or dsm == "f":
             return False
-        print(f"Apply {self.cs[1]}: {self.mp[1:]} -> {self.nds[1:]}", file=stderr)
+        # print(f"Apply {self.cs[1]}: {self.mp[1:]} -> {self.nds[1:]}", file=stderr)
         matches = csm | dsm
         interpreter.cs = self.__instantiate(self.ncs, matches)
         interpreter.ds = self.__instantiate(self.nds, matches)

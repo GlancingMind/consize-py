@@ -12,6 +12,7 @@
         propagatedBuildInputs = [
           requests
           requests-file
+          pytest
         ];
         src = ./.;
       };

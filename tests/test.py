@@ -14,7 +14,6 @@ class Test(unittest.TestCase):
         i = Interpreter(rules=CONSIZE_RULE_SET, cs=cs, ds=ds)
         i.run()
         self.assertEqual(i.ds, result)
-        # self.assertEqual(output, result)
 
     def test_swap(self):
         self.__test(cs=["swap"], ds=["1","2","2","3"], result=["1","2","3","2"])
