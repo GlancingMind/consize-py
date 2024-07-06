@@ -58,10 +58,10 @@ class Test(unittest.TestCase):
         self.__test(cs=["concat"], ds=[["a","b"],["c","d"]], result=[["a","b","c","d"]])
 
     def test_reverse(self):
-        # self.__test(cs=["reverse"], ds=[[]], result=[[]])
+        self.__test(cs=["reverse"], ds=[[]], result=[[]])
         self.__test(cs=["reverse"], ds=[["1"]], result=[["1"]])
-        # self.__test(cs=["reverse"], ds=[["1","2"]], result=[["2","1"]])
-        # self.__test(
-        #     cs=["reverse"],
-        #     ds=[["1",["2","3"],"4"]],
-        #     result=[["4",["2","3"],"1"]])
+        self.__test(cs=["reverse"], ds=[["1","2"]], result=[["2","1"]])
+        self.__test(
+            cs=["reverse"],
+            ds=[["1",["2","3"],"4"]],
+            result=[["4",["2","3"],"1"]])

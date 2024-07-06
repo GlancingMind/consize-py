@@ -17,7 +17,6 @@ class Rule:
         dsm = self.__match(self.mp, interpreter.ds)
         if csm == "f" or dsm == "f":
             return False
-        # print(f"Apply {self.cs[1]}: {self.mp[1:]} -> {self.nds[1:]}", file=stderr)
         matches = csm | dsm
         interpreter.cs = self.__instantiate(self.ncs, matches)
         interpreter.ds = self.__instantiate(self.nds, matches)

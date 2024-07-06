@@ -19,12 +19,14 @@ class RuleSet:
             self.rules.append(parser.parse(ruleStr))
 
     def apply(self, interpreter):
+        print()
         while(True):
             ds = interpreter.ds
             cs = interpreter.cs
             print(f"{interpreter.ds} | {interpreter.cs} =", file=stderr)
             for rule in self.rules:
-                rule.execute(interpreter)
+                if rule.execute(interpreter):
+                    print(f"Apply {rule}", file=stderr)
 
             if interpreter.ds == ds and interpreter.cs == cs:
                 print("No more possible rules for application", file=stderr)
