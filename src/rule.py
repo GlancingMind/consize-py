@@ -1,11 +1,12 @@
 from dataclasses import dataclass
+from sys import stderr
 
 # from Interpreter import Interpreter
 
 @dataclass
 class Rule:
     def __repr__(self) -> str:
-        return f"{self.mp} | {self.cs} -> {self.ip} | {self.ncs}"
+        return f"{self.mp} | {self.cs} -> {self.nds} | {self.ncs}"
 
     def __init__(self, mp, ocs, ip, ncs):
         self.mp = mp
@@ -13,26 +14,17 @@ class Rule:
         self.nds = ip
         self.ncs = ncs
 
-    def isApplicable(self, interpreter):
-        # TODO reverse mit dem emptystack wird nicht richtig angewandt, da der cs
-        # anscheinend falsch herum ist.
-        csm = self.__match(self.cs, interpreter.cs)
-        dsm = self.__match(self.mp, interpreter.ds)
-
-        # TODO return early if csm or dsm is "f" to avoid unnecessary
-        # computation.
-        if csm != "f" and dsm != "f":
-            return True
-
-        return False
-
     def execute(self, interpreter):
-        # TODO isApplicable does this calulation too. Maybe we can reuse it.
+        # TODO Maybe we can avoid this via a decision tree.
         csm = self.__match(self.cs, interpreter.cs)
         dsm = self.__match(self.mp, interpreter.ds)
+        if csm == "f" or dsm == "f":
+            return False
+        print(f"Apply {self.cs[1]}: {self.mp[1:]} -> {self.nds[1:]}", file=stderr)
         matches = csm | dsm
         interpreter.cs = self.__instantiate(self.ncs, matches)
         interpreter.ds = self.__instantiate(self.nds, matches)
+        return True
 
     def __match(self, pattern, ds):
         pattern = pattern.copy()
