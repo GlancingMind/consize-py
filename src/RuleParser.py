@@ -73,9 +73,9 @@ class RuleParser:
         else:
             cs = curStack
 
-        # if appendRCS:
-        cs = ["@RCS"] + cs
-        # cs.append("@RCS")
+        # TODO for the rhs, the RCS might be always present
+        if appendRCS:
+            cs.append("@RCS")
 
         ds = ["@RDS"] + ds
 

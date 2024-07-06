@@ -13,11 +13,12 @@ class Rule:
         self.ncs = ncs
 
     def execute(self, interpreter):
+        # TODO concat wont be applied properly, as the RCS will swallow concat.
+        # Match muss evtl anders herum functionieren für den callstack Sprich reverse pop index.
         csm = self.__match(self.cs, interpreter.cs)
         dsm = self.__match(self.mp, interpreter.ds)
         if csm == "f" or dsm == "f":
             return False
-        # print(f"Apply {self.cs[1]}: {self.mp[1:]} -> {self.nds[1:]}", file=stderr)
         matches = csm | dsm
         interpreter.cs = self.__instantiate(self.ncs, matches)
         interpreter.ds = self.__instantiate(self.nds, matches)

@@ -32,6 +32,6 @@ CONSIZE_RULE_SET = RuleSet(
 
     "[ ] | reverse -> [ ]",
     "[ @H #T ] | reverse -> [ #T ] [ @H ] | reverse concat"
-
+    # "[ #H @T ] | reverse -> [ @T ] [ #H ] | reverse concat"
     # TODO fuhre : als regel ein, so dass neue Regeln ins Regelwerk aufgenommen werden können.
 )
