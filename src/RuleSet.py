@@ -27,6 +27,7 @@ class RuleSet:
             for rule in self.rules:
                 if rule.execute(interpreter):
                     print(f"Apply {rule}", file=stderr)
+                    print(f"{interpreter.ds} | {interpreter.cs} =", file=stderr)
 
             if interpreter.ds == ds and interpreter.cs == cs:
                 print("No more possible rules for application", file=stderr)

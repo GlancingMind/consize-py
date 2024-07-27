@@ -3,7 +3,7 @@ from dataclasses import dataclass
 @dataclass
 class Rule:
     def __repr__(self) -> str:
-        return f"{self.mp} | {self.cs} -> {self.nds} | {self.ncs}"
+        return f"{self.mp} | {self.cs} => {self.nds} | {self.ncs}"
 
     def __init__(self, mp, ocs, ip, ncs):
         self.mp = mp
@@ -21,10 +21,8 @@ class Rule:
         interpreter.ds = self.__instantiate(self.nds, matches)
         return True
 
-    # MAtch should probably work from right to left
     def __match(self, pattern, ds):
         pattern = pattern.copy()
-
         # ds can also be a word (string) which doesn't have copy methode.
         ds = ds.copy() if isinstance(ds, list) else ds
 
@@ -37,7 +35,7 @@ class Rule:
 
         foundMatches = {}
         tuples = []
-        popIdx = 0
+        popIdx = -1
         containsAtMatcher = False
 
         while pattern != []:
@@ -45,7 +43,7 @@ class Rule:
             match matcher:
                 case str() if matcher.startswith("@"):
                     tuples.append((matcher, ds))
-                    popIdx = -1
+                    popIdx = 0
                     containsAtMatcher = True
                 case str() if matcher.startswith("#"):
                     if ds == []:

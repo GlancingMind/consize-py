@@ -5,40 +5,39 @@ from RuleSet import RuleSet
 CONSIZE_RULE_SET = RuleSet(
     RuleParser(),
     "#X #Y | swap -> #Y #X",
-    # "#X | dup -> #X #X",
-    # "#F | drop -> ",
-    # "#X #Y #Z | rot -> #Z #X #Y",
+    "#X | dup -> #X #X",
+    "#F | drop -> ",
+    "#X #Y #Z | rot -> #Z #X #Y",
 
-    # "#X #X | equal? -> t",
-    # "#X #Y | equal? -> f",
+    "#X #X | equal? -> t",
+    "#X #Y | equal? -> f",
 
-    # "#X #X | identical? -> t",
-    # "#X #Y | identical? -> f",
+    "#X #X | identical? -> t",
+    "#X #Y | identical? -> f",
 
-    # "emptystack -> [ ]",
-    # "[ @S ] #X | push -> [ #X @S ]",
+    "emptystack -> [ ]",
+    "[ @S ] #X | push -> [ #X @S ]",
 
-    # "[ #H @T ] | top -> #H",
-    # "[ ] | top -> nil",
-    # "nil | top -> nil",
+    "[ #H @T ] | top -> #H",
+    "[ ] | top -> nil",
+    "nil | top -> nil",
 
-    # "[ #H @T ] | pop -> [ @T ]",
-    # "[ ] | pop -> [ ]",
+    "[ #H @T ] | pop -> [ @T ]",
+    "[ ] | pop -> [ ]",
 
-    # "[ ] | unpush -> [ ] nil",
-    # "[ #H @T ] | unpush -> [ @T ] #H",
+    "[ ] | unpush -> [ ] nil",
+    "[ #H @T ] | unpush -> [ @T ] #H",
 
-    # "[ @S1 ] [ @S2 ] | concat -> [ @S1 @S2 ]",
+    "[ @S1 ] [ @S2 ] | concat -> [ @S1 @S2 ]",
 
-    # "[ ] | reverse -> [ ]",
-    # "[ @H #T ] | reverse -> [ #T ] [ @H ] | reverse concat",
+    "[ ] | reverse -> [ ]",
+    "[ @H #T ] | reverse -> [ #T ] [ @H ] | reverse concat",
 
-    # "[ @KVP ] | mapping -> { @KVP }",
+    "[ @KVP ] | mapping -> { @KVP }",
 
-    # "{ @KVP } | unmap -> [ @KVP ]",
     "{ } | unmap -> [ ]",
-    # "#T } | unmap -> } [ #T ] | unmap concat  ",
-    # "[ @H #T ] | reverse -> [ #T ] [ @H ] | reverse concat",
+    "{ #K #V } | unmap -> [ #K #V ] | concat",
+    "#K #V } | unmap -> } [ #K #V ] | unmap concat",
 
     # [ #X ]       | word -> #X
     # [ #X #Y ]    | word -> #X #Y builtin-word

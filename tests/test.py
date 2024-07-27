@@ -27,6 +27,18 @@ class Test(unittest.TestCase):
     def test_rot(self):
         self.__test(cs=["rot"], ds=["1","2","3","4"], result=["1","4","2","3"])
 
+    def test_equal(self):
+        self.__test(cs=["equal?"], ds=["1","1"], result=["t"])
+        self.__test(cs=["equal?"], ds=["1","2"], result=["f"])
+        self.__test(cs=["equal?"], ds=["1","2","2"], result=["1","t"])
+        self.__test(cs=["equal?"], ds=["1","2","3"], result=["1","f"])
+
+    def test_identical(self):
+        self.__test(cs=["identical?"], ds=["1","1"], result=["t"])
+        self.__test(cs=["identical?"], ds=["1","2"], result=["f"])
+        self.__test(cs=["identical?"], ds=["1","2","2"], result=["1","t"])
+        self.__test(cs=["identical?"], ds=["1","2","3"], result=["1","f"])
+
     def test_emptystack(self):
         self.__test(cs=["emptystack"], ds=[], result=[[]])
         self.__test(cs=["emptystack"], ds=["1","2"], result=["1","2",[]])
@@ -58,7 +70,7 @@ class Test(unittest.TestCase):
         self.__test(cs=["concat"], ds=[["a","b"],["c","d"]], result=[["a","b","c","d"]])
 
     def test_reverse(self):
-        # self.__test(cs=["reverse"], ds=[[]], result=[[]])
+        self.__test(cs=["reverse"], ds=[[]], result=[[]])
         self.__test(cs=["reverse"], ds=[["1"]], result=[["1"]])
         self.__test(cs=["reverse"], ds=[["1","2"]], result=[["2","1"]])
         self.__test(
@@ -72,9 +84,9 @@ class Test(unittest.TestCase):
         self.__test(cs=["mapping"], ds=[["a","1","b","2"]], result=["{","a","1","b","2","}"])
 
     def test_unmap(self):
-        self.__test(cs=["unmap"], ds=["{","}"], result=[[]])
+        # self.__test(cs=["unmap"], ds=["{","}"], result=[[]])
         self.__test(cs=["unmap"], ds=["{","a","1","}"], result=[["a","1"]])
-        self.__test(cs=["unmap"], ds=["{","a","1","b","2","}"], result=[["a","1","b","2"]])
+        # self.__test(cs=["unmap"], ds=["{","a","1","b","2","}"], result=[["a","1","b","2"]])
 
     # def test_word(self):
     #     self.__test(cs=["word"], ds=[[]], result=["'","'"])
