@@ -19,15 +19,17 @@ class RuleSet:
             self.rules.append(parser.parse(ruleStr))
 
     def apply(self, interpreter):
-        print()
+        print('\n\nSteps:',file=stderr)
         while(True):
             ds = interpreter.ds
             cs = interpreter.cs
-            print(f"{interpreter.ds} | {interpreter.cs} =", file=stderr)
+            dsRepr = self.stringify_stack(interpreter.ds)
+            csRepr = self.stringify_stack(interpreter.cs)
+            print(f"{dsRepr} | {csRepr} ==>", file=stderr)
             for rule in self.rules:
-                if rule.execute(interpreter):
-                    print(f"Apply {rule}", file=stderr)
-                    print(f"{interpreter.ds} | {interpreter.cs} =", file=stderr)
+                rule.execute(interpreter)
+                # if rule.execute(interpreter):
+                    # print(f"Apply {rule}", file=stderr)
 
             if interpreter.ds == ds and interpreter.cs == cs:
                 print("No more possible rules for application", file=stderr)
@@ -35,3 +37,8 @@ class RuleSet:
 
     def __repr__(self) -> str:
         return self.ruleStrings
+
+    def stringify_stack(self, lst):
+        if lst == []:
+            return "[ ]"
+        return ' '.join(self.stringify_stack(item) if isinstance(item, list) else str(item) for item in lst)

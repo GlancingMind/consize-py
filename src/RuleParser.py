@@ -77,7 +77,9 @@ class RuleParser:
         if appendRCS:
             cs.append("@RCS")
 
-        ds = ["@RDS"] + ds
+        # TODO might need to remove this if again.
+        if "@RDS" not in ds:
+            ds = ["@RDS"] + ds
 
         cs.reverse()
         return ds, cs

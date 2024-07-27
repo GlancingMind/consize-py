@@ -28,7 +28,7 @@ CONSIZE_RULE_SET = RuleSet(
     # "[ ] | unpush -> [ ] nil",
     # "[ #H @T ] | unpush -> [ @T ] #H",
 
-    # "[ @S1 ] [ @S2 ] | concat -> [ @S1 @S2 ]",
+    "[ @S1 ] [ @S2 ] | concat -> [ @S1 @S2 ]",
 
     # "[ ] | reverse -> [ ]",
     # "[ @H #T ] | reverse -> [ #T ] [ @H ] | reverse concat",
@@ -36,8 +36,9 @@ CONSIZE_RULE_SET = RuleSet(
     # "[ @KVP ] | mapping -> { @KVP }",
 
     "{ } | unmap -> [ ]",
-    # "{ #K #V } | unmap -> [ #K #V ] | concat",
-    "#K #V } | unmap -> } [ #K #V ] | concat unmap",
+    "{ #K #V } | unmap -> [ #K #V ] | concat",
+    "#K #V } | unmap -> [ #K #V ] @RDS } | unmap concat",
+    # Could also add "} {" between elements and then call concat
 
     # [ #X ]       | word -> #X
     # [ #X #Y ]    | word -> #X #Y builtin-word
