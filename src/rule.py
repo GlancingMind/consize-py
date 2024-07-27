@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from sys import stderr
 
 @dataclass
 class Rule:
@@ -22,8 +21,10 @@ class Rule:
         interpreter.ds = self.__instantiate(self.nds, matches)
         return True
 
+    # MAtch should probably work from right to left
     def __match(self, pattern, ds):
         pattern = pattern.copy()
+
         # ds can also be a word (string) which doesn't have copy methode.
         ds = ds.copy() if isinstance(ds, list) else ds
 

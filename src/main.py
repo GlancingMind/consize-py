@@ -7,67 +7,6 @@ from ConsizeRuleSet import CONSIZE_RULE_SET
 from Interpreter import Interpreter
 from RuleSet import RuleSet
 
-def _type(stack):
-    """
-    :return: New stack with the top element replaced by its type.
-    E.g: type([x y z]) returns [x y wrd]
-    """
-    top, *rest = stack
-    match top:
-        case str():     return ["wrd"] + rest
-        case list():    return ["stk"] + rest
-        case dict():    return ["map"] + rest
-        case _ if callable(top): return ["fct"] + rest
-        case None:      return ["nil"] + rest
-        case _:         return ["_|_"] + rest
-
-def pop(stack):
-    """
-    :return: New stack without the top most element.
-    E.g.: pop([x y z]) returns [[x y]]
-    """
-    innerStack, *rest = stack
-    if isinstance(innerStack, str):
-        print(f"error: '{innerStack}' isnt a stack. Did not perform pop. Current stack is:")
-        return stack
-    if innerStack == None:
-        return [[]] + rest
-    return [innerStack[1:]] + rest
-
-def concat(stack):
-    """
-    :return: New stack with the top two stacks concatenated into one.
-    E.g.: concat([[a b c] [x y z]]) returns [[a b c x y z]]
-    """
-    stack1, stack2, *rest = stack
-    return [ stack2 + stack1 ] + rest
-
-def reverse(stack):
-    """
-    :return: New stack in reversed order.
-    E.g.: reverse([[a b c]]) returns [[c b a]]
-    """
-    stk, *rest = stack
-    return [stk[::-1]] + rest
-
-def mapping(stack):
-    """
-    :return: New stack with the top most stack converted to a dictionary.
-    E.g.: mapping([[a 1 b 2 c 3]]) returns [{a:1, b: 2, c: 3}]
-    """
-    dictDescStack, *rest = stack
-    keys = dictDescStack[0::2]
-    values = dictDescStack[1::2]
-    return [{toDictKey(k): v for k,v in zip(keys, values)}] + rest
-
-def unmap(stack):
-    """
-    :return: New stack with the top most dictionary element converted to a stack.
-    E.g.: unmap([{a:1, b: 2, c: 3}]) returns [[a 1 b 2 c 3]]
-    """
-    dictionary, *rest = stack
-    return [[element for item in dictionary.items() for element in item]] + rest
-
 def keys(stack):
     """
     :return: New stack with the top most dictionary on the stack being replaced
@@ -390,19 +329,17 @@ def moreThanEqual(stack):
     return ["t" if int(x) >= int(y) else "f"] + rest
 
 VM = {
-    toDictKey("pop"): pop,
-    toDictKey("concat"): concat,
-    toDictKey("reverse"): reverse,
-    toDictKey("mapping"): mapping,
-    toDictKey("unmap"): unmap,
+    # Dict functions
     toDictKey("keys"): keys,
     toDictKey("assoc"): assoc,
     toDictKey("dissoc"): dissoc,
     toDictKey("get"): get,
     toDictKey("merge"): merge,
+
     toDictKey("word"): word,
     toDictKey("unword"): unword,
     toDictKey("char"): char,
+
     toDictKey("print"): _print,
     toDictKey("flush"): flush,
     toDictKey("read-line"): readLine,
@@ -412,8 +349,10 @@ VM = {
     toDictKey("uncomment"): uncomment,
     toDictKey("tokenize"): tokenize,
     toDictKey("undocument"): undocument,
+
     toDictKey("current-time-millis"): currentTimeInMilliSeconds,
     toDictKey("operating-system"): operatingSystem,
+
     toDictKey("call"): [call],
     # toDictKey("quote"): [quote],
     toDictKey("call/cc"): [callCC],
@@ -424,17 +363,20 @@ VM = {
     toDictKey("apply"): apply,
     toDictKey("compose"): compose,
     toDictKey("func"): func,
+
     toDictKey("integer?"): integer,
     toDictKey("+"): plus,
     toDictKey("-"): minus,
     toDictKey("*"): multiply,
     toDictKey("div"): divide,
     toDictKey("mod"): modulus,
+
     toDictKey("<"): lessThan,
     toDictKey(">"): moreThan,
     # toDictKey("=="): equal,
     toDictKey("<="): lessThanEqual,
     toDictKey(">="): moreThanEqual,
+
     # toDictKey("\\"):   [["top"], "quote"],
     toDictKey("\\"):   [["dup", "top", "rot", "swap", "push", "swap", "pop", "continue"], "call/cc"],
     toDictKey("load"): ["slurp", "uncomment", "tokenize"],
