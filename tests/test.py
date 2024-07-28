@@ -7,6 +7,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src'
 
 from ConsizeRuleSet import CONSIZE_RULE_SET
 from Interpreter import Interpreter
+from Dictionary import Dictionary
 
 class Test(unittest.TestCase):
 
@@ -79,15 +80,16 @@ class Test(unittest.TestCase):
             result=[["4",["2","3"],"1"]])
 
     def test_mapping(self):
-        self.__test(cs=["mapping"], ds=[[]], result=["{","}"])
-        self.__test(cs=["mapping"], ds=[["a","1"]], result=["{","a","1","}"])
-        self.__test(cs=["mapping"], ds=[["a","1","b","2"]], result=["{","a","1","b","2","}"])
+        # TODO result must be a map, not individual literals
+        self.__test(cs=["mapping"], ds=[[]], result=[Dictionary()])
+        self.__test(cs=["mapping"], ds=[["a","1"]], result=[Dictionary("a","1")])
+        self.__test(cs=["mapping"], ds=[["a","1","b","2"]], result=[Dictionary("a","1","b","2")])
 
     def test_unmap(self):
-        self.__test(cs=["unmap"], ds=["{","}"], result=[[]])
-        self.__test(cs=["unmap"], ds=["{","a","1","}"], result=[["a","1"]])
-        self.__test(cs=["unmap"], ds=["{","a","1","b","2","}"], result=[["b","2","a","1"]])
-        # self.__test(cs=["unmap"], ds=["{","a","1","b","2","}"], result=[["a","1","b","2"]])
+        self.__test(cs=["unmap"], ds=[Dictionary()], result=[[]])
+        self.__test(cs=["unmap"], ds=[Dictionary("a","1")], result=[["a","1"]])
+        self.__test(cs=["unmap"], ds=[Dictionary("a","1", "b","2")], result=[["a","1","b","2"]])
+        self.__test(cs=["unmap"], ds=["unchanged", Dictionary("a","1", "b","2")], result=["unchanged", ["a","1","b","2"]])
 
     # def test_word(self):
     #     self.__test(cs=["word"], ds=[[]], result=["'","'"])

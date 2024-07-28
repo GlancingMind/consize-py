@@ -28,8 +28,6 @@ class RuleSet:
             print(f"{dsRepr} | {csRepr} ==>", file=stderr)
             for rule in self.rules:
                 rule.execute(interpreter)
-                # if rule.execute(interpreter):
-                    # print(f"Apply {rule}", file=stderr)
 
             if interpreter.ds == ds and interpreter.cs == cs:
                 print("No more possible rules for application", file=stderr)

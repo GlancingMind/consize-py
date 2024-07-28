@@ -1,4 +1,5 @@
 import re
+from Dictionary import Dictionary
 from Rule import Rule
 
 class RuleParser:
@@ -31,6 +32,8 @@ class RuleParser:
                 curStack = []
             elif token == "[":
                 curStack.append(self.parseStack(tokens))
+            elif token == "{":
+                curStack.append(self.parseDict(tokens))
             elif token != "":
                 if appendRDS:
                     appendRDS = not token.startswith('@')
@@ -63,6 +66,8 @@ class RuleParser:
                 curStack = []
             elif token == "[":
                 curStack.append(self.parseStack(tokens))
+            elif token == "{":
+                curStack.append(self.parseDict(tokens))
             elif token != "":
                 if appendRCS:
                     appendRCS = not token.startswith('@')
@@ -77,9 +82,7 @@ class RuleParser:
         if appendRCS:
             cs.append("@RCS")
 
-        # TODO might need to remove this if again.
-        if "@RDS" not in ds:
-            ds = ["@RDS"] + ds
+        ds = ["@RDS"] + ds
 
         cs.reverse()
         return ds, cs
@@ -92,6 +95,19 @@ class RuleParser:
                 return stack
             elif token == "[":
                 stack.append(self.parseStack(tokens))
+            else:
+                stack.append(token)
+
+        return stack
+
+    def parseDict(self, tokens: list):
+        stack = Dictionary()
+        while tokens != []:
+            token = tokens.pop(0)
+            if token == "{":
+                stack.append(self.parseDict(tokens))
+            if token == "}":
+                break
             else:
                 stack.append(token)
 

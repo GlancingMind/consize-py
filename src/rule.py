@@ -55,13 +55,17 @@ class Rule:
                     e = ds.pop(popIdx)
                     if matcher != e:
                         return "f"
-                case dict():
+                case list():
                     if ds == []:
                         return "f"
-                    e = ds.pop(popIdx)
-                    if matcher != e:
-                        return "f"
-                case list():
+                    m = self.__match(matcher, ds.pop(popIdx))
+                    if m == "f":
+                        return m
+                    for k,v in m.items():
+                        if foundMatches.get(k, v) != v:
+                            return "f"
+                        foundMatches[k] = v
+                case dict():
                     if ds == []:
                         return "f"
                     m = self.__match(matcher, ds.pop(popIdx))
@@ -82,6 +86,23 @@ class Rule:
             foundMatches[k] = v
 
         return foundMatches
+
+    # def __match_dict(self, dictionary: dict, ds: list):
+    #     if ds.pop() != '{':
+    #         return 'f'
+
+    #     token = ds.pop()
+    #     while token != '}':
+    #         key = token
+    #         value = ds.pop()
+    #         if value == '}':
+    #             return 'f'
+    #         if key not in dictionary.keys:
+    #             return 'f'
+    #         if dictionary.get(key) != value:
+    #             return 'f'
+
+    #     return foundMatches
 
     def __instantiate(self, pattern, data):
         stk = []
