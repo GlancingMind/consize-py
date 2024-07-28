@@ -69,6 +69,12 @@ class Test(unittest.TestCase):
         self.__test(cs=["concat"], ds=[[],[]], result=[[]])
         self.__test(cs=["concat"], ds=[["a"],["b"]], result=[["a","b"]])
         self.__test(cs=["concat"], ds=[["a","b"],["c","d"]], result=[["a","b","c","d"]])
+        self.__test(cs=["concat"], ds=[["a","b"],["c","d"]], result=[["a","b","c","d"]])
+
+    def test_escape(self):
+        self.__test(cs=["a","\\"], ds=[], result=["a"])
+        self.__test(cs=["a","\\"], ds=[[]], result=[[], "a"])
+        self.__test(cs=["a","\\"], ds=["unchanged"], result=["unchanged", "a"])
 
     def test_reverse(self):
         self.__test(cs=["reverse"], ds=[[]], result=[[]])
@@ -92,6 +98,11 @@ class Test(unittest.TestCase):
         self.__test(cs=["unmap"], ds=["unchanged", Dictionary("a","1", "b","2")], result=["unchanged", ["a","1","b","2"]])
 
     def test_keys(self):
+        self.__test(cs=["keys"], ds=["unchanged", Dictionary()], result=["unchanged", []])
+        self.__test(cs=["keys"], ds=["unchanged", Dictionary("a","1")], result=["unchanged", ["a"]])
+        self.__test(cs=["keys"], ds=["unchanged", Dictionary("a","1", "b","2")], result=["unchanged", ["a","b"]])
+
+    def test_assoc(self):
         self.__test(cs=["keys"], ds=["unchanged", Dictionary()], result=["unchanged", []])
         self.__test(cs=["keys"], ds=["unchanged", Dictionary("a","1")], result=["unchanged", ["a"]])
         self.__test(cs=["keys"], ds=["unchanged", Dictionary("a","1", "b","2")], result=["unchanged", ["a","b"]])

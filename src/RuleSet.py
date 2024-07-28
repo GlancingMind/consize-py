@@ -27,7 +27,8 @@ class RuleSet:
             csRepr = self.stringify_stack(interpreter.cs)
             print(f"{dsRepr} | {csRepr} ==>", file=stderr)
             for rule in self.rules:
-                rule.execute(interpreter)
+                if rule.execute(interpreter):
+                    break # doing this to reduce double printing of log entries
 
             if interpreter.ds == ds and interpreter.cs == cs:
                 print("No more possible rules for application", file=stderr)
@@ -36,7 +37,10 @@ class RuleSet:
     def __repr__(self) -> str:
         return self.ruleStrings
 
-    def stringify_stack(self, lst):
+    def stringify_stack(self, lst, printStackParanthesis=False):
         if lst == []:
             return "[ ]"
-        return ' '.join(self.stringify_stack(item) if isinstance(item, list) else str(item) for item in lst)
+        s = ' '.join(self.stringify_stack(item, True) if isinstance(item, list) else str(item) for item in lst)
+        if printStackParanthesis == True:
+            s = "[ "+s+" ]"
+        return s

@@ -28,7 +28,15 @@ CONSIZE_RULE_SET = RuleSet(
     "[ ] | unpush -> [ ] nil",
     "[ #H @T ] | unpush -> [ @T ] #H",
 
-    "[ @S1 ] [ @S2 ] | concat -> [ @S1 @S2 ]",
+    # # This rule is ambigious
+    # # "[ @S1 ] [ @S2 ] | concat -> [ @S1 @S2 ]",
+
+    # # "[ @S ] [ ] | concat -> [ @S ]",
+    # # "[ @S ] [ #H @T ] | concat -> [ @S #H ] [ @T ] | concat",
+
+    "[ #H @T ] [ @S ] | concat -> [ @T ] [ @S ] | concat \ #H push",
+    "[ ] [ @S ] | concat -> [ @S ]",
+    "\ #H -> #H",
 
     "[ ] | reverse -> [ ]",
     "[ @H #T ] | reverse -> [ #T ] [ @H ] | reverse concat",
@@ -38,28 +46,4 @@ CONSIZE_RULE_SET = RuleSet(
 
     "{ } | keys -> [ ]",
     "{ #K #V @R } | keys -> [ #K ] [ @R ] | keys concat",
-
-    # [ #X ]       | word -> #X
-    # [ #X #Y ]    | word -> #X #Y builtin-word
-    # [ #X #Y @R ] | word -> #X #Y builtin-word @R word
-
-    # TODO fuhre : als regel ein, so dass neue Regeln dynamisch ins Regelwerk aufgenommen werden können.
-    # Bspw. diese Wörter wären allerdings nicht:
-    #   ": -rot rot rot"
-    # Da diese auch so ausgedrückt werden können:
-    #   " | -rot -> | rot rot"
-    # Eine knappere Syntax wäre aber cooler. Bspw:
-    #   "alias -rot -> rot rot" oder
-    #   ": -rot -> rot rot"
-
-    # Bräuchte noch ein Wort um arbitären Pythoncode auszuführen.
-    # Das wären dann die Devices in Modal.
-
-    # Das geht nicht. : liegt auf dem input stack, nicht auf dem Datastack!
-    # => Regel müsste feuern, wenn callstack leer ist...
-    # Oder schreibe interpreter um, so dass nur noch ein stack existiert.
-
-    #
 )
-
-# defWord = Rule

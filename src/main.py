@@ -7,15 +7,6 @@ from ConsizeRuleSet import CONSIZE_RULE_SET
 from Interpreter import Interpreter
 from RuleSet import RuleSet
 
-def keys(stack):
-    """
-    :return: New stack with the top most dictionary on the stack being replaced
-    by a stack containing the dictionaries keys.
-    E.g.: keys([{a:1, b: 2, c: 3}]) returns [[a b c]]
-    """
-    dictionary, *rest = stack
-    return [ [restoreDictKey(k) for k in dictionary.keys()] ] + rest
-
 def assoc(stack):
     """
     :return: Add the value under the specified key into the top most dictionary
@@ -330,7 +321,6 @@ def moreThanEqual(stack):
 
 VM = {
     # Dict functions
-    toDictKey("keys"): keys,
     toDictKey("assoc"): assoc,
     toDictKey("dissoc"): dissoc,
     toDictKey("get"): get,

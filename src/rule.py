@@ -21,62 +21,62 @@ class Rule:
         interpreter.ds = self.__instantiate(self.nds, matches)
         return True
 
-    def __match(self, pattern, ds):
+    def __match(self, pattern, stack, topOfStackIsLeft=False):
         pattern = pattern.copy()
         # ds can also be a word (string) which doesn't have copy methode.
-        ds = ds.copy() if isinstance(ds, list) else ds
+        stack = stack.copy() if isinstance(stack, list) else stack
 
-        if pattern == [] and ds == []:
+        if pattern == [] and stack == []:
             return {}
         if pattern == []:
             return "f"
-        if type(ds) != type(pattern):
+        if type(stack) != type(pattern):
             return "f"
 
         foundMatches = {}
         tuples = []
-        popIdx = -1
+        popIdx = 0 if topOfStackIsLeft else -1
         containsAtMatcher = False
 
         while pattern != []:
             matcher = pattern.pop(popIdx)
             match matcher:
                 case str() if matcher.startswith("@"):
-                    tuples.append((matcher, ds))
-                    popIdx = 0
+                    tuples.append((matcher, stack))
+                    popIdx = -1 if topOfStackIsLeft else 0
                     containsAtMatcher = True
                 case str() if matcher.startswith("#"):
-                    if ds == []:
+                    if stack == []:
                         return "f"
-                    tuples.append((matcher, ds.pop(popIdx)))
+                    tuples.append((matcher, stack.pop(popIdx)))
                 case str(): # Literal
-                    if ds == []:
+                    if stack == []:
                         return "f"
-                    e = ds.pop(popIdx)
+                    e = stack.pop(popIdx)
                     if matcher != e:
                         return "f"
                 case list():
-                    if ds == []:
+                    if stack == []:
                         return "f"
-                    m = self.__match(matcher, ds.pop(popIdx))
+                    m = self.__match(matcher, stack.pop(popIdx), topOfStackIsLeft=True)
                     if m == "f":
                         return m
                     for k,v in m.items():
                         if foundMatches.get(k, v) != v:
                             return "f"
                         foundMatches[k] = v
-                case dict():
-                    if ds == []:
-                        return "f"
-                    m = self.__match(matcher, ds.pop(popIdx))
-                    if m == "f":
-                        return m
-                    for k,v in m.items():
-                        if foundMatches.get(k, v) != v:
-                            return "f"
-                        foundMatches[k] = v
+                # case dict():
+                #     if ds == []:
+                #         return "f"
+                #     m = self.__match(matcher, ds.pop(popIdx))
+                #     if m == "f":
+                #         return m
+                #     for k,v in m.items():
+                #         if foundMatches.get(k, v) != v:
+                #             return "f"
+                #         foundMatches[k] = v
 
-        if ds != [] and not containsAtMatcher:
+        if stack != [] and not containsAtMatcher:
             return "f"
 
         for t in tuples:

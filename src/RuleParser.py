@@ -5,87 +5,46 @@ from Rule import Rule
 class RuleParser:
     def parse(self, ruleStr: str):
         lhs, rhs = re.split(r"\s*->\s*", ruleStr, 1)
-        ls = self.__parseLeftRuleSide(lhs)
-        rs = self.__parseRightRuleSide(rhs)
-        # print(f"{ls} -> {rs}")
-        return Rule(*(ls+rs))
+        m_ds_pat, m_cs_pat = self.__parseLeftRuleSide(lhs)
+        i_ds_pat, i_cs_pat = self.__parseRightRuleSide(rhs)
+        return Rule(mp=m_ds_pat, ocs= m_cs_pat, ip=i_ds_pat, ncs=i_cs_pat)
 
-    # Can parse a ruleside easiely by treating the whole words as a stack.
-    # At least the left side can be popped from continuesly until | is found, then
-    # the words are the callstack and everything after it is the datastack.
-    # The right side can be processed equally by treating the top of stack on the
-    # other side.
     def __parseLeftRuleSide(self, str: str):
-        if str == "":
-            return []
-
-        tokens = re.split(r"\s+", str)
-
-        appendRDS = True
-        cs = []
-        ds = []
-        curStack = []
-        while tokens != []:
-            token = tokens.pop(0)
-            if token == "|":
-                ds = curStack
-                curStack = []
-            elif token == "[":
-                curStack.append(self.parseStack(tokens))
-            elif token == "{":
-                curStack.append(self.parseDict(tokens))
-            elif token != "":
-                if appendRDS:
-                    appendRDS = not token.startswith('@')
-                curStack.append(token)
-
-        if cs == []:
-            cs = curStack
-        else:
-            ds = curStack
-
-        if appendRDS:
-            ds = ["@RDS"] + ds
-
-        cs = ["@RCS"] + cs
-        # cs.append("@RCS")
-
-        return ds, cs
+        *dspStr, cspStr = re.split(r"\s+\|\s+", str)
+        dsp = self.__parsePattern(dspStr[0] if dspStr != [] else "")
+        csp = self.__parsePattern(cspStr, isCallstack=True)
+        return dsp, csp
 
     def __parseRightRuleSide(self, str: str):
+        dspStr, *cspStr = re.split(r"\s+\|\s+", str)
+        dsp = self.__parsePattern(dspStr)
+        csp = self.__parsePattern(cspStr[0] if cspStr != [] else "", isCallstack=True)
+        return dsp, csp
+
+    def __parsePattern(self, str: str, isCallstack=False):
         tokens = re.split(r"\s+", str)
 
-        appendRCS = True
-        cs = []
-        ds = []
-        curStack = []
+        addRestMatcher = True
+        pattern = []
+        popIdx = 0
         while tokens != []:
-            token = tokens.pop(0)
-            if token == "|":
-                ds = curStack
-                curStack = []
-            elif token == "[":
-                curStack.append(self.parseStack(tokens))
+            token = tokens.pop(popIdx)
+            if token == "[":
+                pattern.append(self.parseStack(tokens))
             elif token == "{":
-                curStack.append(self.parseDict(tokens))
+                pattern.append(self.parseDict(tokens))
             elif token != "":
-                if appendRCS:
-                    appendRCS = not token.startswith('@')
-                curStack.append(token)
+                if addRestMatcher:
+                    addRestMatcher = not token.startswith('@')
+                pattern.append(token)
 
-        if ds == []:
-            ds = curStack
-        else:
-            cs = curStack
+        if isCallstack:
+            pattern.reverse()
 
-        # TODO for the rhs, the RCS might be always present
-        if appendRCS:
-            cs.append("@RCS")
+        if addRestMatcher:
+            pattern = ["@RCS" if isCallstack else "@RDS"] + pattern
 
-        ds = ["@RDS"] + ds
-
-        cs.reverse()
-        return ds, cs
+        return pattern
 
     def parseStack(self, tokens: list):
         stack = []
