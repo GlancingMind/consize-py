@@ -34,8 +34,10 @@ CONSIZE_RULE_SET = RuleSet(
     "[ @H #T ] | reverse -> [ #T ] [ @H ] | reverse concat",
 
     "[ @KVP ] | mapping -> { @KVP }",
-
     "{ @KVP } | unmap -> [ @KVP ]",
+
+    "{ } | keys -> [ ]",
+    "{ #K #V @R } | keys -> [ #K ] [ @R ] | keys concat",
 
     # [ #X ]       | word -> #X
     # [ #X #Y ]    | word -> #X #Y builtin-word

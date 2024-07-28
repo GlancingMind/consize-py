@@ -80,16 +80,21 @@ class Test(unittest.TestCase):
             result=[["4",["2","3"],"1"]])
 
     def test_mapping(self):
-        # TODO result must be a map, not individual literals
         self.__test(cs=["mapping"], ds=[[]], result=[Dictionary()])
         self.__test(cs=["mapping"], ds=[["a","1"]], result=[Dictionary("a","1")])
         self.__test(cs=["mapping"], ds=[["a","1","b","2"]], result=[Dictionary("a","1","b","2")])
+        self.__test(cs=["mapping"], ds=["unchanged", ["a","1","b","2"]], result=["unchanged", Dictionary("a","1","b","2")])
 
     def test_unmap(self):
         self.__test(cs=["unmap"], ds=[Dictionary()], result=[[]])
         self.__test(cs=["unmap"], ds=[Dictionary("a","1")], result=[["a","1"]])
         self.__test(cs=["unmap"], ds=[Dictionary("a","1", "b","2")], result=[["a","1","b","2"]])
         self.__test(cs=["unmap"], ds=["unchanged", Dictionary("a","1", "b","2")], result=["unchanged", ["a","1","b","2"]])
+
+    def test_keys(self):
+        self.__test(cs=["keys"], ds=["unchanged", Dictionary()], result=["unchanged", []])
+        self.__test(cs=["keys"], ds=["unchanged", Dictionary("a","1")], result=["unchanged", ["a"]])
+        self.__test(cs=["keys"], ds=["unchanged", Dictionary("a","1", "b","2")], result=["unchanged", ["a","b"]])
 
     # def test_word(self):
     #     self.__test(cs=["word"], ds=[[]], result=["'","'"])
