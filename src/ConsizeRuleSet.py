@@ -29,18 +29,32 @@ CONSIZE_RULE_SET = RuleSet(
     "[ #H @T ] | unpush -> [ @T ] #H",
 
     # # This rule is ambigious
-    # # "[ @S1 ] [ @S2 ] | concat -> [ @S1 @S2 ]",
+    # "[ @S1 ] [ @S2 ] | concat -> [ @S1 @S2 ]",
 
-    # # "[ @S ] [ ] | concat -> [ @S ]",
-    # # "[ @S ] [ #H @T ] | concat -> [ @S #H ] [ @T ] | concat",
+    "[ @S ] [ ] | concat -> [ @S ]",
+    "[ @S ] [ #H @T ] | concat -> [ @S #H ] [ @T ] | concat",
 
-    "[ #H @T ] [ @S ] | concat -> [ @T ] [ @S ] | concat \ #H push",
-    "[ ] [ @S ] | concat -> [ @S ]",
+    # "[ #H @T ] [ @S ] | concat -> [ @T ] [ @S ] | concat \ #H push",
+    # "[ ] [ @S ] | concat -> [ @S ]",
+
+    # Escape the word, which means the word is not interpreted on the callstack,
+    # therefore moved to the datastack.
     "\ #H -> #H",
+
+    # Move stacks/quatation which are on the callstack over to the datastack
+    "| [ @T ] -> [ @T ]",
+
+    # Reverse rules
+    # "[ ] | reverse -> [ ]",
+    # "[ #H @T ] | reverse -> [ @T ] | reverse [ #H ] concat",
+
+    # "[ ] | reverse -> [ ]",
+    # "[ @H #T ] | reverse -> [ @H ] | reverse \ #T push",
 
     "[ ] | reverse -> [ ]",
     "[ @H #T ] | reverse -> [ #T ] [ @H ] | reverse concat",
 
+    # Dictionary rules
     "[ @KVP ] | mapping -> { @KVP }",
     "{ @KVP } | unmap -> [ @KVP ]",
 

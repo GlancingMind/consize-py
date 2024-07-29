@@ -10,13 +10,13 @@ class RuleParser:
         return Rule(mp=m_ds_pat, ocs= m_cs_pat, ip=i_ds_pat, ncs=i_cs_pat)
 
     def __parseLeftRuleSide(self, str: str):
-        *dspStr, cspStr = re.split(r"\s+\|\s+", str)
+        *dspStr, cspStr = re.split(r"\s*\|\s+", str)
         dsp = self.__parsePattern(dspStr[0] if dspStr != [] else "")
         csp = self.__parsePattern(cspStr, isCallstack=True)
         return dsp, csp
 
     def __parseRightRuleSide(self, str: str):
-        dspStr, *cspStr = re.split(r"\s+\|\s+", str)
+        dspStr, *cspStr = re.split(r"\s*\|\s+", str)
         dsp = self.__parsePattern(dspStr)
         csp = self.__parsePattern(cspStr[0] if cspStr != [] else "", isCallstack=True)
         return dsp, csp

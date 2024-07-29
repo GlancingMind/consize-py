@@ -24,7 +24,9 @@ class RuleSet:
             ds = interpreter.ds
             cs = interpreter.cs
             dsRepr = self.stringify_stack(interpreter.ds)
-            csRepr = self.stringify_stack(interpreter.cs)
+            reversedCallstack = interpreter.cs.copy()
+            reversedCallstack.reverse()
+            csRepr = self.stringify_stack(reversedCallstack)
             print(f"{dsRepr} | {csRepr} ==>", file=stderr)
             for rule in self.rules:
                 if rule.execute(interpreter):
