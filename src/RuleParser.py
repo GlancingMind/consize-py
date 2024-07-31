@@ -64,11 +64,6 @@ class RuleParser:
                 d.append(self.__parseDict(tokens))
             elif token == "}":
                 break
-            elif key == None:
-                if token.startswith("@"):
-                    d[token] = None
-                else:
-                    key = token
             else:
                 value = self.__parsePattern([token])
                 # The result of __parsePattern will be always a stack.
@@ -78,8 +73,8 @@ class RuleParser:
                 # Then __parsePattern will return
                 # [[b]], which will be unwrapped, yielding the correct value [b].
                 if len(value) == 1:
-                    d[key] = value[0]
+                    d.append(value[0])
                 else:
-                    d[key] = value
+                    d.append(value)
 
         return d
