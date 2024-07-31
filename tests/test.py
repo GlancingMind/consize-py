@@ -103,9 +103,20 @@ class Test(unittest.TestCase):
         self.__test(cs=["keys"], ds=["unchanged", Dictionary("a","1", "b","2")], result=["unchanged", ["a","b"]])
 
     def test_assoc(self):
-        self.__test(cs=["keys"], ds=["unchanged", Dictionary()], result=["unchanged", []])
-        self.__test(cs=["keys"], ds=["unchanged", Dictionary("a","1")], result=["unchanged", ["a"]])
-        self.__test(cs=["keys"], ds=["unchanged", Dictionary("a","1", "b","2")], result=["unchanged", ["a","b"]])
+        self.__test(cs=["assoc"], ds=["unchanged", "v", "k", Dictionary()], result=["unchanged", Dictionary("k", "v")])
+        self.__test(cs=["assoc"], ds=["unchanged", "v", "k", Dictionary("k", "v")], result=["unchanged", Dictionary("k", "v")])
+        self.__test(cs=["assoc"], ds=["unchanged", "b", "k", Dictionary("k", "v")], result=["unchanged", Dictionary("k", "b")])
+        self.__test(cs=["assoc"], ds=["unchanged", "v2", "k2", Dictionary("k", "v")], result=["unchanged", Dictionary("k", "v", "k2", "v2")])
+
+    def test_get(self):
+        self.__test(cs=["get"], ds=["unchanged", "k", Dictionary(), "d"], result=["unchanged", "d"])
+        self.__test(cs=["get"], ds=["unchanged", "k", Dictionary("a","b"), "d"], result=["unchanged", "d"])
+        self.__test(cs=["get"], ds=["unchanged", "k", Dictionary("a","b","c","e"), "d"], result=["unchanged", "d"])
+
+        self.__test(cs=["get"], ds=["unchanged", "k", Dictionary("k","v"), "d"], result=["unchanged", "v"])
+        self.__test(cs=["get"], ds=["unchanged", "k", Dictionary("a","v","k","b"), "d"], result=["unchanged", "b"])
+        self.__test(cs=["get"], ds=["unchanged", "k", Dictionary("k","b","a","v"), "d"], result=["unchanged", "b"])
+        self.__test(cs=["get"], ds=["unchanged", "k", Dictionary("x","z","k","b","a","v"), "d"], result=["unchanged", "b"])
 
     # def test_word(self):
     #     self.__test(cs=["word"], ds=[[]], result=["'","'"])
