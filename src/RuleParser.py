@@ -57,7 +57,6 @@ class RuleParser:
 
     def __parseDict(self, tokens: list[str]):
         d = Dictionary()
-        key = None
         while tokens != []:
             token = tokens.pop(0)
             if token == "{":

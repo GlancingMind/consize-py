@@ -92,6 +92,12 @@ class Rule:
 
         for matcher in pattern:
             match matcher:
+                case Dictionary():
+                    d = self.__instantiate(matcher, data)
+                    if d == []:
+                        stk += [Dictionary()]
+                    else:
+                        stk += [Dictionary(*d)]
                 case list():
                     stk += [self.__instantiate(matcher, data)]
                 case str() if matcher.startswith('@'):

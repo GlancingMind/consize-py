@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from sys import stderr
 
 from RuleParser import RuleParser
+from Dictionary import Dictionary
 
 # TODO might need to allow functions as rules e.g. for current-time-millis.
 # Therefore the RuleSet should use a dictionary internally instead of iterating over the ruleset.
@@ -46,5 +47,8 @@ class RuleSet:
             return "[ ]"
         s = ' '.join(self.stringify_stack(item, True) if isinstance(item, list) else str(item) for item in lst)
         if printStackParanthesis == True:
-            s = "[ "+s+" ]"
+            if isinstance(lst, Dictionary):
+                s = "{ "+s+" }"
+            else:
+                s = "[ "+s+" ]"
         return s
