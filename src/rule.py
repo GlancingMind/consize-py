@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from Dictionary import Dictionary
+
 @dataclass
 class Rule:
     def __repr__(self) -> str:
@@ -55,6 +57,16 @@ class Rule:
                     e = stack.pop(popIdx)
                     if matcher != e:
                         return "f"
+                case Dictionary():
+                    if stack == []:
+                        return "f"
+                    m = self.__match(matcher.toList(), stack.pop(popIdx), topOfStackIsLeft=True)
+                    if m == "f":
+                        return m
+                    for k,v in m.items():
+                        if foundMatches.get(k, v) != v:
+                            return "f"
+                        foundMatches[k] = v
                 case list():
                     if stack == []:
                         return "f"
@@ -65,16 +77,6 @@ class Rule:
                         if foundMatches.get(k, v) != v:
                             return "f"
                         foundMatches[k] = v
-                # case dict():
-                #     if stack == []:
-                #         return "f"
-                #     m = self.__match(matcher, stack.pop(popIdx))
-                #     if m == "f":
-                #         return m
-                #     for k,v in m.items():
-                #         if foundMatches.get(k, v) != v:
-                #             return "f"
-                #         foundMatches[k] = v
 
         if stack != [] and not containsAtMatcher:
             return "f"

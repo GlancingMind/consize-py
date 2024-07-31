@@ -55,7 +55,7 @@ CONSIZE_RULE_SET = RuleSet(
 #    "[ @H #T ] | reverse -> [ #T ] [ @H ] | reverse concat",
 
     # # Dictionary rules
-    "[ @KVP ] | mapping -> { @KVP }",
+    # "[ @KVP ] | mapping -> { @KVP }",
     "{ @KVP } | unmap -> [ @KVP ]",
 
 #    "{ } | keys -> [ ]",
