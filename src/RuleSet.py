@@ -31,6 +31,8 @@ class RuleSet:
             for rule in self.rules:
                 if rule.execute(interpreter):
                     break # doing this to reduce double printing of log entries
+                          # and enforces, that rules are matched from the start of the
+                          # RuleSet.
 
             if interpreter.ds == ds and interpreter.cs == cs:
                 print("No more possible rules for application", file=stderr)

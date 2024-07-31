@@ -66,9 +66,9 @@ class Rule:
                             return "f"
                         foundMatches[k] = v
                 # case dict():
-                #     if ds == []:
+                #     if stack == []:
                 #         return "f"
-                #     m = self.__match(matcher, ds.pop(popIdx))
+                #     m = self.__match(matcher, stack.pop(popIdx))
                 #     if m == "f":
                 #         return m
                 #     for k,v in m.items():
@@ -86,23 +86,6 @@ class Rule:
             foundMatches[k] = v
 
         return foundMatches
-
-    # def __match_dict(self, dictionary: dict, ds: list):
-    #     if ds.pop() != '{':
-    #         return 'f'
-
-    #     token = ds.pop()
-    #     while token != '}':
-    #         key = token
-    #         value = ds.pop()
-    #         if value == '}':
-    #             return 'f'
-    #         if key not in dictionary.keys:
-    #             return 'f'
-    #         if dictionary.get(key) != value:
-    #             return 'f'
-
-    #     return foundMatches
 
     def __instantiate(self, pattern, data):
         stk = []
@@ -123,6 +106,9 @@ class Rule:
                     stk += data[matcher]
                 case str() if matcher.startswith('#'):
                     stk += [data[matcher]]
+                case dict():
+                    for k in matcher.keys():
+                        stk += [data[k]]
                 case _:
                     stk += [matcher]
         return stk
