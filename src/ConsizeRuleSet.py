@@ -67,13 +67,20 @@ CONSIZE_RULE_SET = RuleSet(
     # "#V #K { @KVPs2 } { @KVPs #K2 #V2 } | assoc -> #V #K { @KVPs2 #K2 #V2 } { @KVPs } | assoc",
     # "#V #K { @KVPs2 } { } | assoc -> { @KVPs2 #K #V }",
     # "#V #K { } | assoc -> { #K #V }",
-    # TODO könnte ich die Regeln auch reduzieren? Ja, packe K V direkt in eine
-    # map und dann packe jedes Element von der anderen Map rüber. Wenn dort #K
-    # nochmal enthalten ist, ignoriere diesen.
-    "#V #K { @KVPs } { @REM #K #_ } | assoc -> #V #K { @KVPs } { @REM } | assoc",
-    "#V #K { @KVPs } { @REM #K2 #V2 } | assoc -> #V #K { @KVPs #K2 #V2 } { @REM } | assoc",
-    "#V #K { @KVPs } { } | assoc -> { @KVPs }",
-    "#V #K { @KVPs } | assoc -> #V #K { #K #V } { @KVPs } | assoc",
+
+    # "\ #H -> #H",
+    # "| { @KVPs } -> { @KVPs }",
+    # "#X #Y #Z | rot -> #Z #X #Y",
+
+    # "#V #K { @REM #K #_ } | assoc -> #V #K { @REM } | assoc'",
+    # "#V #K { @REM #K2 #V2 } | assoc -> #V #K { @REM } | assoc \ #V2 \ #K2 rot rot assoc'",
+    # "#V #K { } | assoc -> { #K #V }",
+    # "#V #K { @KVPs } | assoc' -> { #K #V @KVPs }",
+
+    "#V #K { } | assoc -> #V #K { } | assoc'",
+    "#V #K { #K  #_  @REM } | assoc -> #V  #K { @REM } | assoc assoc'",
+    "#V #K { #K2 #V2 @REM } | assoc -> #V2 #K2 #V #K { @REM } | assoc assoc'",
+    "#V #K { @KVPs } | assoc' -> { #K #V @KVPs }",
 
 #    "#K { } #DEFAULT | get -> #DEFAULT",
 #    "#K { @KVPs #K #V } #DEFAULT | get -> #V",

@@ -21,6 +21,7 @@ class RuleSet:
 
     def apply(self, interpreter):
         print('\n\nSteps:',file=stderr)
+        counter = 0
         while(True):
             ds = interpreter.ds
             cs = interpreter.cs
@@ -29,6 +30,11 @@ class RuleSet:
             reversedCallstack.reverse()
             csRepr = self.stringify_stack(reversedCallstack)
             print(f"{dsRepr} | {csRepr} ==>", file=stderr)
+            counter = counter + 1
+            if counter == 15:
+                print("Stop due to print length", file=stderr)
+                break
+
             for rule in self.rules:
                 if rule.execute(interpreter):
                     break # doing this to reduce double printing of log entries
