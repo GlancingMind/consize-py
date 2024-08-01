@@ -7,16 +7,6 @@ from ConsizeRuleSet import CONSIZE_RULE_SET
 from Interpreter import Interpreter
 from RuleSet import RuleSet
 
-def dissoc(stack):
-    """
-    :return: New stack with the respective entry removed from the top most
-    dictionary.
-    E.g.: dissoc([c {a:1, b: 2, c: 3}]) returns [{a:1, b: 2}]
-    """
-    dict, key, *rest = stack
-    key = toDictKey(key)
-    return [ {k: v for k, v in dict.items() if k != key} ] + rest
-
 def toDictKey(obj):
     return str(f"{obj}")
 
@@ -311,10 +301,6 @@ def moreThanEqual(stack):
     return ["t" if int(x) >= int(y) else "f"] + rest
 
 VM = {
-    # Dict functions
-    toDictKey("dissoc"): dissoc,
-    toDictKey("merge"): merge,
-
     toDictKey("word"): word,
     toDictKey("unword"): unword,
     toDictKey("char"): char,

@@ -126,6 +126,16 @@ class Test(unittest.TestCase):
         self.__test(cs=["get"], ds=["unchanged", "k", Dictionary("k","b","a","v"), "d"], result=["unchanged", "b"])
         self.__test(cs=["get"], ds=["unchanged", "k", Dictionary("x","z","k","b","a","v"), "d"], result=["unchanged", "b"])
 
+    def test_merge(self):
+        self.__test(cs=["merge"], ds=["unchanged", Dictionary(), Dictionary()], result=["unchanged", Dictionary()])
+        self.__test(cs=["merge"], ds=["unchanged", Dictionary(), Dictionary("k", "v")], result=["unchanged", Dictionary("k","v")])
+        self.__test(cs=["merge"], ds=["unchanged", Dictionary("k", "v"), Dictionary()], result=["unchanged", Dictionary("k","v")])
+        self.__test(cs=["merge"], ds=["unchanged", Dictionary("x","z","k","b"), Dictionary("a","v")], result=["unchanged", Dictionary("x","z", "k","b", "a","v")])
+        self.__test(cs=["merge"], ds=["unchanged", Dictionary("x","z"), Dictionary("k","b","a","v")], result=["unchanged", Dictionary("x","z", "a","v", "k","b")])
+        self.__test(cs=["merge"], ds=["unchanged", Dictionary("a","z", "k","b", "e","x"), Dictionary("a","changed",)], result=["unchanged", Dictionary("k","b", "e","x", "a","changed")])
+        self.__test(cs=["merge"], ds=["unchanged", Dictionary("a","z", "k","b", "e","x"), Dictionary("k","changed",)], result=["unchanged", Dictionary("a","z", "e","x", "k","changed")])
+        self.__test(cs=["merge"], ds=["unchanged", Dictionary("a","z", "k","b", "e","x"), Dictionary("e","changed",)], result=["unchanged", Dictionary("a","z", "k","b", "e","changed")])
+
     # def test_word(self):
     #     self.__test(cs=["word"], ds=[[]], result=["'","'"])
     #     self.__test(cs=["word"], ds=[["1"]], result=["'","1","'"])
