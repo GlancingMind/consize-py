@@ -107,6 +107,7 @@ class Test(unittest.TestCase):
         self.__test(cs=["assoc"], ds=["unchanged", "v", "k", Dictionary("k", "v")], result=["unchanged", Dictionary("k", "v")])
         self.__test(cs=["assoc"], ds=["unchanged", "b", "k", Dictionary("k", "v")], result=["unchanged", Dictionary("k", "b")])
         self.__test(cs=["assoc"], ds=["unchanged", "v2", "k2", Dictionary("k", "v")], result=["unchanged", Dictionary("k", "v", "k2", "v2")])
+        self.__test(cs=["assoc"], ds=["unchanged", "changed", "k", Dictionary("x","z","k","b","a","v")], result=["unchanged", Dictionary("x","z","a","v","k","changed")])
 
     def test_get(self):
         self.__test(cs=["get"], ds=["unchanged", "k", Dictionary(), "d"], result=["unchanged", "d"])

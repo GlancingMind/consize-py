@@ -7,15 +7,6 @@ from ConsizeRuleSet import CONSIZE_RULE_SET
 from Interpreter import Interpreter
 from RuleSet import RuleSet
 
-def assoc(stack):
-    """
-    :return: Add the value under the specified key into the top most dictionary
-    of stack.
-    E.g.: assoc([val key {a:1, b: 2, c: 3}]) returns [{a:1, b: 2, c: 3, key: value}]
-    """
-    dict, key, value, *rest = stack
-    return [ {**dict, toDictKey(key): value} ] + rest
-
 def dissoc(stack):
     """
     :return: New stack with the respective entry removed from the top most

@@ -61,22 +61,6 @@ CONSIZE_RULE_SET = RuleSet(
 #    "{ } | keys -> [ ]",
 #    "{ #K #V @R } | keys -> [ #K ] [ @R ] | keys concat",
 
-    # "#V #K { @KVPs #K #V2 } | assoc -> { @KVPs #K #V }",
-    # "#V #K { @KVPs #K2 #V2 } | assoc -> #V #K { #K2 #V2 } { @KVPs } | assoc",
-    # "#V #K { @KVPs2 } { @KVPs #K #OLD_VAL } | assoc -> #V #K { @KVPs2 } { @KVPs } | assoc",
-    # "#V #K { @KVPs2 } { @KVPs #K2 #V2 } | assoc -> #V #K { @KVPs2 #K2 #V2 } { @KVPs } | assoc",
-    # "#V #K { @KVPs2 } { } | assoc -> { @KVPs2 #K #V }",
-    # "#V #K { } | assoc -> { #K #V }",
-
-    # "\ #H -> #H",
-    # "| { @KVPs } -> { @KVPs }",
-    # "#X #Y #Z | rot -> #Z #X #Y",
-
-    # "#V #K { @REM #K #_ } | assoc -> #V #K { @REM } | assoc'",
-    # "#V #K { @REM #K2 #V2 } | assoc -> #V #K { @REM } | assoc \ #V2 \ #K2 rot rot assoc'",
-    # "#V #K { } | assoc -> { #K #V }",
-    # "#V #K { @KVPs } | assoc' -> { #K #V @KVPs }",
-
     "#V #K { } | assoc -> #V #K { } | assoc'",
     "#V #K { #K  #_  @REM } | assoc -> #V  #K { @REM } | assoc assoc'",
     "#V #K { #K2 #V2 @REM } | assoc -> #V2 #K2 #V #K { @REM } | assoc assoc'",
