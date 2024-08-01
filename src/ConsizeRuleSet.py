@@ -66,6 +66,10 @@ CONSIZE_RULE_SET = RuleSet(
     "#V #K { #K2 #V2 @REM } | assoc -> #V2 #K2 #V #K { @REM } | assoc assoc'",
     "#V #K { @KVPs } | assoc' -> { #K #V @KVPs }",
 
+    "#K { } | dissoc -> { }",
+    "#K { #K  #_  @REM } | dissoc -> { @REM }",
+    "#K { #K2 #V2 @REM } | dissoc -> #V2 #K2 #K { @REM } | dissoc assoc'",
+
 #    "#K { } #DEFAULT | get -> #DEFAULT",
 #    "#K { @KVPs #K #V } #DEFAULT | get -> #V",
 #    "#K { @KVPs #K2 #V } #DEFAULT | get -> #K { @KVPs } #DEFAULT | get",

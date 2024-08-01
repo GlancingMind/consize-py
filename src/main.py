@@ -312,9 +312,7 @@ def moreThanEqual(stack):
 
 VM = {
     # Dict functions
-    toDictKey("assoc"): assoc,
     toDictKey("dissoc"): dissoc,
-    toDictKey("get"): get,
     toDictKey("merge"): merge,
 
     toDictKey("word"): word,
