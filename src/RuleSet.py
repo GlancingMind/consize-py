@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from sys import stderr
 
+from Rule import Rule
 from RuleParser import RuleParser
 from Dictionary import Dictionary
 
@@ -12,12 +13,14 @@ from Dictionary import Dictionary
 @dataclass
 class RuleSet:
 
-    def __init__(self, parser: RuleParser, *ruleStrings: str):
+    def __init__(self, parser: RuleParser, *ruleStrings: str, rules: list[Rule]=[]):
         self.ruleStrings = ruleStrings
         self.rules = []
 
         for ruleStr in ruleStrings:
             self.rules.append(parser.parse(ruleStr))
+
+        self.rules += rules
 
     def apply(self, interpreter):
         print('\n\nSteps:',file=stderr)

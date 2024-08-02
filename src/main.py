@@ -14,23 +14,6 @@ def restoreDictKey(key):
     import ast
     return ast.literal_eval(key)
 
-def get(stack):
-    """
-    :return: New stack with the value of the dictionary as top element.
-    E.g.: get([a {a: 1, b: 2, c: 3} z]) returns [1] or when 'a' would exist in
-    dictionary: ['z'].
-    """
-    default, dictionary, key, *rest = stack
-    return [ dictionary.get(toDictKey(key), default) ] + rest
-
-def merge(stack):
-    """
-    :return: New stack with the top two dictionaries merges into one.
-    E.g.: merge([{a: 1, b: 2} {a:2, c: 3}]) returns [{a: 2, b: 2, c: 3}].
-    """
-    dict1, dict2, *rest = stack
-    return [ dict2 | dict1 ] + rest
-
 def word(stack):
     """
     :return: New stack with all word within the top most wordstack compressed

@@ -87,7 +87,3 @@ assert matches([["1",{"2": "3"},"4","5"],"6","7"],["#1", "@2"]) == [{ "#1": ["1"
 # % test rewrite
 # ( [ y x z u v ] ) [ [ x y z u v ] [ #F #S @R ] [ #S #F @R ] rewrite ] unit-test
 # ( f ) [ [ x ] [ #F #S @R ] [ #S #F @R ] rewrite ] unit-test
-
-# TODO Add instantiate to this module
-# TODO Update Parser
-# TODO should matchers also exist for dictionary content? E.g. { #X #Y @RI }

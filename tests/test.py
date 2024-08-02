@@ -136,6 +136,10 @@ class Test(unittest.TestCase):
         self.__test(cs=["merge"], ds=["unchanged", Dictionary("a","z", "k","b", "e","x"), Dictionary("k","changed",)], result=["unchanged", Dictionary("a","z", "e","x", "k","changed")])
         self.__test(cs=["merge"], ds=["unchanged", Dictionary("a","z", "k","b", "e","x"), Dictionary("e","changed",)], result=["unchanged", Dictionary("a","z", "k","b", "e","changed")])
 
+    def test_unword(self):
+        self.__test(cs=["unword"], ds=[], result=[])
+        self.__test(cs=["unword"], ds=["Hello"], result=[["H","e","l","l","o"]])
+
     # def test_word(self):
     #     self.__test(cs=["word"], ds=[[]], result=["'","'"])
     #     self.__test(cs=["word"], ds=[["1"]], result=["'","1","'"])
