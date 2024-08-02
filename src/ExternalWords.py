@@ -2,7 +2,7 @@ import os
 import subprocess
 
 from Rule import Rule
-from StackDeserializer import parse_stack
+from StackDeserializer import parse
 
 class ExternalWords(Rule):
 
@@ -23,7 +23,7 @@ class ExternalWords(Rule):
             result = subprocess.run([word] + interpreter.ds, capture_output=True, text=True)
             if result.returncode == 0:
                 interpreter.cs = rcs
-                interpreter.ds = parse_stack(result.stdout)
+                interpreter.ds = parse(result.stdout)
                 return True
 
         return False

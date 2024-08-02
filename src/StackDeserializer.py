@@ -1,5 +1,9 @@
 from Dictionary import Dictionary
 
+def parse(str: str):
+    stk, _ = parse_stack(str)
+    return stk
+
 def parse_stack(str: str):
     pattern = []
     tokens = str
@@ -17,7 +21,7 @@ def parse_stack(str: str):
             continue
         else:
             pattern.append(token)
-    return pattern
+    return pattern, tokens
 
 def parse_dict(str: str):
     d = Dictionary()
@@ -32,7 +36,7 @@ def parse_dict(str: str):
         elif token.strip() == "":
             continue
         else:
-            value, tokens = parse_stack([token])
+            value, _ = parse_stack([token])
             # The result of __parsePattern will be always a stack.
             # Therefore __parsePattern([b]) for { a b }, will return [b].
             # But what we want is the unwrapped b, therefore we unwrap it.
@@ -43,5 +47,4 @@ def parse_dict(str: str):
                 d.append(value[0])
             else:
                 d.append(value)
-
-    return d
+    return d, tokens
