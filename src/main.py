@@ -12,9 +12,6 @@ def restoreDictKey(key):
     import ast
     return ast.literal_eval(key)
 
-def readLine(stack):
-    return [input()] + stack
-
 def slurp(stack):
     from urllib.parse import urlparse
     import requests
@@ -234,7 +231,6 @@ def moreThanEqual(stack):
     return ["t" if int(x) >= int(y) else "f"] + rest
 
 VM = {
-    toDictKey("read-line"): readLine,
     toDictKey("slurp"): slurp,
     toDictKey("spit"): spit,
     toDictKey("spit-on"): spitOn,

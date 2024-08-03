@@ -166,3 +166,6 @@ class Test(unittest.TestCase):
             sys.stdin = orig
         with replace_stdin(StringIO("Some preprogrammed input")):
             self.__test(cs=Stack("read-line"), ds=Stack(), result=Stack("Some preprogrammed input"))
+
+    def test_slurp(self):
+        self.__test(cs=Stack("slurp"), ds=Stack("./tests/test-file-for-slurp.txt"), result=Stack("Hello Consize!\n"))

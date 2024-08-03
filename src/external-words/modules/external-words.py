@@ -105,3 +105,30 @@ class Readline(ExternalWord):
         i.ds.append(input())
         i.cs.pop()
         return True
+
+class Slurp(ExternalWord):
+    def execute(i: Interpreter):
+        if i.cs == [] or i.cs[0] != "slurp":
+            return False
+
+        if i.ds == []:
+            return False
+
+        *rest, source = i.ds
+
+        # TODO reading of remote files isn't implemented, to reduce dependencies
+        # to request library.
+        content = ""
+        try:
+            with open(source, "r") as file:
+                content = file.read()
+        except FileNotFoundError:
+            print("File not found:", source)
+        except PermissionError:
+            print("Permission denied to read file:", source)
+        except IOError as e:
+            print("An error occurred while reading the file:", e)
+
+        i.ds = rest + [content]
+        i.cs.pop()
+        return True
