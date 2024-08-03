@@ -1,11 +1,12 @@
 from Dictionary import Dictionary
+from Stack import Stack
 
 def parse(str: str):
     stk, _ = parse_stack(str)
     return stk
 
 def parse_stack(str: str):
-    pattern = []
+    pattern = Stack()
     tokens = str
     while tokens != []:
         token, *tokens = tokens
@@ -13,7 +14,7 @@ def parse_stack(str: str):
             p, tokens = parse_stack(tokens)
             pattern.append(p)
         elif token == "]":
-            return pattern, tokens
+            return Stack(*pattern), tokens
         elif token == "{":
             p, tokens = parse_dict(tokens)
             pattern.append(p)

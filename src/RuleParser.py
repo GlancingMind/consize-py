@@ -1,6 +1,7 @@
 import re
 from Rule import Rule
-from StackDeserializer import parse, parse_stack
+from Stack import Stack
+from StackDeserializer import parse
 
 class RuleParser:
     def parse(self, ruleStr: str):
@@ -12,31 +13,31 @@ class RuleParser:
     def _parse_lh_ruleside(self, sideStr: str):
         *dspStr, cspStr = re.split(r"\s*\|\s+", sideStr)
         tokens = re.split(r"\s+", dspStr[0] if dspStr != [] else "")
-        dsp = [] if all(t == "" for t in tokens) else parse(tokens)
+        dsp = Stack() if all(t == "" for t in tokens) else parse(tokens)
         tokens = re.split(r"\s+", cspStr)
-        csp = [] if all(t == "" for t in tokens) else parse(tokens)
+        csp = Stack() if all(t == "" for t in tokens) else parse(tokens)
 
         if not any(word.startswith("@") for word in dsp if isinstance(word, str)):
-            dsp = ["@RDS"] + dsp
+            dsp = Stack("@RDS", *dsp)
 
         if not any(word.startswith("@") for word in csp if isinstance(word, str)):
-            csp = csp + ["@RCS"]
+            csp = Stack(*csp, "@RCS")
         csp.reverse()
 
-        return dsp, csp
+        return Stack(*dsp), Stack(*csp)
 
     def _parse_rh_ruleside(self, sideStr: str):
         dspStr, *cspStr = re.split(r"\s*\|\s+", sideStr)
         tokens = re.split(r"\s+", dspStr)
-        dsp = [] if all(t == "" for t in tokens) else parse(tokens)
+        dsp = Stack() if all(t == "" for t in tokens) else parse(tokens)
         tokens = re.split(r"\s+", cspStr[0] if cspStr != [] else "")
-        csp = [] if all(t == "" for t in tokens) else parse(tokens)
+        csp = Stack() if all(t == "" for t in tokens) else parse(tokens)
 
         if not any(word.startswith("@") for word in dsp if isinstance(word, str)):
-            dsp = ["@RDS"] + dsp
+            dsp = Stack("@RDS", *dsp)
 
         if not any(word.startswith("@") for word in csp if isinstance(word, str)):
-            csp = csp + ["@RCS"]
+            csp = Stack(*csp, "@RCS")
         csp.reverse()
 
-        return dsp, csp
+        return Stack(*dsp), Stack(*csp)

@@ -1,9 +1,15 @@
-class Stack(list):
+from collections import UserList
+
+# TODO maybe switch to Deque for performance, as at matcher will result in
+# popping from other stack side.
+class Stack(UserList):
     def __init__(self, *args):
         super().__init__(args)
 
     def __repr__(self):
-        return (" ").join(["[",*self,"]"])
+        stringifiedElements = [str(itm) for itm in self.data]
+        result = (" ").join(["[",*stringifiedElements,"]"])
+        return result
 
     def copy(self) -> list:
-        return Stack(super().copy())
+        return Stack(*self.data)

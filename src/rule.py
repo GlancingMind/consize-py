@@ -1,13 +1,14 @@
 from dataclasses import dataclass
 
 from Dictionary import Dictionary
+from Stack import Stack
 
 @dataclass
 class Rule:
     def __repr__(self) -> str:
         return f"{self.mp} | {self.cs} => {self.nds} | {self.ncs}"
 
-    def __init__(self, mp, ocs, ip, ncs):
+    def __init__(self, mp: Stack, ocs: Stack, ip: Stack, ncs: Stack):
         self.mp = mp
         self.cs = ocs
         self.nds = ip
@@ -23,10 +24,12 @@ class Rule:
         interpreter.ds = self.__instantiate(self.nds, matches)
         return True
 
-    def __match(self, pattern, stack, topOfStackIsLeft=False):
+    # TODO stack should be of type StackElement
+    # Put all these elements into one Module: Stack.
+    def __match(self, pattern: Stack, stack: Stack, topOfStackIsLeft=False):
         pattern = pattern.copy()
         # ds can also be a word (string) which doesn't have copy methode.
-        stack = stack.copy() if isinstance(stack, list) else stack
+        stack = stack.copy() if isinstance(stack, Stack) or isinstance(stack, Dictionary) else stack
 
         if pattern == [] and stack == []:
             return {}
@@ -57,7 +60,7 @@ class Rule:
                     e = stack.pop(popIdx)
                     if matcher != e:
                         return "f"
-                case list():
+                case Stack() | Dictionary():
                     if stack == []:
                         return "f"
                     m = self.__match(matcher, stack.pop(popIdx), topOfStackIsLeft=True)
@@ -80,7 +83,7 @@ class Rule:
         return foundMatches
 
     def __instantiate(self, pattern, data):
-        stk = []
+        stk = Stack()
 
         # When match doesn't match, 'f' is returned.
         # But instantiate requires a dictionary as data,
@@ -98,7 +101,7 @@ class Rule:
                         stk += [Dictionary()]
                     else:
                         stk += [Dictionary(*d)]
-                case list():
+                case Stack():
                     stk += [self.__instantiate(matcher, data)]
                 case str() if matcher.startswith('@'):
                     stk += data[matcher]

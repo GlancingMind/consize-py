@@ -59,8 +59,8 @@ CONSIZE_RULE_SET = RuleSet(
     "[ @KVP ] | mapping -> { @KVP }",
     "{ @KVP } | unmap -> [ @KVP ]",
 
-   "{ } | keys -> [ ]",
-   "{ #K #V @R } | keys -> [ #K ] { @R } | keys concat",
+    "{ } | keys -> [ ]",
+    "{ #K #V @R } | keys -> [ #K ] { @R } | keys concat",
 
     "#V #K { } | assoc -> #V #K { } | assoc'",
     "#V #K { #K  #_  @REM } | assoc -> #V  #K { @REM } | assoc assoc'",
