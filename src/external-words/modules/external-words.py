@@ -1,5 +1,6 @@
 from ExternalWords import ExternalWord
 from Interpreter import Interpreter
+from Stack import Stack
 
 # TODO move call- and datastack validation into superclass.
 # The just call super.match(), or let ExternalWords.py call isSatisfied() and
@@ -210,5 +211,24 @@ class Tokenize(ExternalWord):
         *rest, word = i.ds
         parts = re.split(r"\s+", word.strip())
         i.ds = rest + ([] if parts == [""] else [parts])
+        i.cs.pop()
+        return True
+
+class Undocument(ExternalWord):
+    def execute(i: Interpreter):
+        import re
+
+        if i.cs == [] or i.cs[-1] != "undocument":
+            return False
+
+        if i.ds == []:
+            return False
+
+        *rest, word = i.ds
+        parts = re.findall(r"(?m)^%?>> (.*)$", word)
+
+        # TODO the unstructoring creates list. Which results in i.ds being assigned a list, which is not longer a stack!
+
+        i.ds = Stack(*rest, Stack(r"\r\n".join(parts)))
         i.cs.pop()
         return True

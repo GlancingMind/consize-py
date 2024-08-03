@@ -199,3 +199,9 @@ class Test(unittest.TestCase):
             cs=Stack("tokenize"),
             ds=Stack("unchanged", "This line % has a comment"),
             result=Stack("unchanged", Stack("This","line","%","has","a","comment")))
+
+    def test_undocument(self):
+        self.__test(
+            cs=Stack("undocument"),
+            ds=Stack("unchanged", "Some documentation is nice.\n>> dup rot rot\nWhat might this do? Here is some other code\n%>> swap"),
+            result=Stack("unchanged", Stack(r"dup rot rot\r\nswap")))

@@ -12,12 +12,6 @@ def restoreDictKey(key):
     import ast
     return ast.literal_eval(key)
 
-def tokenize(stack):
-    import re
-    word, *rest = stack
-    parts = re.split(r"\s+", word.strip())
-    return ([] if parts == [""] else [parts]) + rest
-
 def undocument(stack):
     import re
     word, *rest = stack
