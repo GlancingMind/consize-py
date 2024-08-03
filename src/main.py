@@ -12,41 +12,6 @@ def restoreDictKey(key):
     import ast
     return ast.literal_eval(key)
 
-def slurp(stack):
-    from urllib.parse import urlparse
-    import requests
-    from requests_file import FileAdapter
-
-    session = requests.Session()
-    session.mount('file://', FileAdapter())
-
-    source, *rest = stack
-
-    if(urlparse(source).scheme == ""):
-        # seems to be not a valid URI. Will use local file read.
-        try:
-            with open(source, "r") as file:
-                return [file.read()] + rest
-        except FileNotFoundError:
-            print("File not found:", source)
-        except PermissionError:
-            print("Permission denied to read file:", source)
-        except IOError as e:
-            print("An error occurred while reading the file:", e)
-    else:
-        # some URI schema was detected will try fetching remote resource.
-        try:
-            response = session.get(r""+source)
-            if response.status_code == 200:
-                return [response.text] + rest
-            else:
-                print("Error:", response.status_code)
-                return rest
-        except requests.RequestException as e:
-            print("error:", e)
-            return rest
-    return rest
-
 def spit(stack):
     from urllib.parse import urlparse
 
@@ -231,7 +196,6 @@ def moreThanEqual(stack):
     return ["t" if int(x) >= int(y) else "f"] + rest
 
 VM = {
-    toDictKey("slurp"): slurp,
     toDictKey("spit"): spit,
     toDictKey("spit-on"): spitOn,
     toDictKey("uncomment"): uncomment,

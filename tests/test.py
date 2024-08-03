@@ -169,3 +169,23 @@ class Test(unittest.TestCase):
 
     def test_slurp(self):
         self.__test(cs=Stack("slurp"), ds=Stack("./tests/test-file-for-slurp.txt"), result=Stack("Hello Consize!\n"))
+
+    def test_spit(self):
+        self.__test(
+            cs=Stack("slurp", "spit"),
+            ds=Stack(
+                "unchanged",
+                "./tests/test-file-for-spit.txt",
+                "Hello Forth!\n",
+                "./tests/test-file-for-spit.txt"
+            ),
+            result=Stack("unchanged", "Hello Forth!\n"))
+        self.__test(
+            cs=Stack("slurp", "spit"),
+            ds=Stack(
+                "unchanged",
+                "./tests/test-file-for-spit.txt",
+                "Hello Consize!\n",
+                "./tests/test-file-for-spit.txt"
+            ),
+            result=Stack("unchanged", "Hello Consize!\n"))
