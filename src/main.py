@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 
 import sys
-from dataclasses import dataclass
 
 from ConsizeRuleSet import CONSIZE_RULE_SET
 from Interpreter import Interpreter
-from RuleSet import RuleSet
 
 def toDictKey(obj):
     return str(f"{obj}")
@@ -13,19 +11,6 @@ def toDictKey(obj):
 def restoreDictKey(key):
     import ast
     return ast.literal_eval(key)
-
-def word(stack):
-    """
-    :return: New stack with all word within the top most wordstack compressed
-    into one continues word.
-    E.g.: word([["it's", "me", "!"]]) returns ["it'sme!"].
-    """
-    wordstack, *rest = stack
-    return ["".join(wordstack)] + rest
-
-def unword(stack):
-    word, *rest = stack
-    return [[character for character in word]] + rest
 
 def char(stack):
     """
@@ -284,8 +269,6 @@ def moreThanEqual(stack):
     return ["t" if int(x) >= int(y) else "f"] + rest
 
 VM = {
-    toDictKey("word"): word,
-    toDictKey("unword"): unword,
     toDictKey("char"): char,
 
     toDictKey("print"): _print,

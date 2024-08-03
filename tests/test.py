@@ -139,3 +139,13 @@ class Test(unittest.TestCase):
     def test_word(self):
         self.__test(cs=Stack("word"), ds=Stack(Stack("1")), result=Stack("1"))
         self.__test(cs=Stack("word"), ds=Stack(Stack("1","2")), result=Stack("12"))
+
+    def test_char(self):
+        self.__test(cs=Stack("char"), ds=Stack(r"\space"), result=Stack(" "))
+        self.__test(cs=Stack("char"), ds=Stack(r"\newline"), result=Stack("\n"))
+        self.__test(cs=Stack("char"), ds=Stack(r"\formfeed"), result=Stack("\f"))
+        self.__test(cs=Stack("char"), ds=Stack(r"\return"), result=Stack("\r"))
+        self.__test(cs=Stack("char"), ds=Stack(r"\backspace"), result=Stack("\b"))
+        self.__test(cs=Stack("char"), ds=Stack(r"\tab"), result=Stack("\t"))
+        self.__test(cs=Stack("char"), ds=Stack(r"\u0040"), result=Stack("@"))
+        self.__test(cs=Stack("char"), ds=Stack(r"\o100"), result=Stack("@"))
