@@ -192,5 +192,10 @@ class Test(unittest.TestCase):
         self.assertEqual(content, "Hello You!\n- Greetings Consize")
 
     def test_uncomment(self):
-        self.__test(cs=Stack("uncomment"), ds=Stack("This line % has a comment"), result=Stack("This line"))
+        self.__test(cs=Stack("uncomment"), ds=Stack("unchange", "This line % has a comment"), result=Stack("unchanged", "This line"))
 
+    def test_tokenize(self):
+        self.__test(
+            cs=Stack("tokenize"),
+            ds=Stack("unchanged", "This line % has a comment"),
+            result=Stack("unchanged", Stack("This","line","%","has","a","comment")))

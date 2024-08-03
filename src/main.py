@@ -153,8 +153,6 @@ def moreThanEqual(stack):
     return ["t" if int(x) >= int(y) else "f"] + rest
 
 VM = {
-    toDictKey("uncomment"): uncomment,
-    toDictKey("tokenize"): tokenize,
     toDictKey("undocument"): undocument,
 
     toDictKey("current-time-millis"): currentTimeInMilliSeconds,

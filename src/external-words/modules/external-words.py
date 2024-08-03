@@ -196,3 +196,19 @@ class Uncomment(ExternalWord):
         i.ds = rest + [re.sub(r"(?m)\s*%.*$", "", word).strip()]
         i.cs.pop()
         return True
+
+class Tokenize(ExternalWord):
+    def execute(i: Interpreter):
+        import re
+
+        if i.cs == [] or i.cs[-1] != "tokenize":
+            return False
+
+        if i.ds == []:
+            return False
+
+        *rest, word = i.ds
+        parts = re.split(r"\s+", word.strip())
+        i.ds = rest + ([] if parts == [""] else [parts])
+        i.cs.pop()
+        return True
