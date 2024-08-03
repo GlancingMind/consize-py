@@ -157,3 +157,28 @@ class Spit(ExternalWord):
         i.ds = rest
         i.cs.pop()
         return True
+
+class SpitOn(ExternalWord):
+    def execute(i: Interpreter):
+        if i.cs == [] or i.cs[-1] != "spit-on":
+            return False
+
+        if i.ds == []:
+            return False
+
+        *rest, data, uri = i.ds
+
+        # seems to be not a valid URI. Will use local file read.
+        try:
+            with open(uri, "a") as file:
+                file.write(data)
+        except FileNotFoundError:
+            print("File not found:", uri)
+        except PermissionError:
+            print("Permission denied to write file:", uri)
+        except IOError as e:
+            print("An error occurred while writing the file:", e)
+
+        i.ds = rest
+        i.cs.pop()
+        return True

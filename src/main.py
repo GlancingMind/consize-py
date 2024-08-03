@@ -12,44 +12,6 @@ def restoreDictKey(key):
     import ast
     return ast.literal_eval(key)
 
-def spit(stack):
-    from urllib.parse import urlparse
-
-    uri, data, *rest = stack
-
-    pr = urlparse(uri)
-    if(pr.scheme == "file" or pr.scheme == ""):
-        # seems to be not a valid URI. Will use local file read.
-        try:
-            with open(pr.path, "w") as file:
-                file.write(data)
-        except FileNotFoundError:
-            print("File not found:", pr.path)
-        except PermissionError:
-            print("Permission denied to write file:", pr.path)
-        except IOError as e:
-            print("An error occurred while writing the file:", e)
-    return rest
-
-def spitOn(stack):
-    from urllib.parse import urlparse
-
-    uri, data, *rest = stack
-
-    pr = urlparse(uri)
-    if(pr.scheme == "file" or pr.scheme == ""):
-        # seems to be not a valid URI. Will use local file read.
-        try:
-            with open(pr.path, "a") as file:
-                file.write(data)
-        except FileNotFoundError:
-            print("File not found:", pr.path)
-        except PermissionError:
-            print("Permission denied to write file:", pr.path)
-        except IOError as e:
-            print("An error occurred while writing the file:", e)
-    return rest
-
 def uncomment(stack):
     import re
     word, *rest = stack
@@ -196,8 +158,6 @@ def moreThanEqual(stack):
     return ["t" if int(x) >= int(y) else "f"] + rest
 
 VM = {
-    toDictKey("spit"): spit,
-    toDictKey("spit-on"): spitOn,
     toDictKey("uncomment"): uncomment,
     toDictKey("tokenize"): tokenize,
     toDictKey("undocument"): undocument,

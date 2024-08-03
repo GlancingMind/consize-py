@@ -171,21 +171,22 @@ class Test(unittest.TestCase):
         self.__test(cs=Stack("slurp"), ds=Stack("./tests/test-file-for-slurp.txt"), result=Stack("Hello Consize!\n"))
 
     def test_spit(self):
-        self.__test(
-            cs=Stack("slurp", "spit"),
-            ds=Stack(
-                "unchanged",
-                "./tests/test-file-for-spit.txt",
-                "Hello Forth!\n",
-                "./tests/test-file-for-spit.txt"
-            ),
-            result=Stack("unchanged", "Hello Forth!\n"))
-        self.__test(
-            cs=Stack("slurp", "spit"),
-            ds=Stack(
-                "unchanged",
-                "./tests/test-file-for-spit.txt",
-                "Hello Consize!\n",
-                "./tests/test-file-for-spit.txt"
-            ),
-            result=Stack("unchanged", "Hello Consize!\n"))
+        filePath = "./tests/test-file-for-spit.txt"
+        with open(filePath, "w") as file:
+            file.write("")
+        self.__test(cs=Stack("spit"), ds=Stack("unchanged", "Hello Consize!\n", filePath), result=Stack("unchanged"))
+        content = ""
+        with open(filePath, "r") as file:
+            content = file.read()
+        self.assertEqual(content, "Hello Consize!\n")
+
+    def test_spit_on(self):
+        filePath = "./tests/test-file-for-spit-on.txt"
+        data = "Hello You!\n"
+        with open(filePath, "w") as file:
+            file.write(data)
+        self.__test(cs=Stack("spit-on"), ds=Stack("unchanged", "- Greetings Consize", filePath), result=Stack("unchanged"))
+        content = ""
+        with open(filePath, "r") as file:
+            content = file.read()
+        self.assertEqual(content, "Hello You!\n- Greetings Consize")
