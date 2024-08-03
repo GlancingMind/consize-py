@@ -12,11 +12,6 @@ def restoreDictKey(key):
     import ast
     return ast.literal_eval(key)
 
-def uncomment(stack):
-    import re
-    word, *rest = stack
-    return [re.sub(r"(?m)\s*%.*$", "", word).strip()] + rest
-
 def tokenize(stack):
     import re
     word, *rest = stack

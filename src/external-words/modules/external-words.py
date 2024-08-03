@@ -168,7 +168,6 @@ class SpitOn(ExternalWord):
 
         *rest, data, uri = i.ds
 
-        # seems to be not a valid URI. Will use local file read.
         try:
             with open(uri, "a") as file:
                 file.write(data)
@@ -180,5 +179,20 @@ class SpitOn(ExternalWord):
             print("An error occurred while writing the file:", e)
 
         i.ds = rest
+        i.cs.pop()
+        return True
+
+class Uncomment(ExternalWord):
+    def execute(i: Interpreter):
+        import re
+
+        if i.cs == [] or i.cs[-1] != "uncomment":
+            return False
+
+        if i.ds == []:
+            return False
+
+        *rest, word = i.ds
+        i.ds = rest + [re.sub(r"(?m)\s*%.*$", "", word).strip()]
         i.cs.pop()
         return True

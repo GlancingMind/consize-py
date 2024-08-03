@@ -190,3 +190,7 @@ class Test(unittest.TestCase):
         with open(filePath, "r") as file:
             content = file.read()
         self.assertEqual(content, "Hello You!\n- Greetings Consize")
+
+    def test_uncomment(self):
+        self.__test(cs=Stack("uncomment"), ds=Stack("This line % has a comment"), result=Stack("This line"))
+
