@@ -3,7 +3,6 @@ from sys import stderr
 
 from Rule import Rule
 from RuleParser import RuleParser
-from StackSerializer import stringify_stack
 
 # TODO might need to allow functions as rules e.g. for current-time-millis.
 # Therefore the RuleSet should use a dictionary internally instead of iterating over the ruleset.
@@ -28,11 +27,9 @@ class RuleSet:
         while(True):
             ds = interpreter.ds
             cs = interpreter.cs
-            dsRepr = stringify_stack(interpreter.ds)
             reversedCallstack = interpreter.cs.copy()
             reversedCallstack.reverse()
-            csRepr = stringify_stack(reversedCallstack)
-            print(f"{dsRepr} | {csRepr} ==>", file=stderr)
+            print(f"{interpreter.ds} | {reversedCallstack} ==>", file=stderr)
             counter = counter + 1
             if counter == 15:
                 print("Stop due to print length", file=stderr)

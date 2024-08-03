@@ -1,5 +1,4 @@
-from Dictionary import Dictionary
-from Stack import Stack
+from Stack import Dictionary, Stack
 
 def parse(str: str):
     stk, _ = parse_stack(str)

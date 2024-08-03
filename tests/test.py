@@ -7,8 +7,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src'
 
 from ConsizeRuleSet import CONSIZE_RULE_SET
 from Interpreter import Interpreter
-from Dictionary import Dictionary
-from Stack import Stack
+from Stack import Dictionary, Stack
 
 class Test(unittest.TestCase):
 
@@ -134,7 +133,7 @@ class Test(unittest.TestCase):
         self.__test(cs=Stack("merge"), ds=Stack("unchanged", Dictionary("a","z", "k","b", "e","x"), Dictionary("e","changed",)), result=Stack("unchanged", Dictionary("a","z", "k","b", "e","changed")))
 
     def test_unword(self):
-        # self.__test(cs=Stack("unword"), ds=Stack(), result=Stack())
+        self.__test(cs=Stack("unword"), ds=Stack(), result=Stack())
         self.__test(cs=Stack("unword"), ds=Stack("Hello"), result=Stack(Stack("H","e","l","l","o")))
 
     # def test_word(self):

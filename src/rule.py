@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
-from Dictionary import Dictionary
-from Stack import Stack
+from Stack import Dictionary, Stack, StackElement
 
 @dataclass
 class Rule:
@@ -26,7 +25,7 @@ class Rule:
 
     # TODO stack should be of type StackElement
     # Put all these elements into one Module: Stack.
-    def __match(self, pattern: Stack, stack: Stack, topOfStackIsLeft=False):
+    def __match(self, pattern: Stack, stack: StackElement, topOfStackIsLeft=False):
         pattern = pattern.copy()
         # ds can also be a word (string) which doesn't have copy methode.
         stack = stack.copy() if isinstance(stack, Stack) or isinstance(stack, Dictionary) else stack
