@@ -12,41 +12,6 @@ def restoreDictKey(key):
     import ast
     return ast.literal_eval(key)
 
-def char(stack):
-    """
-    :return: New stack with the top most element being the interpreted
-    character.
-
-    NOTE: Top element on the stack should be a raw string, otherwise
-    interpretation will fail.
-
-    E.g: char([r"\\u0040"]) will return ["@"]
-         char([r"\\o100"]) will return ["@"]
-    """
-    characterCode, *rest = stack
-    match characterCode:
-        case r"\space":     return [" "] + rest
-        case r"\newline":   return ["\n"] + rest
-        case r"\formfeed":  return ["\f"] + rest
-        case r"\return":    return ["\r"] + rest
-        case r"\backspace": return ["\b"] + rest
-        case r"\tab":       return ["\t"] + rest
-        case _ if characterCode.startswith(r"\o"):
-            return [chr(int(characterCode[2:], 8))] + rest
-        case _ if characterCode.startswith(r"\u"):
-            return [bytes(characterCode, "utf-8").decode("unicode_escape")] + rest
-        case _:
-            return [fr"error: {characterCode} isn't a valid character codec"] + rest
-
-def _print(stack):
-    word, *rest = stack
-    print(word, end="") if isinstance(word, str) else print("error: top element isn't of type string")
-    return rest
-
-def flush(stack):
-    sys.stdout.flush()
-    return stack
-
 def readLine(stack):
     return [input()] + stack
 
@@ -269,10 +234,6 @@ def moreThanEqual(stack):
     return ["t" if int(x) >= int(y) else "f"] + rest
 
 VM = {
-    toDictKey("char"): char,
-
-    toDictKey("print"): _print,
-    toDictKey("flush"): flush,
     toDictKey("read-line"): readLine,
     toDictKey("slurp"): slurp,
     toDictKey("spit"): spit,

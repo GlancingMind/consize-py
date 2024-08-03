@@ -1,3 +1,4 @@
+from io import StringIO
 import sys
 import unittest
 import os
@@ -8,6 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src'
 from ConsizeRuleSet import CONSIZE_RULE_SET
 from Interpreter import Interpreter
 from Stack import Dictionary, Stack
+
 
 class Test(unittest.TestCase):
 
@@ -134,18 +136,33 @@ class Test(unittest.TestCase):
 
     def test_unword(self):
         self.__test(cs=Stack("unword"), ds=Stack(), result=Stack())
-        self.__test(cs=Stack("unword"), ds=Stack("Hello"), result=Stack(Stack("H","e","l","l","o")))
+        self.__test(cs=Stack("unword"), ds=Stack("unchanged", "Hello"), result=Stack("unchanged", Stack("H","e","l","l","o")))
 
     def test_word(self):
         self.__test(cs=Stack("word"), ds=Stack(Stack("1")), result=Stack("1"))
-        self.__test(cs=Stack("word"), ds=Stack(Stack("1","2")), result=Stack("12"))
+        self.__test(cs=Stack("word"), ds=Stack("unchanged", Stack("1","2")), result=Stack("unchanged", "12"))
 
     def test_char(self):
-        self.__test(cs=Stack("char"), ds=Stack(r"\space"), result=Stack(" "))
-        self.__test(cs=Stack("char"), ds=Stack(r"\newline"), result=Stack("\n"))
-        self.__test(cs=Stack("char"), ds=Stack(r"\formfeed"), result=Stack("\f"))
-        self.__test(cs=Stack("char"), ds=Stack(r"\return"), result=Stack("\r"))
-        self.__test(cs=Stack("char"), ds=Stack(r"\backspace"), result=Stack("\b"))
-        self.__test(cs=Stack("char"), ds=Stack(r"\tab"), result=Stack("\t"))
-        self.__test(cs=Stack("char"), ds=Stack(r"\u0040"), result=Stack("@"))
-        self.__test(cs=Stack("char"), ds=Stack(r"\o100"), result=Stack("@"))
+        self.__test(cs=Stack("char"), ds=Stack("unchanged", r"\space"), result=Stack("unchanged", " "))
+        self.__test(cs=Stack("char"), ds=Stack("unchanged", r"\newline"), result=Stack("unchanged", "\n"))
+        self.__test(cs=Stack("char"), ds=Stack("unchanged", r"\formfeed"), result=Stack("unchanged","\f"))
+        self.__test(cs=Stack("char"), ds=Stack("unchanged", r"\return"), result=Stack("unchanged","\r"))
+        self.__test(cs=Stack("char"), ds=Stack("unchanged", r"\backspace"), result=Stack("unchanged","\b"))
+        self.__test(cs=Stack("char"), ds=Stack("unchanged", r"\tab"), result=Stack("unchanged","\t"))
+        self.__test(cs=Stack("char"), ds=Stack("unchanged", r"\u0040"), result=Stack("unchanged","@"))
+        self.__test(cs=Stack("char"), ds=Stack("unchanged", r"\o100"), result=Stack("unchanged","@"))
+
+    def test_print(self):
+        self.__test(cs=Stack("print"), ds=Stack("Hello World"), result=Stack())
+
+    def test_readline(self):
+        from contextlib import contextmanager
+
+        @contextmanager
+        def replace_stdin(target):
+            orig = sys.stdin
+            sys.stdin = target
+            yield
+            sys.stdin = orig
+        with replace_stdin(StringIO("Some preprogrammed input")):
+            self.__test(cs=Stack("read-line"), ds=Stack(), result=Stack("Some preprogrammed input"))
