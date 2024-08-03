@@ -1,5 +1,5 @@
 import glob
-from ExternalWords import ExternalWords
+from ExternalWords import ExternalWordModules, ExternalWords
 from RuleParser import RuleParser
 from RuleSet import RuleSet
 
@@ -77,5 +77,6 @@ CONSIZE_RULE_SET = RuleSet(
 
     "{ @M1 } { #K #V @M2 } | merge -> #V #K { @M1 } { @M2 } | merge assoc",
     "{ @M1 } { } | merge -> { @M1 }",
-    rules=[ExternalWords(wordScripts=glob.glob("./src/external-words/*"))]
+    rules=[ExternalWords(wordScripts=glob.glob("./src/external-words/*"))],
+    rules=[ExternalWordModules(modules=glob.glob("./src/external-words/modules/*.py"))]
 )
