@@ -77,6 +77,8 @@ CONSIZE_RULE_SET = RuleSet(
 
     "{ @M1 } { #K #V @M2 } | merge -> #V #K { @M1 } { @M2 } | merge assoc",
     "{ @M1 } { } | merge -> { @M1 }",
-    rules=[ExternalWords(wordScripts=glob.glob("./src/external-words/*"))],
-    rules=[ExternalWordModules(modules=glob.glob("./src/external-words/modules/*.py"))]
+    rules=[
+        ExternalWordModules(moduleDir="./src/external-words/modules"),
+        ExternalWords(wordScripts=glob.glob("./src/external-words/*"))
+    ],
 )

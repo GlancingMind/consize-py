@@ -3,6 +3,9 @@
 import sys
 
 if __name__ == "__main__":
+    # When running this script, first remove the unword definition from the
+    # external word modules.
+    exit(1)
     # Exclude the first argument because it is the script name
     stack = sys.argv[1:]
 

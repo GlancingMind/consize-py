@@ -1,6 +1,49 @@
+from abc import ABC, abstractmethod
+import importlib as importlib
+import sys
+
+from Rule import Rule
+from Interpreter import Interpreter
+
+class ExternalWord(ABC):
+    @abstractmethod
+    def execute(self, i: Interpreter):
+        pass
+
+class ExternalWordModules(Rule):
+
+    def __init__(self, moduleDir: str):
+        for module_name in os.listdir(moduleDir):
+            module_path = os.path.join(moduleDir, module_name)
+            if not os.path.isfile(module_path):
+                continue
+
+            spec = importlib.util.spec_from_file_location(module_name, module_path)
+            if spec is None:
+                raise ImportError(f"Cannot load module from {module_path}")
+
+            module = importlib.util.module_from_spec(spec)
+            sys.modules[module] = module
+            spec.loader.exec_module(module)
+            self.extWrds = ExternalWord.__subclasses__()
+
+    def execute(self, interpreter):
+        for extWrd in self.extWrds:
+            if extWrd.execute(interpreter):
+                return True
+        return False
+
+
+#########################################################################
+# PROTOTYPE to execute external words implemented in arbitary languages.
+# This does currently only support datastack manipulation.
+# Callstack manipulation isn't possible due to missing data exchange format.
+
+import importlib.util
 import os
 import subprocess
 
+from Interpreter import Interpreter
 from Rule import Rule
 from StackDeserializer import parse
 
@@ -26,28 +69,3 @@ class ExternalWords(Rule):
                 return True
 
         return False
-
-
-from abc import ABC
-import importlib
-import sys
-
-
-class ExternalWord(ABC):
-    # TODO add abstract methode, which the external word should have
-
-class ExternalWordModules(ABC):
-
-    def __init__(self, modules: list[str]):
-        self.module_specs = { os.path.basename(module): module for module in modules }
-        for name, path in self.module_specs:
-            spec = importlib.util.spec_from_file_location(name, path)
-            if spec is None:
-                raise ImportError(f"Cannot load spec for {name} from {path}")
-
-            module = importlib.util.module_from_spec(spec)
-            sys.modules[module] = module
-            spec.loader.exec_module(module)
-            extWrds = ExternalWords.__subclasses__()
-            for extWrd in extWrds:
-                interpreter = extWrd.execute(interpreter)

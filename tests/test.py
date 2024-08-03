@@ -136,7 +136,6 @@ class Test(unittest.TestCase):
         self.__test(cs=Stack("unword"), ds=Stack(), result=Stack())
         self.__test(cs=Stack("unword"), ds=Stack("Hello"), result=Stack(Stack("H","e","l","l","o")))
 
-    # def test_word(self):
-    #     self.__test(cs=Stack("word"), ds=Stack(), result=Stack("'","'"))
-    #     self.__test(cs=Stack("word"), ds=Stack("1"), result=Stack("'","1","'"))
-    #     self.__test(cs=Stack("word"), ds=Stack("1","2"), result=Stack(["'","1", "2","'"))
+    def test_word(self):
+        self.__test(cs=Stack("word"), ds=Stack(Stack("1")), result=Stack("1"))
+        self.__test(cs=Stack("word"), ds=Stack(Stack("1","2")), result=Stack("12"))
