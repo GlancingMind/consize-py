@@ -84,14 +84,6 @@ def setDict(stack):
     dsHead, *dsTail = datastack
     return [callstack, dsTail, dsHead] + rest
 
-def minus(stack):
-    y, x, *rest = stack
-    return [str(int(x)-int(y))] + rest
-
-def multiply(stack):
-    y, x, *rest = stack
-    return [str(int(x)*int(y))] + rest
-
 def divide(stack):
     y, x, *rest = stack
     return [str(int(x)//int(y))] + rest
@@ -128,10 +120,6 @@ VM = {
     toDictKey("compose"): compose,
     toDictKey("func"): func,
 
-    toDictKey("+"): plus,
-    toDictKey("-"): minus,
-    toDictKey("*"): multiply,
-    toDictKey("div"): divide,
     toDictKey("mod"): modulus,
 
     toDictKey("<"): lessThan,

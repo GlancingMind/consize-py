@@ -240,3 +240,21 @@ class Test(unittest.TestCase):
         self.__test(cs=Stack("-"), ds=Stack("unchanged", 1, "7", "7"), result=Stack("unchanged", 1, 0))
         self.__test(cs=Stack("-"), ds=Stack("unchanged", 1, 7, "7"), result=Stack("unchanged", 1, 0))
         self.__test(cs=Stack("-"), ds=Stack("unchanged", 1, "7", 7), result=Stack("unchanged", 1, 0))
+
+    def test_multiply(self):
+        self.__test(cs=Stack("*"), ds=Stack(), result=Stack())
+        self.__test(cs=Stack("*"), ds=Stack("a"), result=Stack("a"))
+        self.__test(cs=Stack("*"), ds=Stack("a","b"), result=Stack("a","b"))
+        self.__test(cs=Stack("*"), ds=Stack("unchanged", -7, 7), result=Stack("unchanged", -49))
+        self.__test(cs=Stack("*"), ds=Stack("unchanged", 1, "7", "7"), result=Stack("unchanged", 1, 49))
+        self.__test(cs=Stack("*"), ds=Stack("unchanged", 1, 7, "7"), result=Stack("unchanged", 1, 49))
+        self.__test(cs=Stack("*"), ds=Stack("unchanged", 1, "7", 7), result=Stack("unchanged", 1, 49))
+
+    def test_div(self):
+        self.__test(cs=Stack("div"), ds=Stack(), result=Stack())
+        self.__test(cs=Stack("div"), ds=Stack("a"), result=Stack("a"))
+        self.__test(cs=Stack("div"), ds=Stack("a","b"), result=Stack("a","b"))
+        self.__test(cs=Stack("div"), ds=Stack("unchanged", -7, 7), result=Stack("unchanged", -1))
+        self.__test(cs=Stack("div"), ds=Stack("unchanged", 1, "7", "7"), result=Stack("unchanged", 1, 1))
+        self.__test(cs=Stack("div"), ds=Stack("unchanged", 1, 7, "7"), result=Stack("unchanged", 1, 1))
+        self.__test(cs=Stack("div"), ds=Stack("unchanged", 1, "7", 7), result=Stack("unchanged", 1, 1))

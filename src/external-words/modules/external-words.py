@@ -275,7 +275,7 @@ class IsInteger(ExternalWord):
         i.ds = Stack(*rds, result)
         return True
 
-class Add(ExternalWord):
+class Addition(ExternalWord):
     def execute(i: Interpreter):
         try:
             *rcs, cw = i.cs
@@ -292,7 +292,7 @@ class Add(ExternalWord):
         i.ds = Stack(*rds, result)
         return True
 
-class Minus(ExternalWord):
+class Subtraction(ExternalWord):
     def execute(i: Interpreter):
         try:
             *rcs, cw = i.cs
@@ -302,6 +302,40 @@ class Minus(ExternalWord):
                 return False
 
             result = int(x)-int(y)
+        except ValueError:
+            return False
+
+        i.cs = Stack(*rcs)
+        i.ds = Stack(*rds, result)
+        return True
+
+class Multiplication(ExternalWord):
+    def execute(i: Interpreter):
+        try:
+            *rcs, cw = i.cs
+            *rds, x, y = i.ds
+
+            if cw != "*":
+                return False
+
+            result = int(x)*int(y)
+        except ValueError:
+            return False
+
+        i.cs = Stack(*rcs)
+        i.ds = Stack(*rds, result)
+        return True
+
+class Devision(ExternalWord):
+    def execute(i: Interpreter):
+        try:
+            *rcs, cw = i.cs
+            *rds, x, y = i.ds
+
+            if cw != "div":
+                return False
+
+            result = int(x)//int(y)
         except ValueError:
             return False
 
