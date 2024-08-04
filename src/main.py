@@ -56,10 +56,12 @@ def main():
     # datastack = []
     # result = apply(partialRunCC + [datastack])
 
+    cs = sys.argv[1:]
+    cs.reverse()
     i = Interpreter(
         rules=CONSIZE_RULE_SET,
-        cs=Stack("tokenize", "uncomment"),
-        ds=Stack(" ".join(sys.argv[1:])))
+        cs=Stack("call", "tokenize", "uncomment"),
+        ds=Stack(" ".join(cs)))
     i.run()
     print("Consize returns", i.ds.toString())
 
