@@ -243,18 +243,36 @@ class CurrentTimeMilliSec(ExternalWord):
         i.cs.pop()
         return True
 
-# TODO
-# class OperatingSystem(ExternalWord):
-#     pass
-
 class OperatingSystem(ExternalWord):
     def execute(i: Interpreter):
-        import time
-
         if i.cs == [] or i.cs[-1] != "operating-system":
             return False
 
         import platform
         i.ds.append(platform.platform())
+        i.cs.pop()
+        return True
+
+class IsInteger(ExternalWord):
+    def execute(i: Interpreter):
+
+        if i.cs == [] or i.cs[-1] != "integer?":
+            return False
+
+        if i.ds == []:
+            return False
+
+        word = i.ds.pop()
+
+        if isinstance(word, int):
+            i.ds.append("t")
+            i.cs.pop()
+            return True
+
+        # check if a given string represents an integer
+        if word == str() and word.startswith('-'):
+           word = word[1:] # remove the minus from string
+
+        i.ds.append("t" if word.isdigit() else "f")
         i.cs.pop()
         return True

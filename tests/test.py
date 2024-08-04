@@ -214,3 +214,9 @@ class Test(unittest.TestCase):
     @mock.patch('platform.platform', mock.MagicMock(return_value="macOS-14.6-arm64-arm-64bit"))
     def test_OperatingSystem(self):
         self.__test(cs=Stack("operating-system"), ds=Stack("unchanged"), result=Stack("unchanged", "macOS-14.6-arm64-arm-64bit"))
+
+    def test_Integer(self):
+        self.__test(cs=Stack("integer?"), ds=Stack(), result=Stack())
+        self.__test(cs=Stack("integer?"), ds=Stack("a"), result=Stack("f"))
+        self.__test(cs=Stack("integer?"), ds=Stack("unchanged", 7), result=Stack("unchanged", "t"))
+        self.__test(cs=Stack("integer?"), ds=Stack("unchanged", "7"), result=Stack("unchanged", "t"))
