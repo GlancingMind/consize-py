@@ -84,22 +84,6 @@ def setDict(stack):
     dsHead, *dsTail = datastack
     return [callstack, dsTail, dsHead] + rest
 
-def divide(stack):
-    y, x, *rest = stack
-    return [str(int(x)//int(y))] + rest
-
-def modulus(stack):
-    y, x, *rest = stack
-    return [str(int(x)%int(y))] + rest
-
-def lessThan(stack):
-    y, x, *rest = stack
-    return ["t" if int(x) < int(y) else "f"] + rest
-
-def moreThan(stack):
-    y, x, *rest = stack
-    return ["t" if int(x) > int(y) else "f"] + rest
-
 def lessThanEqual(stack):
     y, x, *rest = stack
     return ["t" if int(x) <= int(y) else "f"] + rest
@@ -120,10 +104,6 @@ VM = {
     toDictKey("compose"): compose,
     toDictKey("func"): func,
 
-    toDictKey("mod"): modulus,
-
-    toDictKey("<"): lessThan,
-    toDictKey(">"): moreThan,
     # toDictKey("=="): equal,
     toDictKey("<="): lessThanEqual,
     toDictKey(">="): moreThanEqual,

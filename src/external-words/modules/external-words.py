@@ -342,3 +342,58 @@ class Devision(ExternalWord):
         i.cs = Stack(*rcs)
         i.ds = Stack(*rds, result)
         return True
+
+class Modulus(ExternalWord):
+    def execute(i: Interpreter):
+        try:
+            *rcs, cw = i.cs
+            *rds, x, y = i.ds
+
+            if cw != "mod":
+                return False
+
+            result = int(x)%int(y)
+        except ValueError:
+            return False
+
+        i.cs = Stack(*rcs)
+        i.ds = Stack(*rds, result)
+        return True
+
+class LessThan(ExternalWord):
+    def execute(i: Interpreter):
+        try:
+            *rcs, cw = i.cs
+            *rds, x, y = i.ds
+
+            if cw != "<":
+                return False
+
+            result = int(x) < int(y)
+        except ValueError:
+            return False
+
+        result = "t" if result else "f"
+
+        i.cs = Stack(*rcs)
+        i.ds = Stack(*rds, result)
+        return True
+
+class MoreThan(ExternalWord):
+    def execute(i: Interpreter):
+        try:
+            *rcs, cw = i.cs
+            *rds, x, y = i.ds
+
+            if cw != ">":
+                return False
+
+            result = int(x) > int(y)
+        except ValueError:
+            return False
+
+        result = "t" if result else "f"
+
+        i.cs = Stack(*rcs)
+        i.ds = Stack(*rds, result)
+        return True

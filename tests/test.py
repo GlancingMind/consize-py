@@ -208,14 +208,14 @@ class Test(unittest.TestCase):
             result=Stack("unchanged", Stack(r"dup rot rot\r\nswap")))
 
     @mock.patch('time.time', mock.MagicMock(return_value=42))
-    def test_CurrentTimeMilliSec(self):
+    def test_current_time_millis(self):
         self.__test(cs=Stack("current-time-millis"), ds=Stack("unchanged"), result=Stack("unchanged", 42000))
 
     @mock.patch('platform.platform', mock.MagicMock(return_value="macOS-14.6-arm64-arm-64bit"))
-    def test_OperatingSystem(self):
+    def test_operating_system(self):
         self.__test(cs=Stack("operating-system"), ds=Stack("unchanged"), result=Stack("unchanged", "macOS-14.6-arm64-arm-64bit"))
 
-    def test_Integer(self):
+    def test_integer(self):
         self.__test(cs=Stack("integer?"), ds=Stack(), result=Stack())
         self.__test(cs=Stack("integer?"), ds=Stack("a"), result=Stack("f"))
         self.__test(cs=Stack("integer?"), ds=Stack("unchanged", 7), result=Stack("unchanged", "t"))
@@ -258,3 +258,29 @@ class Test(unittest.TestCase):
         self.__test(cs=Stack("div"), ds=Stack("unchanged", 1, "7", "7"), result=Stack("unchanged", 1, 1))
         self.__test(cs=Stack("div"), ds=Stack("unchanged", 1, 7, "7"), result=Stack("unchanged", 1, 1))
         self.__test(cs=Stack("div"), ds=Stack("unchanged", 1, "7", 7), result=Stack("unchanged", 1, 1))
+
+    def test_lessthan(self):
+        self.__test(cs=Stack("<"), ds=Stack(), result=Stack())
+        self.__test(cs=Stack("<"), ds=Stack("a"), result=Stack("a"))
+        self.__test(cs=Stack("<"), ds=Stack("a","b"), result=Stack("a","b"))
+        self.__test(cs=Stack("<"), ds=Stack("unchanged", -7, 7), result=Stack("unchanged", "t"))
+        self.__test(cs=Stack("<"), ds=Stack("unchanged", 1, "-7", "7"), result=Stack("unchanged", 1, "t"))
+        self.__test(cs=Stack("<"), ds=Stack("unchanged", 1, -7, "7"), result=Stack("unchanged", 1, "t"))
+        self.__test(cs=Stack("<"), ds=Stack("unchanged", 1, "-7", 7), result=Stack("unchanged", 1, "t"))
+        self.__test(cs=Stack("<"), ds=Stack("unchanged", 7, 7), result=Stack("unchanged", "f"))
+        self.__test(cs=Stack("<"), ds=Stack("unchanged", 1, "7", "7"), result=Stack("unchanged", 1, "f"))
+        self.__test(cs=Stack("<"), ds=Stack("unchanged", 1, 7, "7"), result=Stack("unchanged", 1, "f"))
+        self.__test(cs=Stack("<"), ds=Stack("unchanged", 1, "7", 7), result=Stack("unchanged", 1, "f"))
+
+    def test_morethan(self):
+        self.__test(cs=Stack(">"), ds=Stack(), result=Stack())
+        self.__test(cs=Stack(">"), ds=Stack("a"), result=Stack("a"))
+        self.__test(cs=Stack(">"), ds=Stack("a","b"), result=Stack("a","b"))
+        self.__test(cs=Stack(">"), ds=Stack("unchanged", -7, 7), result=Stack("unchanged", "f"))
+        self.__test(cs=Stack(">"), ds=Stack("unchanged", 1, "-7", "7"), result=Stack("unchanged", 1, "f"))
+        self.__test(cs=Stack(">"), ds=Stack("unchanged", 1, -7, "7"), result=Stack("unchanged", 1, "f"))
+        self.__test(cs=Stack(">"), ds=Stack("unchanged", 1, "-7", 7), result=Stack("unchanged", 1, "f"))
+        self.__test(cs=Stack(">"), ds=Stack("unchanged", 7, -7), result=Stack("unchanged", "t"))
+        self.__test(cs=Stack(">"), ds=Stack("unchanged", 1, "7", "-7"), result=Stack("unchanged", 1, "t"))
+        self.__test(cs=Stack(">"), ds=Stack("unchanged", 1, 7, "-7"), result=Stack("unchanged", 1, "t"))
+        self.__test(cs=Stack(">"), ds=Stack("unchanged", 1, "7", -7), result=Stack("unchanged", 1, "t"))
