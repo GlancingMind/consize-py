@@ -84,46 +84,16 @@ def setDict(stack):
     dsHead, *dsTail = datastack
     return [callstack, dsTail, dsHead] + rest
 
-def lessThanEqual(stack):
-    y, x, *rest = stack
-    return ["t" if int(x) <= int(y) else "f"] + rest
-
-def moreThanEqual(stack):
-    y, x, *rest = stack
-    return ["t" if int(x) >= int(y) else "f"] + rest
-
 VM = {
-    toDictKey("call"): [call],
-    # toDictKey("quote"): [quote],
-    toDictKey("call/cc"): [callCC],
-    toDictKey("continue"): [continuee],
     toDictKey("get-dict"): [getDict],
     toDictKey("set-dict"): [setDict],
-    toDictKey("stepcc"): stepcc,
     toDictKey("apply"): apply,
     toDictKey("compose"): compose,
     toDictKey("func"): func,
-
-    # toDictKey("=="): equal,
-    toDictKey("<="): lessThanEqual,
-    toDictKey(">="): moreThanEqual,
-
-    # toDictKey("\\"):   [["top"], "quote"],
-    toDictKey("\\"):   [["dup", "top", "rot", "swap", "push", "swap", "pop", "continue"], "call/cc"],
-    toDictKey("load"): ["slurp", "uncomment", "tokenize"],
-    toDictKey("run"):  ["load", "call"],
-    toDictKey("start"): ["slurp", "uncomment", "tokenize", "get-dict", "func", "emptystack", "swap", "apply"],
-    # toDictKey("match"): matches,
-    # toDictKey("instantiate"): instantiate,
-    toDictKey("rewrite"): ["[", "match", "]", "dip", "over", "[", "instantiate", "]", "[", "drop", "]", "if"],
 }
 
 def main():
     initialStack = ["swap", "1","2","2","3"]
-    # initialStack = ["emptystack", "1","2","2","3"]
-    # initialStack = ["top", ["a", "b"], "1","2","2","3"]
-    # initialStack = ["top", [], "1","2","2","3"]
-    # initialStack = ["top", "nil", "1","2","2","3"]
     i = Interpreter(rules=CONSIZE_RULE_SET, stack=initialStack)
     i.run()
     i.printState()

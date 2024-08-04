@@ -78,6 +78,13 @@ CONSIZE_RULE_SET = RuleSet(
     "{ @M1 } { #K #V @M2 } | merge -> #V #K { @M1 } { @M2 } | merge assoc",
     "{ @M1 } { } | merge -> { @M1 }",
 
+    "@RDS [ @Q ] | call/cc @RCS -> [ @RDS ] [ @RCS ] | @Q",
+    "@RDS [ @DS ] [ @CS ] | continue @RCS -> [ @DS ] | @CS",
+    "@RDS [ @Q ] | call @RCS -> @RDS | @Q @RCS",
+
+    "| load -> | slurp uncomment tokenize",
+    "| run -> | load call",
+    "| start -> | slurp uncomment tokenize get-dict func emptystack swap apply",
     rules=[
         ExternalWordModules(moduleDir="./src/external-words/modules"),
         ExternalWords(wordScripts=glob.glob("./src/external-words/*"))

@@ -313,3 +313,6 @@ class Test(unittest.TestCase):
         self.__test(cs=Stack(">="), ds=Stack("unchanged", 1, 7, "-7"), result=Stack("unchanged", 1, "t"))
         self.__test(cs=Stack(">="), ds=Stack("unchanged", 1, "7", -7), result=Stack("unchanged", 1, "t"))
         self.__test(cs=Stack(">="), ds=Stack("unchanged", 1, "7", 7), result=Stack("unchanged", 1, "t"))
+
+    def test_call(self):
+        self.__test(cs=Stack("call"), ds=Stack("unchanged", "1", Stack("integer?")), result=Stack("unchanged", "t"))
