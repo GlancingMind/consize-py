@@ -23,23 +23,27 @@ class RuleSet:
 
     def apply(self, interpreter):
         print('\n\nSteps:',file=stderr)
-        counter = 0
+        # counter = 0
         while(True):
             ds = interpreter.ds
             cs = interpreter.cs
             print(f"{interpreter.ds.toString(addEnclosingParenthesis=False)} | {cs.toString(addEnclosingParenthesis=False, tosIsLeft=True)} ==>", file=stderr)
-            counter = counter + 1
-            if counter == 15:
-                print("Stop due to print length", file=stderr)
-                break
 
+            # TODO This should be a CLI option
+            # counter = counter + 1
+            # if counter == 15:
+            #     print("Stop due to print length", file=stderr)
+            #     break
+
+            # TODO these could be a generator, return a rule that matches, if no
+            # rule is returned, exit.
+            someRuleMatched = False
             for rule in self.rules:
-                if rule.execute(interpreter):
-                    break # doing this to reduce double printing of log entries
-                          # and enforces, that rules are matched from the start of the
-                          # RuleSet.
+                someRuleMatched = rule.execute(interpreter)
+                if someRuleMatched:
+                    break
 
-            if interpreter.ds == ds and interpreter.cs == cs:
+            if not someRuleMatched:
                 print("No more possible rules for application", file=stderr)
                 break
 

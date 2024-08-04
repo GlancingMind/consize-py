@@ -84,7 +84,8 @@ CONSIZE_RULE_SET = RuleSet(
 
     "| load -> | slurp uncomment tokenize",
     "| run -> | load call",
-    "| start -> | slurp uncomment tokenize get-dict func emptystack swap apply",
+    # TODO get-dict gibt es nicht mehr.
+    "| start -> | load get-dict func emptystack swap apply",
     rules=[
         ExternalWordModules(moduleDir="./src/external-words/modules"),
         ExternalWords(wordScripts=glob.glob("./src/external-words/*"))

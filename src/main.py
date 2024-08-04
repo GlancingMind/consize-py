@@ -4,106 +4,64 @@ import sys
 
 from ConsizeRuleSet import CONSIZE_RULE_SET
 from Interpreter import Interpreter
+from Stack import Stack
 
-def toDictKey(obj):
-    return str(f"{obj}")
+# def apply(stack):
+#     func, stk, *rest = stack
+#     return [func(stk)] + rest
 
-def restoreDictKey(key):
-    import ast
-    return ast.literal_eval(key)
+# def compose(stack):
+#     funcO, funcI, *rest = stack
+#     return [(lambda ds: funcO(funcI(ds)))] + rest
 
-def apply(stack):
-    func, stk, *rest = stack
-    return [func(stk)] + rest
+# def func(stack):
+#     dict, quote, *rest = stack
 
-def compose(stack):
-    funcO, funcI, *rest = stack
-    return [(lambda ds: funcO(funcI(ds)))] + rest
+#     def runcc(callstack, datastack, dict):
+#         while callstack != []:
+#             # callstack, datastack, dict = VM[toDictKey("stepcc")]([callstack, datastack, dict])
+#             callstack, datastack, dict = stepcc([callstack, datastack, dict])
+#         return datastack
 
-def func(stack):
-    dict, quote, *rest = stack
+#     return [lambda ds: runcc(callstack=quote, datastack=ds, dict=dict)] + rest
 
-    def runcc(callstack, datastack, dict):
-        while callstack != []:
-            # callstack, datastack, dict = VM[toDictKey("stepcc")]([callstack, datastack, dict])
-            callstack, datastack, dict = stepcc([callstack, datastack, dict])
-        return datastack
+# def stepcc(stack):
+#     callstack, datastack, dictionary, *rest = stack
+#     itm, *rcs = callstack
+#     match itm:
+#         case str():
+#             res = dictionary.get(toDictKey(itm), None)
+#             match res:
+#                 case list():
+#                     return [res + rcs, datastack, dictionary] + rest
+#                 case _ if callable(res):
+#                     return [rcs, res(datastack), dictionary] + rest
+#                 case _:
+#                     return [["read-word"] + rcs, [itm] + datastack, dictionary] + rest
+#         case dict():
+#             return [["read-mapping"] + rcs, [itm] + datastack, dictionary] + rest
+#         case _ if callable(itm):
+#             return itm([rcs, datastack, dictionary] + rest)
+#         case _:
+#             return [rcs, [itm] + datastack, dictionary] + rest
 
-    return [lambda ds: runcc(callstack=quote, datastack=ds, dict=dict)] + rest
-
-def stepcc(stack):
-    callstack, datastack, dictionary, *rest = stack
-    itm, *rcs = callstack
-    match itm:
-        case str():
-            res = dictionary.get(toDictKey(itm), None)
-            match res:
-                case list():
-                    return [res + rcs, datastack, dictionary] + rest
-                case _ if callable(res):
-                    return [rcs, res(datastack), dictionary] + rest
-                case _:
-                    return [["read-word"] + rcs, [itm] + datastack, dictionary] + rest
-        case dict():
-            return [["read-mapping"] + rcs, [itm] + datastack, dictionary] + rest
-        case _ if callable(itm):
-            return itm([rcs, datastack, dictionary] + rest)
-        case _:
-            return [rcs, [itm] + datastack, dictionary] + rest
-
-def call(stack):
-    callstack, datastack, *rest = stack
-    if datastack == []: return [callstack] + [[]] + rest
-    dsHead, *dsTail = datastack
-    if not isinstance(dsHead, list):
-        dsHead = [dsHead]
-    return [dsHead + callstack] + [dsTail] + rest
-
-def quote(stack):
-    callstack, datastack, *rest = stack
-    dsHead, *dsTail = datastack
-    csHead, *csTail = callstack or ([],[])
-    return [["call"] + csTail] + [dsTail + [csHead, dsHead]] + rest
-
-def callCC(stack):
-    callstack, datastack, *rest = stack
-    dsHead, *dsTail = datastack
-    return [dsHead] + [[callstack, dsTail]] + rest
-
-def continuee(stack):
-    callstack, datastack, *rest = stack
-    newCallStack, newDataStack, *rds = datastack
-    return [newCallStack] + [newDataStack] + rest
-
-def getDict(stack):
-    callstack, datastack, dict, *rest = stack
-    return [callstack, [dict] + datastack, dict] + rest
-
-def setDict(stack):
-    callstack, datastack, dict, *rest = stack
-    dsHead, *dsTail = datastack
-    return [callstack, dsTail, dsHead] + rest
-
-VM = {
-    toDictKey("get-dict"): [getDict],
-    toDictKey("set-dict"): [setDict],
-    toDictKey("apply"): apply,
-    toDictKey("compose"): compose,
-    toDictKey("func"): func,
-}
+# VM = {
+#     "apply": apply,
+#     "compose": compose,
+#     "func": func,
+# }
 
 def main():
-    initialStack = ["swap", "1","2","2","3"]
-    i = Interpreter(rules=CONSIZE_RULE_SET, stack=initialStack)
-    i.run()
-    i.printState()
-    # joinedArgs = " ".join(sys.argv[1:])
-    # wrappedQuotation = tokenize(uncomment([joinedArgs]))
-    # quotation = wrappedQuotation[0]
     # partialRunCC = func([VM, quotation])
     # datastack = []
     # result = apply(partialRunCC + [datastack])
-    # print("Consize returns", result[0])
+
+    i = Interpreter(
+        rules=CONSIZE_RULE_SET,
+        cs=Stack("tokenize", "uncomment"),
+        ds=Stack(" ".join(sys.argv[1:])))
+    i.run()
+    print("Consize returns", i.ds.toString())
 
 if __name__ == "__main__":
     main()
