@@ -12,12 +12,6 @@ def restoreDictKey(key):
     import ast
     return ast.literal_eval(key)
 
-def undocument(stack):
-    import re
-    word, *rest = stack
-    parts = re.findall(r"(?m)^%?>> (.*)$", word)
-    return ["\r\n".join(parts)] + rest
-
 def currentTimeInMilliSeconds(stack):
     import time
     return [int(time.time() * 1000)] + stack
@@ -147,8 +141,6 @@ def moreThanEqual(stack):
     return ["t" if int(x) >= int(y) else "f"] + rest
 
 VM = {
-    toDictKey("undocument"): undocument,
-
     toDictKey("current-time-millis"): currentTimeInMilliSeconds,
     toDictKey("operating-system"): operatingSystem,
 

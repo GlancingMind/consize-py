@@ -2,6 +2,7 @@ from io import StringIO
 import sys
 import unittest
 import os
+from unittest import mock
 
 # Add the 'src' directory to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
@@ -192,7 +193,7 @@ class Test(unittest.TestCase):
         self.assertEqual(content, "Hello You!\n- Greetings Consize")
 
     def test_uncomment(self):
-        self.__test(cs=Stack("uncomment"), ds=Stack("unchange", "This line % has a comment"), result=Stack("unchanged", "This line"))
+        self.__test(cs=Stack("uncomment"), ds=Stack("unchanged", "This line % has a comment"), result=Stack("unchanged", "This line"))
 
     def test_tokenize(self):
         self.__test(
@@ -205,3 +206,7 @@ class Test(unittest.TestCase):
             cs=Stack("undocument"),
             ds=Stack("unchanged", "Some documentation is nice.\n>> dup rot rot\nWhat might this do? Here is some other code\n%>> swap"),
             result=Stack("unchanged", Stack(r"dup rot rot\r\nswap")))
+
+    @mock.patch('time.time', mock.MagicMock(return_value=42))
+    def test_CurrentTimeMilliSec(self):
+        self.__test(cs=Stack("current-time-millis"), ds=Stack("unchanged"), result=Stack("unchanged", 42000))

@@ -1,3 +1,7 @@
+# TODO can implement this as a strategy (in terms of strategy pattern)
+# Which will be given to a rule via the RuleFactory, which will be initialized.
+# Via commandline
+
 def replace_prefix(prefix: str, nprefix: str, str: str):
     return nprefix+str.removeprefix(prefix)
 

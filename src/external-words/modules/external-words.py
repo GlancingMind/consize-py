@@ -1,6 +1,7 @@
 from ExternalWords import ExternalWord
 from Interpreter import Interpreter
 from Stack import Stack
+from unittest import mock
 
 # TODO move call- and datastack validation into superclass.
 # The just call super.match(), or let ExternalWords.py call isSatisfied() and
@@ -194,7 +195,7 @@ class Uncomment(ExternalWord):
             return False
 
         *rest, word = i.ds
-        i.ds = rest + [re.sub(r"(?m)\s*%.*$", "", word).strip()]
+        i.ds = Stack(*rest, *[re.sub(r"(?m)\s*%.*$", "", word).strip()])
         i.cs.pop()
         return True
 
@@ -227,8 +228,17 @@ class Undocument(ExternalWord):
         *rest, word = i.ds
         parts = re.findall(r"(?m)^%?>> (.*)$", word)
 
-        # TODO the unstructoring creates list. Which results in i.ds being assigned a list, which is not longer a stack!
-
         i.ds = Stack(*rest, Stack(r"\r\n".join(parts)))
+        i.cs.pop()
+        return True
+
+class CurrentTimeMilliSec(ExternalWord):
+    def execute(i: Interpreter):
+        import time
+
+        if i.cs == [] or i.cs[-1] != "current-time-millis":
+            return False
+
+        i.ds.append(int(time.time() * 1000))
         i.cs.pop()
         return True
