@@ -84,22 +84,6 @@ def setDict(stack):
     dsHead, *dsTail = datastack
     return [callstack, dsTail, dsHead] + rest
 
-def integer(stack):
-    word, *rest = stack
-
-    if isinstance(word, int):
-        return ["t"] + rest
-
-    # check if a given string represents an integer
-    if word == str() and word.startswith('-'):
-       word = word[1:] # remove the minus from string
-
-    return ["t" if word.isdigit() else "f"] + rest
-
-def plus(stack):
-    y, x, *rest = stack
-    return [str(int(x)+int(y))] + rest
-
 def minus(stack):
     y, x, *rest = stack
     return [str(int(x)-int(y))] + rest
@@ -144,7 +128,6 @@ VM = {
     toDictKey("compose"): compose,
     toDictKey("func"): func,
 
-    toDictKey("integer?"): integer,
     toDictKey("+"): plus,
     toDictKey("-"): minus,
     toDictKey("*"): multiply,

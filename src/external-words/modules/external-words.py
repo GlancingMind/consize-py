@@ -255,24 +255,56 @@ class OperatingSystem(ExternalWord):
 
 class IsInteger(ExternalWord):
     def execute(i: Interpreter):
-
-        if i.cs == [] or i.cs[-1] != "integer?":
+        try:
+            *rcs, cw = i.cs
+            *rds, num = i.ds
+        except ValueError:
             return False
 
-        if i.ds == []:
+        if cw != "integer?":
             return False
 
-        word = i.ds.pop()
+        try:
+            result = int(num)
+        except ValueError:
+            result = "f"
 
-        if isinstance(word, int):
-            i.ds.append("t")
-            i.cs.pop()
-            return True
+        result = "t" if result != "f" else "f"
 
-        # check if a given string represents an integer
-        if word == str() and word.startswith('-'):
-           word = word[1:] # remove the minus from string
+        i.cs = Stack(*rcs)
+        i.ds = Stack(*rds, result)
+        return True
 
-        i.ds.append("t" if word.isdigit() else "f")
-        i.cs.pop()
+class Add(ExternalWord):
+    def execute(i: Interpreter):
+        try:
+            *rcs, cw = i.cs
+            *rds, x, y = i.ds
+
+            if cw != "+":
+                return False
+
+            result = int(x)+int(y)
+        except ValueError:
+            return False
+
+        i.cs = Stack(*rcs)
+        i.ds = Stack(*rds, result)
+        return True
+
+class Minus(ExternalWord):
+    def execute(i: Interpreter):
+        try:
+            *rcs, cw = i.cs
+            *rds, x, y = i.ds
+
+            if cw != "-":
+                return False
+
+            result = int(x)-int(y)
+        except ValueError:
+            return False
+
+        i.cs = Stack(*rcs)
+        i.ds = Stack(*rds, result)
         return True
