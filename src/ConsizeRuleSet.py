@@ -43,7 +43,7 @@ CONSIZE_RULE_SET = RuleSet(
     "\ #H -> #H",
 
     # # Move stacks/quatation which are on the callstack over to the datastack
-    "| [ @T ] -> [ @T ]",
+    "[ @T ] -> [ @T ]",
 
     # # Reverse rules
     # "[ ] | reverse -> [ ]",
@@ -79,8 +79,8 @@ CONSIZE_RULE_SET = RuleSet(
     "{ @M1 } { } | merge -> { @M1 }",
 
     "@RDS [ @Q ] | call/cc @RCS => [ @RDS ] [ @RCS ] | @Q",
-    "@RDS [ @DS ] [ @CS ] | continue @RCS => [ @DS ] | @CS",
-    "@RDS [ @Q ] | call @RCS => @RDS | @Q @RCS",
+    "@RDS [ @DS ] [ @CS ] | continue @RCS => @DS | @CS",
+    "[ @Q ] | call -> | @Q ",
 
     "| load -> | slurp uncomment tokenize",
     "| run -> | load call",

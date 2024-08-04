@@ -27,9 +27,7 @@ class RuleSet:
         while(True):
             ds = interpreter.ds
             cs = interpreter.cs
-            reversedCallstack = interpreter.cs.copy()
-            reversedCallstack.reverse()
-            print(f"{interpreter.ds} | {reversedCallstack} ==>", file=stderr)
+            print(f"{interpreter.ds.toString(addEnclosingParenthesis=False)} | {cs.toString(addEnclosingParenthesis=False, tosIsLeft=True)} ==>", file=stderr)
             counter = counter + 1
             if counter == 15:
                 print("Stop due to print length", file=stderr)

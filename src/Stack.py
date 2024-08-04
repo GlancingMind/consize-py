@@ -12,6 +12,16 @@ class Stack(UserList):
         result = (" ").join(["[",*stringifiedElements,"]"])
         return result
 
+    def toString(self, addEnclosingParenthesis=True, tosIsLeft=False):
+        stringifiedElements = [str(itm) for itm in self.data]
+        if tosIsLeft:
+            stringifiedElements.reverse()
+        if addEnclosingParenthesis:
+            result = (" ").join(["[",*stringifiedElements,"]"])
+        else:
+            result = (" ").join([*stringifiedElements])
+        return result
+
     def copy(self) -> list:
         return Stack(*self.data)
 

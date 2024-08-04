@@ -17,7 +17,7 @@ class Word(ExternalWord):
             return False
 
         *rest, wordstack = i.ds
-        i.ds = rest + ["".join(wordstack)]
+        i.ds = Stack(*rest, "".join(wordstack))
         i.cs.pop()
         return True
 
@@ -30,7 +30,7 @@ class Unword(ExternalWord):
             return False
 
         *rest, word = i.ds
-        i.ds = rest + [[character for character in word]]
+        i.ds = Stack(*rest, [character for character in word])
         i.cs.pop()
         return True
 
@@ -54,18 +54,18 @@ class Char(ExternalWord):
 
         *rest, characterCode = i.ds
         match characterCode:
-            case r"\space":     i.ds = rest + [" "]
-            case r"\newline":   i.ds = rest + ["\n"]
-            case r"\formfeed":  i.ds = rest + ["\f"]
-            case r"\return":    i.ds = rest + ["\r"]
-            case r"\backspace": i.ds = rest + ["\b"]
-            case r"\tab":       i.ds = rest + ["\t"]
+            case r"\space":     i.ds = Stack(*rest, " ")
+            case r"\newline":   i.ds = Stack(*rest, "\n")
+            case r"\formfeed":  i.ds = Stack(*rest, "\f")
+            case r"\return":    i.ds = Stack(*rest, "\r")
+            case r"\backspace": i.ds = Stack(*rest, "\b")
+            case r"\tab":       i.ds = Stack(*rest, "\t")
             case _ if characterCode.startswith(r"\o"):
-                i.ds = rest + [chr(int(characterCode[2:], 8))]
+                i.ds = Stack(*rest, chr(int(characterCode[2:], 8)))
             case _ if characterCode.startswith(r"\u"):
-                i.ds = rest + [bytes(characterCode, "utf-8").decode("unicode_escape")]
+                i.ds = Stack(*rest, bytes(characterCode, "utf-8").decode("unicode_escape"))
             case _:
-                i.ds = rest + [fr"error: {characterCode} isn't a valid character codec"]
+                i.ds = Stack(*rest, fr"error: {characterCode} isn't a valid character codec")
         i.cs.pop()
         return True
 
@@ -83,7 +83,7 @@ class Print(ExternalWord):
 
         print(word, end="")
 
-        i.ds = rest
+        i.ds = Stack(*rest)
         i.cs.pop()
         return True
 
@@ -131,7 +131,7 @@ class Slurp(ExternalWord):
         except IOError as e:
             print("An error occurred while reading the file:", e)
 
-        i.ds = rest + [content]
+        i.ds = Stack(*rest, content)
         i.cs.pop()
         return True
 
@@ -156,7 +156,7 @@ class Spit(ExternalWord):
         except IOError as e:
             print("An error occurred while writing the file:", e)
 
-        i.ds = rest
+        i.ds = Stack(*rest)
         i.cs.pop()
         return True
 
@@ -180,7 +180,7 @@ class SpitOn(ExternalWord):
         except IOError as e:
             print("An error occurred while writing the file:", e)
 
-        i.ds = rest
+        i.ds = Stack(*rest)
         i.cs.pop()
         return True
 
@@ -211,7 +211,7 @@ class Tokenize(ExternalWord):
 
         *rest, word = i.ds
         parts = re.split(r"\s+", word.strip())
-        i.ds = rest + ([] if parts == [""] else [parts])
+        i.ds = Stack(*rest, Stack() if parts == [""] else Stack(*parts))
         i.cs.pop()
         return True
 
@@ -266,7 +266,7 @@ class IsInteger(ExternalWord):
 
         try:
             result = int(num)
-        except ValueError:
+        except (ValueError, TypeError):
             result = "f"
 
         result = "t" if result != "f" else "f"
@@ -285,7 +285,7 @@ class Addition(ExternalWord):
                 return False
 
             result = int(x)+int(y)
-        except ValueError:
+        except (ValueError, TypeError):
             return False
 
         i.cs = Stack(*rcs)
@@ -302,7 +302,7 @@ class Subtraction(ExternalWord):
                 return False
 
             result = int(x)-int(y)
-        except ValueError:
+        except (ValueError, TypeError):
             return False
 
         i.cs = Stack(*rcs)
@@ -319,7 +319,7 @@ class Multiplication(ExternalWord):
                 return False
 
             result = int(x)*int(y)
-        except ValueError:
+        except (ValueError, TypeError):
             return False
 
         i.cs = Stack(*rcs)
@@ -336,7 +336,7 @@ class Devision(ExternalWord):
                 return False
 
             result = int(x)//int(y)
-        except ValueError:
+        except (ValueError, TypeError):
             return False
 
         i.cs = Stack(*rcs)
@@ -353,7 +353,7 @@ class Modulus(ExternalWord):
                 return False
 
             result = int(x)%int(y)
-        except ValueError:
+        except (ValueError, TypeError):
             return False
 
         i.cs = Stack(*rcs)
@@ -370,7 +370,7 @@ class LessThan(ExternalWord):
                 return False
 
             result = int(x) < int(y)
-        except ValueError:
+        except (ValueError, TypeError):
             return False
 
         result = "t" if result else "f"
@@ -389,7 +389,7 @@ class MoreThan(ExternalWord):
                 return False
 
             result = int(x) > int(y)
-        except ValueError:
+        except (ValueError, TypeError):
             return False
 
         result = "t" if result else "f"
@@ -408,7 +408,7 @@ class MoreThanEqual(ExternalWord):
                 return False
 
             result = int(x) >= int(y)
-        except ValueError:
+        except (ValueError, TypeError):
             return False
 
         result = "t" if result else "f"
@@ -427,7 +427,7 @@ class LessThanEqual(ExternalWord):
                 return False
 
             result = int(x) <= int(y)
-        except ValueError:
+        except (ValueError, TypeError):
             return False
 
         result = "t" if result else "f"

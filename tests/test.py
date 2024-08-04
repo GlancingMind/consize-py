@@ -317,11 +317,23 @@ class Test(unittest.TestCase):
         self.__test(cs=Stack(">="), ds=Stack("unchanged", 1, "7", 7), result_ds=Stack("unchanged", 1, "t"))
 
     def test_callcc(self):
+        # We cannot use a valid word within the quotation, otherwise the
+        # matching-system will try to apply this word too, resulting in a
+        # changed datastack. Therefore we will use `blub` as word, which isn't
+        # part of the Consize-RuleSet and cannot be substituded further.
+        # Therefore the system will stop after call/cc.
         self.__test(
             cs=Stack("RCS", "call/cc"),
-            ds=Stack("RDS", Stack("integer?")),
+            ds=Stack("RDS", Stack("blub")),
             result_ds=Stack(Stack("RDS"), Stack("RCS")),
-            result_cs=Stack("integer?"))
+            result_cs=Stack("blub"))
+
+    def test_continue(self):
+        self.__test(
+            cs=Stack("RCS", "continue"),
+            ds=Stack("RDS", Stack("NDS","NDS_REST"), Stack("NCS","NCS_REST")),
+            result_ds=Stack("NDS","NDS_REST"),
+            result_cs=Stack("NCS","NCS_REST"))
 
     def test_call(self):
-        self.__test(cs=Stack("call"), ds=Stack("unchanged", "1", Stack("integer?")), result_ds=Stack("unchanged", "t"), result_cs=Stack("integer?"))
+        self.__test(cs=Stack("call"), ds=Stack("unchanged", "1", Stack("integer?")), result_ds=Stack("unchanged", "t"))
