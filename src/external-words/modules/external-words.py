@@ -397,3 +397,41 @@ class MoreThan(ExternalWord):
         i.cs = Stack(*rcs)
         i.ds = Stack(*rds, result)
         return True
+
+class MoreThanEqual(ExternalWord):
+    def execute(i: Interpreter):
+        try:
+            *rcs, cw = i.cs
+            *rds, x, y = i.ds
+
+            if cw != ">=":
+                return False
+
+            result = int(x) >= int(y)
+        except ValueError:
+            return False
+
+        result = "t" if result else "f"
+
+        i.cs = Stack(*rcs)
+        i.ds = Stack(*rds, result)
+        return True
+
+class LessThanEqual(ExternalWord):
+    def execute(i: Interpreter):
+        try:
+            *rcs, cw = i.cs
+            *rds, x, y = i.ds
+
+            if cw != "<=":
+                return False
+
+            result = int(x) <= int(y)
+        except ValueError:
+            return False
+
+        result = "t" if result else "f"
+
+        i.cs = Stack(*rcs)
+        i.ds = Stack(*rds, result)
+        return True

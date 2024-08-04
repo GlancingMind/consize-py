@@ -272,6 +272,21 @@ class Test(unittest.TestCase):
         self.__test(cs=Stack("<"), ds=Stack("unchanged", 1, 7, "7"), result=Stack("unchanged", 1, "f"))
         self.__test(cs=Stack("<"), ds=Stack("unchanged", 1, "7", 7), result=Stack("unchanged", 1, "f"))
 
+    def test_lessthanequal(self):
+        self.__test(cs=Stack("<="), ds=Stack(), result=Stack())
+        self.__test(cs=Stack("<="), ds=Stack("a"), result=Stack("a"))
+        self.__test(cs=Stack("<="), ds=Stack("a","b"), result=Stack("a","b"))
+        self.__test(cs=Stack("<="), ds=Stack("unchanged", -7, 7), result=Stack("unchanged", "t"))
+        self.__test(cs=Stack("<="), ds=Stack("unchanged", 1, "-7", "7"), result=Stack("unchanged", 1, "t"))
+        self.__test(cs=Stack("<="), ds=Stack("unchanged", 1, -7, "7"), result=Stack("unchanged", 1, "t"))
+        self.__test(cs=Stack("<="), ds=Stack("unchanged", 1, "-7", 7), result=Stack("unchanged", 1, "t"))
+        self.__test(cs=Stack("<="), ds=Stack("unchanged", 7, 7), result=Stack("unchanged", "t"))
+        self.__test(cs=Stack("<="), ds=Stack("unchanged", 1, "7", "7"), result=Stack("unchanged", 1, "t"))
+        self.__test(cs=Stack("<="), ds=Stack("unchanged", 1, 7, "7"), result=Stack("unchanged", 1, "t"))
+        self.__test(cs=Stack("<="), ds=Stack("unchanged", 1, "7", "-7"), result=Stack("unchanged", 1, "f"))
+        self.__test(cs=Stack("<="), ds=Stack("unchanged", 1, 7, "-7"), result=Stack("unchanged", 1, "f"))
+        self.__test(cs=Stack("<="), ds=Stack("unchanged", 1, 7, "-7"), result=Stack("unchanged", 1, "f"))
+
     def test_morethan(self):
         self.__test(cs=Stack(">"), ds=Stack(), result=Stack())
         self.__test(cs=Stack(">"), ds=Stack("a"), result=Stack("a"))
@@ -284,3 +299,17 @@ class Test(unittest.TestCase):
         self.__test(cs=Stack(">"), ds=Stack("unchanged", 1, "7", "-7"), result=Stack("unchanged", 1, "t"))
         self.__test(cs=Stack(">"), ds=Stack("unchanged", 1, 7, "-7"), result=Stack("unchanged", 1, "t"))
         self.__test(cs=Stack(">"), ds=Stack("unchanged", 1, "7", -7), result=Stack("unchanged", 1, "t"))
+
+    def test_morethanequal(self):
+        self.__test(cs=Stack(">="), ds=Stack(), result=Stack())
+        self.__test(cs=Stack(">="), ds=Stack("a"), result=Stack("a"))
+        self.__test(cs=Stack(">="), ds=Stack("a","b"), result=Stack("a","b"))
+        self.__test(cs=Stack(">="), ds=Stack("unchanged", -7, 7), result=Stack("unchanged", "f"))
+        self.__test(cs=Stack(">="), ds=Stack("unchanged", 1, "-7", "7"), result=Stack("unchanged", 1, "f"))
+        self.__test(cs=Stack(">="), ds=Stack("unchanged", 1, -7, "7"), result=Stack("unchanged", 1, "f"))
+        self.__test(cs=Stack(">="), ds=Stack("unchanged", 1, "-7", 7), result=Stack("unchanged", 1, "f"))
+        self.__test(cs=Stack(">="), ds=Stack("unchanged", 7, -7), result=Stack("unchanged", "t"))
+        self.__test(cs=Stack(">="), ds=Stack("unchanged", 1, "7", "-7"), result=Stack("unchanged", 1, "t"))
+        self.__test(cs=Stack(">="), ds=Stack("unchanged", 1, 7, "-7"), result=Stack("unchanged", 1, "t"))
+        self.__test(cs=Stack(">="), ds=Stack("unchanged", 1, "7", -7), result=Stack("unchanged", 1, "t"))
+        self.__test(cs=Stack(">="), ds=Stack("unchanged", 1, "7", 7), result=Stack("unchanged", 1, "t"))
