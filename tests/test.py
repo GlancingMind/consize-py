@@ -1,7 +1,7 @@
 from io import StringIO
 import sys
-import unittest
 import os
+import unittest
 from unittest import mock
 
 # Add the 'src' directory to the Python path
@@ -210,3 +210,7 @@ class Test(unittest.TestCase):
     @mock.patch('time.time', mock.MagicMock(return_value=42))
     def test_CurrentTimeMilliSec(self):
         self.__test(cs=Stack("current-time-millis"), ds=Stack("unchanged"), result=Stack("unchanged", 42000))
+
+    @mock.patch('platform.platform', mock.MagicMock(return_value="macOS-14.6-arm64-arm-64bit"))
+    def test_OperatingSystem(self):
+        self.__test(cs=Stack("operating-system"), ds=Stack("unchanged"), result=Stack("unchanged", "macOS-14.6-arm64-arm-64bit"))

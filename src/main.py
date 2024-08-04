@@ -12,14 +12,6 @@ def restoreDictKey(key):
     import ast
     return ast.literal_eval(key)
 
-def currentTimeInMilliSeconds(stack):
-    import time
-    return [int(time.time() * 1000)] + stack
-
-def operatingSystem(stack):
-    import platform
-    return [platform.platform()] + stack
-
 def apply(stack):
     func, stk, *rest = stack
     return [func(stk)] + rest
@@ -141,9 +133,6 @@ def moreThanEqual(stack):
     return ["t" if int(x) >= int(y) else "f"] + rest
 
 VM = {
-    toDictKey("current-time-millis"): currentTimeInMilliSeconds,
-    toDictKey("operating-system"): operatingSystem,
-
     toDictKey("call"): [call],
     # toDictKey("quote"): [quote],
     toDictKey("call/cc"): [callCC],

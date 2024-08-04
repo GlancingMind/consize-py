@@ -242,3 +242,19 @@ class CurrentTimeMilliSec(ExternalWord):
         i.ds.append(int(time.time() * 1000))
         i.cs.pop()
         return True
+
+# TODO
+# class OperatingSystem(ExternalWord):
+#     pass
+
+class OperatingSystem(ExternalWord):
+    def execute(i: Interpreter):
+        import time
+
+        if i.cs == [] or i.cs[-1] != "operating-system":
+            return False
+
+        import platform
+        i.ds.append(platform.platform())
+        i.cs.pop()
+        return True
