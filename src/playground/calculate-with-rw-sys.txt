@@ -1,0 +1,44 @@
+#X #Y | + -> | to-ones swap to-ones swap
+[ - @N1 ] [ @N2 ] | + -> [ @N1 ] [ - @N2 ] | TODO
+[ 1 1 1 ... ] [ 1 1 1 ... ] | concat
+[ 1 1 1 1 1 1 ... ] | size
+[ X+Y ]
+
+// [ @N1 ] [ @N1 ] | + -> do nothing
+// [ @N1 ] [ - @N1 ] | + -> do nothing
+// [ - @N1 ] [ - @N1 ] | + -> do nothing
+
+
+18 3 | +
+[ 1 8 ] [ 3 ] | +
+[  ] [ 1 1 1 ]
+
+# to-ones
+| unword
+[ 12 ] -> [ 1 2 ] -> [ 1 1 1 1 1 1 1 1 1 1 ] [ 1 1 ]
+Nehme von der ersten Stelle und konvertiere
+Beim nehmen der zweiten Stelle, lege auf dem Stack noch einen Stack mit einsen, welcher die Zehnerstelle angibt.
+Backup die Konvertierten Zahlen auf den Callstack.
+[ 1 ] [ 1 ] | to-ones // für 20 sähe das so aus [ 1 1 ] [ 1 ] und für 200: [ 1 1 ] [ 1 1 ]
+Nehme eine eins von rechts und von links und füge ein Stack mit 10 einsen auf dem CS ein
+[  ] [  ] | [ 1 1 1 1 1 1 1 1 1 1 ]
+Wdh. das bis einer der beiden Stacks/oder beide leer sind
+[ ] [ ... ]
+[ ... ] [ ]
+[ ] [ ]
+
+
+[ 22 ] ->
+[ 2 2 [ 1 ] ] ->
+[ 2 [ 1 1 ] [ 1 ] ] ->
+[ 2 [ 1 1 ] [ ] ] | [ 1 1 ] ->
+[ 2 [ 1 1 ] ] | [ 1 1 ] ->
+[ [ 1 1 ] [ 1 1 ] ] | [ 10x1 ] [ 1 1 ] ->
+[ [ 1 1 ] [ 1 ] ] | [ 10x1 ] [ 10x1 ] [ 1 1 ] ->
+[ [ 1 1 ] [ ] ] ->
+
+
+Konkatenieren alle Elemente
+
+Oder setzte die entnommenen Ziffer auf 0
+[ 1 0 ]

@@ -34,7 +34,6 @@ class RuleParser:
 
             if not any(word.startswith("@") for word in csp if isinstance(word, str)):
                 csp = Stack(*csp, "@RCS")
-        csp.reverse()
 
         return Stack(*dsp), Stack(*csp)
 
@@ -51,6 +50,5 @@ class RuleParser:
 
             if not any(word.startswith("@") for word in csp if isinstance(word, str)):
                 csp = Stack(*csp, "@RCS")
-        csp.reverse()
 
         return Stack(*dsp), Stack(*csp)

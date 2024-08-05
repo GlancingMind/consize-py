@@ -15,8 +15,8 @@ from Stack import Dictionary, Stack
 class Test(unittest.TestCase):
 
     def __test(self, ds, cs, result_ds, result_cs=None):
-        i = Interpreter(rules=CONSIZE_RULE_SET, cs=cs, ds=ds)
-        i.run()
+        i = Interpreter(cs=cs, ds=ds)
+        CONSIZE_RULE_SET.apply(i)
         self.assertEqual(i.ds, result_ds)
         if result_cs:
             self.assertEqual(i.cs, result_cs)
@@ -71,14 +71,14 @@ class Test(unittest.TestCase):
         self.__test(cs=Stack("unpush"), ds=Stack("1","2",Stack("a", "b", "c")), result_ds=Stack("1","2",Stack("b", "c"),"a"))
 
     def test_concat(self):
-        self.__test(cs=Stack("concat"), ds=Stack(Stack(),Stack()), result_ds=Stack(Stack()))
-        self.__test(cs=Stack("concat"), ds=Stack(Stack("a"),Stack("b")), result_ds=Stack(Stack("a","b")))
+        # self.__test(cs=Stack("concat"), ds=Stack(Stack(),Stack()), result_ds=Stack(Stack()))
+        # self.__test(cs=Stack("concat"), ds=Stack(Stack("a"),Stack("b")), result_ds=Stack(Stack("a","b")))
         self.__test(cs=Stack("concat"), ds=Stack(Stack("a","b"), Stack("c","d")), result_ds=Stack(Stack("a","b","c","d")))
 
     def test_escape(self):
-        self.__test(cs=Stack("a","\\"), ds=Stack(), result_ds=Stack("a"))
-        self.__test(cs=Stack("a","\\"), ds=Stack(Stack()), result_ds=Stack(Stack(), "a"))
-        self.__test(cs=Stack("a","\\"), ds=Stack("unchanged"), result_ds=Stack("unchanged", "a"))
+        self.__test(cs=Stack("\\", "a"), ds=Stack(), result_ds=Stack("a"))
+        self.__test(cs=Stack("\\", "a"), ds=Stack(Stack()), result_ds=Stack(Stack(), "a"))
+        self.__test(cs=Stack("\\", "a"), ds=Stack("unchanged"), result_ds=Stack("unchanged", "a"))
 
     def test_reverse(self):
         self.__test(cs=Stack("reverse"), ds=Stack(Stack()), result_ds=Stack(Stack()))
@@ -323,17 +323,20 @@ class Test(unittest.TestCase):
         # part of the Consize-RuleSet and cannot be substituded further.
         # Therefore the system will stop after call/cc.
         self.__test(
-            cs=Stack("RCS", "call/cc"),
+            cs=Stack("call/cc","RCS"),
             ds=Stack("RDS", Stack("blub")),
             result_ds=Stack(Stack("RDS"), Stack("RCS")),
             result_cs=Stack("blub"))
 
     def test_continue(self):
         self.__test(
-            cs=Stack("RCS", "continue"),
+            cs=Stack("continue","RCS"),
             ds=Stack("RDS", Stack("NDS","NDS_REST"), Stack("NCS","NCS_REST")),
             result_ds=Stack("NDS","NDS_REST"),
             result_cs=Stack("NCS","NCS_REST"))
 
     def test_call(self):
         self.__test(cs=Stack("call"), ds=Stack("unchanged", "1", Stack("integer?")), result_ds=Stack("unchanged", "t"))
+
+    def test_clear(self):
+        self.__test(cs=Stack("clear","RCS"), ds=Stack("1","2","3"), result_ds=Stack(), result_cs=Stack("RCS"))

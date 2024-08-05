@@ -42,7 +42,7 @@
             "request": "launch",
             "program": "src/main.py",
             "console": "integratedTerminal",
-            "args": "\\\\ prelude/prelude.txt run \\\\ prelude/pattern-matching-test.txt run"
+            "args": "\\\\ 1 \\\\ 2 swap"
         },
     ]
 }

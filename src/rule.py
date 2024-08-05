@@ -5,7 +5,7 @@ from Stack import Dictionary, Stack, StackElement
 @dataclass
 class Rule:
     def __repr__(self) -> str:
-        return f"{self.mp} | {self.cs} => {self.nds} | {self.ncs}"
+        return f"{self.mp} | {self.cs} -> {self.nds} | {self.ncs}"
 
     def __init__(self, mp: Stack, ocs: Stack, ip: Stack, ncs: Stack):
         self.mp = mp
@@ -14,7 +14,7 @@ class Rule:
         self.ncs = ncs
 
     def execute(self, interpreter):
-        csm = self.__match(self.cs, interpreter.cs)
+        csm = self.__match(self.cs, interpreter.cs, topOfStackIsLeft=True)
         dsm = self.__match(self.mp, interpreter.ds)
         if csm == "f" or dsm == "f":
             return False

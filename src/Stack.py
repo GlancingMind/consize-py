@@ -4,23 +4,33 @@ from typing import Union
 # TODO maybe switch to Deque for performance, as at matcher will result in
 # popping from other stack side.
 class Stack(UserList):
-    def __init__(self, *args):
+    def __init__(self, *args, tosIsLeft=False):
         super().__init__(args)
+        self.tosIsLeft=tosIsLeft
 
     def __repr__(self):
         stringifiedElements = [str(itm) for itm in self.data]
         result = (" ").join(["[",*stringifiedElements,"]"])
         return result
 
-    def toString(self, addEnclosingParenthesis=True, tosIsLeft=False):
+    def toString(self, addEnclosingParenthesis=True, tosIsLeft=False, trunkLength=0):
         stringifiedElements = [str(itm) for itm in self.data]
         if tosIsLeft:
             stringifiedElements.reverse()
+
+        tc = (" ").join([*stringifiedElements])
+        if trunkLength > 0:
+            tc = tc[:trunkLength]
+            if len(tc) == trunkLength:
+                tc += "..."
+
         if addEnclosingParenthesis:
-            result = (" ").join(["[",*stringifiedElements,"]"])
-        else:
-            result = (" ").join([*stringifiedElements])
-        return result
+            return (" ").join(["[",tc,"]"])
+
+        return tc
+
+    def reverse(self):
+        self.data.reverse()
 
     def copy(self) -> list:
         return Stack(*self.data)

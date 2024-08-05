@@ -1,12 +1,9 @@
-from RuleSet import RuleSet
 from Stack import Stack
 
 class Interpreter:
 
-    def __init__(self, rules: RuleSet, cs: Stack = [], ds: Stack = []):
-        self.rules = rules
+    def __init__(self, cs: Stack = [], ds: Stack = [], maxRecursionDepth=20, trunkPrintOfStackToLength=0):
         self.ds = ds
         self.cs = cs
-
-    def run(self):
-        self.rules.apply(self)
+        self.maxRecursionDepth=maxRecursionDepth
+        self.trunkPrintOfStackToLength=trunkPrintOfStackToLength

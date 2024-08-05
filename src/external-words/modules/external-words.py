@@ -435,3 +435,18 @@ class LessThanEqual(ExternalWord):
         i.cs = Stack(*rcs)
         i.ds = Stack(*rds, result)
         return True
+
+# class Reverse(ExternalWord):
+#     def execute(i: Interpreter):
+
+#         if i.cs == [] or i.cs[-1] != "reverse":
+#             return False
+
+#         if i.ds == []:
+#             return False
+
+#         *rest, word = i.ds
+#         word.reverse()
+#         i.ds = Stack(*rest, word)
+#         i.cs.pop()
+#         return True
