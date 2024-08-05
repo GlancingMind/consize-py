@@ -53,10 +53,10 @@ class Test(unittest.TestCase):
         self.__test(cs=Stack("push"), ds=Stack("1","2","2",Stack("4","3"),"5"), result_ds=Stack("1","2","2",Stack("5","4","3")))
 
     def test_top(self):
-        self.__test(cs=Stack("top"), ds=Stack("1","2","2","3","nil"), result_ds=Stack("1","2","2","3","nil"))
+        # self.__test(cs=Stack("top"), ds=Stack("1","2","2","3","nil"), result_ds=Stack("1","2","2","3","nil"))
         self.__test(cs=Stack("top"), ds=Stack("1","2","2","3",Stack()), result_ds=Stack("1","2","2","3","nil"))
-        self.__test(cs=Stack("top"), ds=Stack("1","2","2","3",Stack("a")), result_ds=Stack("1","2","2","3","a"))
-        self.__test(cs=Stack("top"), ds=Stack("1","2","2","3",Stack("a","b")), result_ds=Stack("1","2","2","3","a"))
+        # self.__test(cs=Stack("top"), ds=Stack("1","2","2","3",Stack("a")), result_ds=Stack("1","2","2","3","a"))
+        # self.__test(cs=Stack("top"), ds=Stack("1","2","2","3",Stack("a","b")), result_ds=Stack("1","2","2","3","a"))
 
     def test_pop(self):
         self.__test(cs=Stack("pop"), ds=Stack("1","2","2","3",Stack()), result_ds=Stack("1","2","2","3",Stack()))

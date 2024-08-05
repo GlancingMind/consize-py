@@ -32,6 +32,10 @@ class Stack(UserList):
     def reverse(self):
         self.data.reverse()
 
+    def peek(self):
+        e, *_ = self.data
+        return e
+
     def copy(self) -> list:
         return Stack(*self.data)
 

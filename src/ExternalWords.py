@@ -45,7 +45,7 @@ import subprocess
 
 from Interpreter import Interpreter
 from Rule import Rule
-from StackDeserializer import parse
+from StackParser import parse
 
 class ExternalWords(Rule):
 

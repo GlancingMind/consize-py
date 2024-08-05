@@ -1,7 +1,6 @@
 from ExternalWords import ExternalWord
 from Interpreter import Interpreter
 from Stack import Stack
-from unittest import mock
 
 # TODO move call- and datastack validation into superclass.
 # The just call super.match(), or let ExternalWords.py call isSatisfied() and
@@ -10,7 +9,7 @@ from unittest import mock
 
 class Word(ExternalWord):
     def execute(i: Interpreter):
-        if i.cs == [] or i.cs[-1] != "word":
+        if i.cs == [] or i.cs.peek() != "word":
             return False
 
         if i.ds == []:
@@ -23,7 +22,7 @@ class Word(ExternalWord):
 
 class Unword(ExternalWord):
     def execute(i: Interpreter):
-        if i.cs == [] or i.cs[-1] != "unword":
+        if i.cs == [] or i.cs.peek() != "unword":
             return False
 
         if i.ds == []:
@@ -46,7 +45,7 @@ class Char(ExternalWord):
         E.g: char([r"\\u0040"]) will return ["@"]
             char([r"\\o100"]) will return ["@"]
         """
-        if i.cs == [] or i.cs[-1] != "char":
+        if i.cs == [] or i.cs.peek() != "char":
             return False
 
         if i.ds == []:
@@ -71,7 +70,7 @@ class Char(ExternalWord):
 
 class Print(ExternalWord):
     def execute(i: Interpreter):
-        if i.cs == [] or i.cs[-1] != "print":
+        if i.cs == [] or i.cs.peek() != "print":
             return False
 
         if i.ds == []:
@@ -91,7 +90,7 @@ class Flush(ExternalWord):
     def execute(i: Interpreter):
         import sys
 
-        if i.cs == [] or i.cs[-1] != "flush":
+        if i.cs == [] or i.cs.peek() != "flush":
             return False
 
         sys.stdout.flush()
@@ -101,7 +100,7 @@ class Flush(ExternalWord):
 
 class Readline(ExternalWord):
     def execute(i: Interpreter):
-        if i.cs == [] or i.cs[-1] != "read-line":
+        if i.cs == [] or i.cs.peek() != "read-line":
             return False
 
         i.ds.append(input())
@@ -110,7 +109,7 @@ class Readline(ExternalWord):
 
 class Slurp(ExternalWord):
     def execute(i: Interpreter):
-        if i.cs == [] or i.cs[-1] != "slurp":
+        if i.cs == [] or i.cs.peek() != "slurp":
             return False
 
         if i.ds == []:
@@ -137,7 +136,7 @@ class Slurp(ExternalWord):
 
 class Spit(ExternalWord):
     def execute(i: Interpreter):
-        if i.cs == [] or i.cs[-1] != "spit":
+        if i.cs == [] or i.cs.peek() != "spit":
             return False
 
         if i.ds == []:
@@ -162,7 +161,7 @@ class Spit(ExternalWord):
 
 class SpitOn(ExternalWord):
     def execute(i: Interpreter):
-        if i.cs == [] or i.cs[-1] != "spit-on":
+        if i.cs == [] or i.cs.peek() != "spit-on":
             return False
 
         if i.ds == []:
@@ -188,7 +187,7 @@ class Uncomment(ExternalWord):
     def execute(i: Interpreter):
         import re
 
-        if i.cs == [] or i.cs[-1] != "uncomment":
+        if i.cs == [] or i.cs.peek() != "uncomment":
             return False
 
         if i.ds == []:
@@ -203,7 +202,7 @@ class Tokenize(ExternalWord):
     def execute(i: Interpreter):
         import re
 
-        if i.cs == [] or i.cs[-1] != "tokenize":
+        if i.cs == [] or i.cs.peek() != "tokenize":
             return False
 
         if i.ds == []:
@@ -219,7 +218,7 @@ class Undocument(ExternalWord):
     def execute(i: Interpreter):
         import re
 
-        if i.cs == [] or i.cs[-1] != "undocument":
+        if i.cs == [] or i.cs.peek() != "undocument":
             return False
 
         if i.ds == []:
@@ -236,7 +235,7 @@ class CurrentTimeMilliSec(ExternalWord):
     def execute(i: Interpreter):
         import time
 
-        if i.cs == [] or i.cs[-1] != "current-time-millis":
+        if i.cs == [] or i.cs.peek() != "current-time-millis":
             return False
 
         i.ds.append(int(time.time() * 1000))
@@ -245,7 +244,7 @@ class CurrentTimeMilliSec(ExternalWord):
 
 class OperatingSystem(ExternalWord):
     def execute(i: Interpreter):
-        if i.cs == [] or i.cs[-1] != "operating-system":
+        if i.cs == [] or i.cs.peek() != "operating-system":
             return False
 
         import platform
@@ -439,7 +438,7 @@ class LessThanEqual(ExternalWord):
 # class Reverse(ExternalWord):
 #     def execute(i: Interpreter):
 
-#         if i.cs == [] or i.cs[-1] != "reverse":
+#         if i.cs == [] or i.cs.peek() != "reverse":
 #             return False
 
 #         if i.ds == []:

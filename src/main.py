@@ -5,7 +5,7 @@ import sys
 from ConsizeRuleSet import CONSIZE_RULE_SET
 from Interpreter import Interpreter
 from Stack import Stack
-from StackDeserializer import parse
+from StackParser import parse
 
 def main():
     interpreter = Interpreter(

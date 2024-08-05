@@ -1,7 +1,8 @@
 import re
 from Rule import Rule
 from Stack import Stack
-from StackDeserializer import parse
+from StackPattern import StackPattern
+from StackParser import parse
 
 class RuleParser:
     def parse(self, ruleStr: str):
@@ -35,7 +36,7 @@ class RuleParser:
             if not any(word.startswith("@") for word in csp if isinstance(word, str)):
                 csp = Stack(*csp, "@RCS")
 
-        return Stack(*dsp), Stack(*csp)
+        return StackPattern(dsp), StackPattern(csp)
 
     def _parse_rh_ruleside(self, sideStr: str, autoAppendRestMatcher=False):
         dspStr, *cspStr = re.split(r"\s*\|\s+", sideStr)
@@ -51,4 +52,4 @@ class RuleParser:
             if not any(word.startswith("@") for word in csp if isinstance(word, str)):
                 csp = Stack(*csp, "@RCS")
 
-        return Stack(*dsp), Stack(*csp)
+        return StackPattern(dsp), StackPattern(csp)
