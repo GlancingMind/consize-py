@@ -17,7 +17,7 @@ class Word(ExternalWord):
 
         *rest, wordstack = i.ds
         i.ds = Stack(*rest, "".join(wordstack))
-        i.cs.pop()
+        i.cs.pop(0)
         return True
 
 class Unword(ExternalWord):
@@ -30,7 +30,7 @@ class Unword(ExternalWord):
 
         *rest, word = i.ds
         i.ds = Stack(*rest, [character for character in word])
-        i.cs.pop()
+        i.cs.pop(0)
         return True
 
 class Char(ExternalWord):
@@ -65,7 +65,7 @@ class Char(ExternalWord):
                 i.ds = Stack(*rest, bytes(characterCode, "utf-8").decode("unicode_escape"))
             case _:
                 i.ds = Stack(*rest, fr"error: {characterCode} isn't a valid character codec")
-        i.cs.pop()
+        i.cs.pop(0)
         return True
 
 class Print(ExternalWord):
@@ -83,7 +83,7 @@ class Print(ExternalWord):
         print(word, end="")
 
         i.ds = Stack(*rest)
-        i.cs.pop()
+        i.cs.pop(0)
         return True
 
 class Flush(ExternalWord):
@@ -95,7 +95,7 @@ class Flush(ExternalWord):
 
         sys.stdout.flush()
 
-        i.cs.pop()
+        i.cs.pop(0)
         return True
 
 class Readline(ExternalWord):
@@ -104,7 +104,7 @@ class Readline(ExternalWord):
             return False
 
         i.ds.append(input())
-        i.cs.pop()
+        i.cs.pop(0)
         return True
 
 class Slurp(ExternalWord):
@@ -131,7 +131,7 @@ class Slurp(ExternalWord):
             print("An error occurred while reading the file:", e)
 
         i.ds = Stack(*rest, content)
-        i.cs.pop()
+        i.cs.pop(0)
         return True
 
 class Spit(ExternalWord):
@@ -156,7 +156,7 @@ class Spit(ExternalWord):
             print("An error occurred while writing the file:", e)
 
         i.ds = Stack(*rest)
-        i.cs.pop()
+        i.cs.pop(0)
         return True
 
 class SpitOn(ExternalWord):
@@ -180,7 +180,7 @@ class SpitOn(ExternalWord):
             print("An error occurred while writing the file:", e)
 
         i.ds = Stack(*rest)
-        i.cs.pop()
+        i.cs.pop(0)
         return True
 
 class Uncomment(ExternalWord):
@@ -195,7 +195,7 @@ class Uncomment(ExternalWord):
 
         *rest, word = i.ds
         i.ds = Stack(*rest, *[re.sub(r"(?m)\s*%.*$", "", word).strip()])
-        i.cs.pop()
+        i.cs.pop(0)
         return True
 
 class Tokenize(ExternalWord):
@@ -211,7 +211,7 @@ class Tokenize(ExternalWord):
         *rest, word = i.ds
         parts = re.split(r"\s+", word.strip())
         i.ds = Stack(*rest, Stack() if parts == [""] else Stack(*parts))
-        i.cs.pop()
+        i.cs.pop(0)
         return True
 
 class Undocument(ExternalWord):
@@ -228,7 +228,7 @@ class Undocument(ExternalWord):
         parts = re.findall(r"(?m)^%?>> (.*)$", word)
 
         i.ds = Stack(*rest, Stack(r"\r\n".join(parts)))
-        i.cs.pop()
+        i.cs.pop(0)
         return True
 
 class CurrentTimeMilliSec(ExternalWord):
@@ -239,7 +239,7 @@ class CurrentTimeMilliSec(ExternalWord):
             return False
 
         i.ds.append(int(time.time() * 1000))
-        i.cs.pop()
+        i.cs.pop(0)
         return True
 
 class OperatingSystem(ExternalWord):
@@ -249,7 +249,7 @@ class OperatingSystem(ExternalWord):
 
         import platform
         i.ds.append(platform.platform())
-        i.cs.pop()
+        i.cs.pop(0)
         return True
 
 class IsInteger(ExternalWord):
@@ -447,5 +447,5 @@ class LessThanEqual(ExternalWord):
 #         *rest, word = i.ds
 #         word.reverse()
 #         i.ds = Stack(*rest, word)
-#         i.cs.pop()
+#         i.cs.pop(0)
 #         return True
