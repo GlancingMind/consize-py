@@ -90,6 +90,6 @@ CONSIZE_RULE_SET = RuleSet(
 
     rules=[
         ExternalWordModules(moduleDir="./src/external-words/modules"),
-        ExternalWords(wordScripts=glob.glob("./src/external-words/*"))
+        # ExternalWords(wordScripts=glob.glob("./src/external-words/*"))
     ],
 )

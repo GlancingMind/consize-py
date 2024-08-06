@@ -65,30 +65,35 @@ class Interpreter:
                 self.show_help()
             elif user_input.startswith('status'):
                 self.log_state()
-            elif user_input.startswith('ruleset'):
+            elif user_input.startswith('rules'):
                 self.show_ruleset()
             elif user_input.startswith('+'):
-                _plus, *ruleDesc = parse(user_input)
-                if ruleDesc == []:
+                ruleDesc = user_input.removeprefix("+").strip()
+                if ruleDesc == "":
                     print("No rule description given.", file=stderr)
                 self.add_rule(ruleDesc)
             elif user_input.startswith('-'):
-                _minus, *ruleDesc = parse(user_input)
-                if ruleDesc == []:
+                ruleDesc = user_input.removeprefix("-").strip()
+                if ruleDesc == "":
+                    print("No rule description given.", file=stderr)
+                self.remove_rule(ruleDesc)
+            elif user_input.startswith('try'):
+                ruleDesc = user_input.removeprefix("try").strip()
+                if ruleDesc == "":
                     print("No rule description given.", file=stderr)
                 self.remove_rule(ruleDesc)
             elif user_input.startswith('save'):
-                try:
-                    _save, path = parse(user_input)
-                except ValueError:
+                path = user_input.removeprefix("save").strip()
+                if path == "":
                     print("No path given.", file=stderr)
-                self.save_ruleset(path)
+                else:
+                    self.save_ruleset(path)
             elif user_input.startswith('load'):
-                try:
-                    _load, path = parse(user_input)
-                except ValueError:
+                path = user_input.removeprefix("load").strip()
+                if path == "":
                     print("No path given.", file=stderr)
-                self.replace_ruleset(path)
+                else:
+                    self.save_ruleset(path)
             else:
                 print("Sorry, I dont understand.")
         return stopExecution
@@ -107,7 +112,7 @@ class Interpreter:
         exit                    Quits the program.
         continue                Continues rule evaluation.
         status                  Shows current evaluation state.
-        ruleset                 Shows all current rules.
+        rules                   Shows all current rules.
         + <Rule Description>    Add rule to current ruleset.
         - <Rule Description>    Remove rule from current ruleset.
         try <Rule Description>  Calls the given rule, but won't add it to the ruleset.
@@ -126,7 +131,7 @@ class Interpreter:
         parser = RuleParser()
         rule = parser.parse(ruleDesc)
         err = self.ruleset.add(rule)
-        if not err:
+        if err:
             print(err.msg, file=stderr)
 
     def remove_rule(self, ruleDesc: str):

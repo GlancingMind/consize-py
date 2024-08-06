@@ -33,6 +33,9 @@ class ExternalWordModules(Rule):
                 return True
         return False
 
+    def __repr__(self) -> str:
+        return "ext-word"
+
 
 #########################################################################
 # PROTOTYPE to execute external words implemented in arbitary languages.
@@ -69,3 +72,6 @@ class ExternalWords(Rule):
                 return True
 
         return False
+
+    def __repr__(self) -> str:
+        return "ext-word"

@@ -3,14 +3,14 @@ from dataclasses import dataclass
 import StackPattern
 
 @dataclass
-class Rule:
+class Rule():
     dsp: StackPattern
     csp: StackPattern
     dst: StackPattern
     cst: StackPattern
 
     def __repr__(self) -> str:
-        return f"{self.mp} | {self.cs} -> {self.nds} | {self.ncs}"
+        return f"{self.dsp} | {self.csp} -> {self.dst} | {self.cst}"
 
     def execute(self, interpreter):
         csm = StackPattern.match(self.csp, interpreter.cs, topOfStackIsLeft=True)

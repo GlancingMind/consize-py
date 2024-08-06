@@ -12,7 +12,7 @@ def main():
     interpreter = Interpreter(
         ruleset=CONSIZE_RULE_SET,
         ds=Stack(),
-        cs=parse(sys.argv[1:]),
+        cs=parse((" ").join(sys.argv[1:])),
         maxRecursionDepth=0,
         trunkPrintOfStackToLength=50
     ).run(interactive=True)

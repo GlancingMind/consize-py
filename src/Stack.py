@@ -1,5 +1,4 @@
 from collections import UserList, UserString
-from dataclasses import dataclass
 from typing import Union
 
 # TODO maybe switch to Deque for performance, as at matcher will result in

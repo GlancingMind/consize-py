@@ -6,10 +6,6 @@ from StackParser import parse
 
 class RuleParser:
     def parse(self, ruleStr: str):
-        # TODO Via the current parsing implementation, the
-        #  -> and => cannot be a word within one of the stack patterns.
-        # Maybe parsing can be adjusted to allow these arrows within a stack
-        # pattern.
         trimmedRuleStr = ruleStr.strip()
         if "->" in trimmedRuleStr:
             lhs, rhs = re.split(r"\s*->\s*", ruleStr, 1)
@@ -24,10 +20,8 @@ class RuleParser:
 
     def _parse_lh_ruleside(self, sideStr: str, autoAppendRestMatcher=False):
         *dspStr, cspStr = re.split(r"\s*\|\s+", sideStr)
-        tokens = re.split(r"\s+", dspStr[0] if dspStr != [] else "")
-        dsp = Stack() if all(t == "" for t in tokens) else parse(tokens)
-        tokens = re.split(r"\s+", cspStr)
-        csp = Stack() if all(t == "" for t in tokens) else parse(tokens)
+        dsp = parse(dspStr[0] if dspStr != [] else "")
+        csp = parse(cspStr)
 
         if autoAppendRestMatcher:
             if not any(word.startswith("@") for word in dsp if isinstance(word, str)):
@@ -40,10 +34,8 @@ class RuleParser:
 
     def _parse_rh_ruleside(self, sideStr: str, autoAppendRestMatcher=False):
         dspStr, *cspStr = re.split(r"\s*\|\s+", sideStr)
-        tokens = re.split(r"\s+", dspStr)
-        dsp = Stack() if all(t == "" for t in tokens) else parse(tokens)
-        tokens = re.split(r"\s+", cspStr[0] if cspStr != [] else "")
-        csp = Stack() if all(t == "" for t in tokens) else parse(tokens)
+        dsp = parse(dspStr)
+        csp = parse(cspStr[0] if cspStr != [] else "")
 
         if autoAppendRestMatcher:
             if not any(word.startswith("@") for word in dsp if isinstance(word, str)):

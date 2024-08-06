@@ -37,4 +37,4 @@ class RuleSet:
         self.rules.pop(idx)
 
     def __repr__(self) -> str:
-        return ("\n").join(self.ruleStrings)
+        return ("\n").join(str(rule) for rule in self.rules)
