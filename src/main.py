@@ -9,13 +9,14 @@ from StackParser import parse
 
 def main():
     interpreter = Interpreter(
+        ruleset=CONSIZE_RULE_SET,
         ds=Stack(),
         cs=parse(sys.argv[1:]),
         maxRecursionDepth=0,
         trunkPrintOfStackToLength=50
-    )
-    CONSIZE_RULE_SET.apply(interpreter)
-    print("Consize returns", interpreter.ds.toString())
+    ).run()
+
+    print("Result is:", interpreter.ds.toString())
 
 if __name__ == "__main__":
     main()

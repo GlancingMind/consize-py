@@ -15,8 +15,7 @@ from Stack import Dictionary, Stack
 class Test(unittest.TestCase):
 
     def __test(self, ds, cs, result_ds, result_cs=None):
-        i = Interpreter(cs=cs, ds=ds)
-        CONSIZE_RULE_SET.apply(i)
+        i = Interpreter(ruleset=CONSIZE_RULE_SET, cs=cs, ds=ds).run()
         self.assertEqual(i.ds, result_ds)
         if result_cs:
             self.assertEqual(i.cs, result_cs)

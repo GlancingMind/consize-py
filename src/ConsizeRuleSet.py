@@ -87,7 +87,6 @@ CONSIZE_RULE_SET = RuleSet(
 
     # Transcribed Prelude
     "@RDS | clear @RCS => | @RCS",
-
     rules=[
         ExternalWordModules(moduleDir="./src/external-words/modules"),
         ExternalWords(wordScripts=glob.glob("./src/external-words/*"))
