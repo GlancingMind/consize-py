@@ -1,6 +1,9 @@
+from dataclasses import dataclass
 from sys import stderr
+from RuleParser import RuleParser
 from RuleSet import RuleSet
 from Stack import Stack
+from StackParser import parse
 from TerminalEscsapeCodes import TerminalEscapeCodes as TEC
 
 class Interpreter:
@@ -12,7 +15,7 @@ class Interpreter:
         self.trunkPrintOfStackToLength=trunkPrintOfStackToLength
         self.ruleset = ruleset
 
-    def run(self):
+    def run(self, interactive=False):
         print('\n\nSteps:',file=stderr)
         counter = 0
         while(True):
@@ -31,29 +34,106 @@ class Interpreter:
                     break
 
             if not someRuleMatched:
-                print(f"{TEC.RED}No more possible rules for application{TEC.END}", file=stderr)
-                # TODO instead of breaking, could ask for further user-input.
-                # Use readline for this, which has tab completion.
-                # Idee: Could introduce word, which halts current interpretation
-                # and goes into this interactive mode, to edit ruleset inplace.
-                break
-
+                print(f"{TEC.RED}No applicative rules found{TEC.END}", file=stderr)
+                if not interactive:
+                    break
+                else:
+                    stopExecution = self.__meta_loop()
+                    if stopExecution:
+                        break
         return self
 
-    def log_state(self):
-        """
-        Print the current stack states in form of a reasoning-chain.
+    def __meta_loop(self):
+        stopExecution = False
+        while not stopExecution:
+            try:
+                # TODO use readline instead of input for history and autocompletion
+                user_input = input("Enter something (or 'exit' to quit and '?' for help):\n> ").strip()
+            except EOFError:
+                stopExecution=True
+                break
 
-            \<DS> | \<CS> -->
-            \<DS> | \<CS> -->
-            ...
+            # TODO could parse user_input as stack and use StackPattern to match.
+            # Or implement this functions completely via ExternalWords-Modules.
+            # Should be possible as everyone gets an interpreter reference.
+            if user_input.startswith('exit'):
+                stopExecution = True
+                break
+            elif user_input.startswith('continue'):
+                break
+            if user_input.startswith('?'):
+                self.show_help()
+            elif user_input.startswith('status'):
+                self.log_state()
+            elif user_input.startswith('ruleset'):
+                self.show_ruleset()
+            elif user_input.startswith('+'):
+                _plus, *ruleDesc = parse(user_input)
+                if ruleDesc == []:
+                    print("No rule description given.", file=stderr)
+                self.add_rule(ruleDesc)
+            elif user_input.startswith('-'):
+                _minus, *ruleDesc = parse(user_input)
+                if ruleDesc == []:
+                    print("No rule description given.", file=stderr)
+                self.remove_rule(ruleDesc)
+            elif user_input.startswith('save'):
+                try:
+                    _save, path = parse(user_input)
+                except ValueError:
+                    print("No path given.", file=stderr)
+                self.save_ruleset(path)
+            elif user_input.startswith('load'):
+                try:
+                    _load, path = parse(user_input)
+                except ValueError:
+                    print("No path given.", file=stderr)
+                self.replace_ruleset(path)
+            else:
+                print("Sorry, I dont understand.")
+        return stopExecution
+
+    def log_state(self):
+        datastack=self.ds.toString(addEnclosingParenthesis=False, trunkLength=self.trunkPrintOfStackToLength)
+        callstack=self.cs.toString(addEnclosingParenthesis=False, trunkLength=self.trunkPrintOfStackToLength)
+        step =f"{datastack} {TEC.RED}{TEC.BOLD}|{TEC.END} {TEC.BLUE}{callstack}{TEC.END} {TEC.BOLD}{TEC.RED}-->{TEC.END}"
+        print(step, file=stderr)
+
+    def show_help(self):
+        print(
         """
-        print(f"""{
-                self.ds.toString(
-                    addEnclosingParenthesis=False,
-                    trunkLength=self.trunkPrintOfStackToLength)
-                } {TEC.RED}{TEC.BOLD}|{TEC.END} {TEC.BLUE}{
-                self.cs.toString(
-                    addEnclosingParenthesis=False,
-                    trunkLength=self.trunkPrintOfStackToLength)
-                }{TEC.END} {TEC.BOLD}{TEC.RED}-->{TEC.END}""", file=stderr)
+        Commands:
+        ?                       Shows this help.
+        exit                    Quits the program.
+        continue                Continues rule evaluation.
+        status                  Shows current evaluation state.
+        ruleset                 Shows all current rules.
+        + <Rule Description>    Add rule to current ruleset.
+        - <Rule Description>    Remove rule from current ruleset.
+        try <Rule Description>  Calls the given rule, but won't add it to the ruleset.
+        save <path>             Save the current ruleset into the given file.
+        load <path>             Replaces the current ruleset with the one in the given file.
+        """, file=stderr)
+
+    def eval(self):
+        print("Unfortunately, this isn't currently implemented.")
+        pass
+
+    def show_ruleset(self):
+        print(str(self.ruleset), file=stderr)
+
+    def add_rule(self, ruleDesc: str) -> bool:
+        parser = RuleParser()
+        rule = parser.parse(ruleDesc)
+        err = self.ruleset.add(rule)
+        if not err:
+            print(err.msg, file=stderr)
+
+    def remove_rule(self, ruleDesc: str):
+        print("Unfortunately, this isn't currently implemented.")
+
+    def save_ruleset(self, path: str):
+        print("Unfortunately, this isn't currently implemented.")
+
+    def replace_ruleset(self, path: str):
+        print("Unfortunately, this isn't currently implemented.")

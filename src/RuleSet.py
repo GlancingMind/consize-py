@@ -1,7 +1,12 @@
 from dataclasses import dataclass
+from typing import SupportsIndex
 
 from Rule import Rule
 from RuleParser import RuleParser
+
+@dataclass
+class Error():
+    msg: str
 
 @dataclass
 class RuleSet:
@@ -14,11 +19,22 @@ class RuleSet:
 
         self.rules += rules
 
-    def add(self, rule: Rule):
-        pass
+    def add(self, rule: Rule) -> None|Error:
+        return self.add_by_index(rule)
+
+    def add_by_index(self, rule: Rule, idx: SupportsIndex=-1) -> None|Error:
+        # TODO check if rule can be added to ruleset => Might be ambiguise
+        try:
+            self.rules.insert(idx, rule)
+        except Exception as e:
+            return Error(f"The rule could not be added to the ruleset. Reason: {str(e)}")
+        return None
 
     def remove(self, rule: Rule):
-        pass
+        self.remove(self.rules.index(rule))
+
+    def remove_by_index(self, idx: SupportsIndex):
+        self.rules.pop(idx)
 
     def __repr__(self) -> str:
-        return self.ruleStrings
+        return ("\n").join(self.ruleStrings)

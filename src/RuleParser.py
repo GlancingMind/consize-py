@@ -20,7 +20,7 @@ class RuleParser:
 
         m_ds_pat, m_cs_pat = self._parse_lh_ruleside(lhs, autoAppendRestMatcher)
         i_ds_pat, i_cs_pat = self._parse_rh_ruleside(rhs, autoAppendRestMatcher)
-        return Rule(mp=m_ds_pat, ocs= m_cs_pat, ip=i_ds_pat, ncs=i_cs_pat)
+        return Rule(dsp=m_ds_pat, csp= m_cs_pat, dst=i_ds_pat, cst=i_cs_pat)
 
     def _parse_lh_ruleside(self, sideStr: str, autoAppendRestMatcher=False):
         *dspStr, cspStr = re.split(r"\s*\|\s+", sideStr)

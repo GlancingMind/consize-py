@@ -4,11 +4,10 @@ import StackPattern
 
 @dataclass
 class Rule:
-    def __init__(self, mp: StackPattern, ocs: StackPattern, ip: StackPattern, ncs: StackPattern):
-        self.dsp = mp
-        self.csp = ocs
-        self.dst = ip
-        self.cst = ncs
+    dsp: StackPattern
+    csp: StackPattern
+    dst: StackPattern
+    cst: StackPattern
 
     def __repr__(self) -> str:
         return f"{self.mp} | {self.cs} -> {self.nds} | {self.ncs}"
