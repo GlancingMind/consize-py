@@ -8,8 +8,11 @@ class Rule():
     csp: StackPattern
     dst: StackPattern
     cst: StackPattern
+    rule_desc: str
 
     def __repr__(self) -> str:
+        if self.rule_desc:
+            return self.rule_desc
         return f"{self.dsp} | {self.csp} -> {self.dst} | {self.cst}"
 
     def execute(self, interpreter):

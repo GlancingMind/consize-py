@@ -6,6 +6,9 @@ from StackParser import parse
 
 class RuleParser:
     def parse(self, ruleStr: str):
+        # TODO use regex pattern matching groups
+        # TODO convert to Module. We will never need multiple instances.
+
         trimmedRuleStr = ruleStr.strip()
         if "->" in trimmedRuleStr:
             lhs, rhs = re.split(r"\s*->\s*", ruleStr, 1)
@@ -16,7 +19,7 @@ class RuleParser:
 
         m_ds_pat, m_cs_pat = self._parse_lh_ruleside(lhs, autoAppendRestMatcher)
         i_ds_pat, i_cs_pat = self._parse_rh_ruleside(rhs, autoAppendRestMatcher)
-        return Rule(dsp=m_ds_pat, csp= m_cs_pat, dst=i_ds_pat, cst=i_cs_pat)
+        return Rule(dsp=m_ds_pat, csp= m_cs_pat, dst=i_ds_pat, cst=i_cs_pat, rule_desc=trimmedRuleStr)
 
     def _parse_lh_ruleside(self, sideStr: str, autoAppendRestMatcher=False):
         *dspStr, cspStr = re.split(r"\s*\|\s+", sideStr)
