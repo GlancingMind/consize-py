@@ -5,7 +5,12 @@ import StackPattern
 
 class IRule(ABC):
     @abstractmethod
-    def execute(self, i) -> bool|dict:
+    def execute(self, interpreter) -> bool|dict:
+        pass
+
+class NativeRule(IRule):
+    @abstractmethod
+    def execute(self, interpreter) -> bool:
         pass
 
 @dataclass

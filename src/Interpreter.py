@@ -1,4 +1,8 @@
+import importlib
+import os
 from sys import stderr
+import sys
+from Rule import NativeRule
 import RuleParser as RuleParser
 from RuleSet import RuleSet
 from Stack import Stack
@@ -7,24 +11,35 @@ from TerminalEscsapeCodes import TerminalEscapeCodes as TEC
 class Interpreter:
 
     def __init__(self,
-            ruleset: RuleSet,
-            cs: Stack = Stack(),
-            ds: Stack = Stack(),
-            trunkPrintOfStackToLength=0,
-            displayReasoningChain=True):
+            ruleset = RuleSet([]),
+            cs = Stack(),
+            ds = Stack(),
+            native_rule_module_dir = "",
+            trunkPrintOfStackToLength = 0,
+            displayReasoningChain = True
+        ):
         self.ds = ds
         self.cs = cs
         self.trunkPrintOfStackToLength=trunkPrintOfStackToLength
-        self.ruleset = ruleset
         self.displayReasoningChain = displayReasoningChain
+        self.native_rule_module_dir = native_rule_module_dir
+        self.ruleset = ruleset
+        self.native_rules = RuleSet([])
+        if self.native_rule_module_dir:
+            self.discover_native_rules()
 
     def run(self, interactive=False):
         while True:
             try:
-                # TODO use readline instead of input for history and autocompletion
-                user_input = input("Enter something (or 'exit' to quit and '?' for help):\n> ").strip()
+                if interactive:
+                    # TODO use readline instead of input for history and autocompletion
+                    user_input = input("Enter something (or 'exit' to quit and '?' for help):\n> ").strip()
+                else:
+                    # will skip to continue step, which evaluate all rules to the end.
+                    user_input = "continue"
             except EOFError:
                 break
+
             if user_input.startswith('exit'):
                 break
             elif user_input.startswith('step'):
@@ -70,6 +85,8 @@ class Interpreter:
                     self.print_error("No path given.")
                 else:
                     self.append_ruleset(path)
+            elif user_input.startswith('rediscover'):
+                self.discover_native_rules()
             else:
                 self.print_error("This seems to be a wrong comment. Please try again.")
 
@@ -80,7 +97,32 @@ class Interpreter:
         for rule in self.ruleset.rules:
             if rule.execute(self):
                 return True # some rule matched
+        for rule in self.native_rules.rules:
+            if rule.execute(self):
+                return True # some rule matched
         return False
+
+    def discover_native_rules(self):
+        # TODO does this also remove modules, which are no longer available?
+        rs = RuleSet([])
+        try:
+            for module_name in os.listdir(self.native_rule_module_dir):
+                module_path = os.path.join(self.native_rule_module_dir, module_name)
+                if not os.path.isfile(module_path):
+                    continue
+
+                spec = importlib.util.spec_from_file_location(module_name, module_path)
+                if spec is None:
+                    self.print_error(f"Cannot load module from {module_path}")
+
+                module = importlib.util.module_from_spec(spec)
+                sys.modules[module] = module
+                spec.loader.exec_module(module)
+                for rule in NativeRule.__subclasses__():
+                    rs.add(rule)
+        except FileNotFoundError:
+            self.print_error(f"Could not load native rules from {self.native_rule_module_dir}. Directory does not exist.")
+        self.native_rules = rs
 
     def print_error(self, msg: str):
         print(f"{TEC.RED}{TEC.BOLD}{msg}{TEC.END}", file=stderr)
@@ -106,10 +148,13 @@ class Interpreter:
         save <path>             Save the current ruleset into the given file.
         load <path>             Replaces the current ruleset with the one in the given file.
         append ruleset <path>   Load the given ruleset into the current one.
+        rediscover              Rediscover native rules.
         """, file=stderr)
 
     def show_ruleset(self):
         print(f"{TEC.BLUE}{self.ruleset}{TEC.END}", file=stderr)
+        print(f"{TEC.BOLD}And following native rules:{TEC.END}")
+        print(f"{TEC.BLUE}{self.native_rules}{TEC.END}", file=stderr)
 
     def add_rule(self, ruleDesc: str):
         rule = RuleParser.parse(ruleDesc)
@@ -122,6 +167,9 @@ class Interpreter:
         self.print_error("Unfortunately, this isn't currently implemented.")
 
     def save_ruleset(self, path: str):
+        # TODO should probably also write the rule native rules as comments into
+        # the ruleset. Just for information, that some rules might not be
+        # available. Sharing the ruleset-file.
         try:
             with open(path, "w") as file:
                 file.write(str(self.ruleset))
@@ -134,15 +182,13 @@ class Interpreter:
 
     def replace_ruleset(self, path: str):
         try:
-            rs = RuleSet.load(path)
+            self.ruleset = RuleSet.load(path)
         except FileNotFoundError:
             self.print_error(f"File not found: {path}")
         except PermissionError:
             self.print_error(f"Permission denied to read file: {path}")
         except IOError as e:
             self.print_error(f"An error occurred while reading the file: {e}")
-
-        self.ruleset = rs
 
     def append_ruleset(self, path: str):
         try:

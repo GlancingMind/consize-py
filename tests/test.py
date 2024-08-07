@@ -1,21 +1,27 @@
-from io import StringIO
 import sys
 import os
-import unittest
-from unittest import mock
 
 # Add the 'src' directory to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 
-from ConsizeRuleSet import CONSIZE_RULE_SET
+from io import StringIO
+import unittest
+from unittest import mock
+
 from Interpreter import Interpreter
 from Stack import Dictionary, Stack
 
-
 class Test(unittest.TestCase):
 
+    def __init__(self, methodName: str = "runTest") -> None:
+        super().__init__(methodName)
+        i = Interpreter()
+        i.replace_ruleset("consize.ruleset")
+        self.consize_ruleset = i.ruleset
+
     def __test(self, ds, cs, result_ds, result_cs=None):
-        i = Interpreter(ruleset=CONSIZE_RULE_SET, cs=cs, ds=ds).run()
+        i = Interpreter(ruleset=self.consize_ruleset, cs=cs, ds=ds)
+        i.run(interactive=False)
         self.assertEqual(i.ds, result_ds)
         if result_cs:
             self.assertEqual(i.cs, result_cs)

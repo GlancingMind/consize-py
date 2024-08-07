@@ -1,19 +1,18 @@
-from CommandLoader import ExternalWord
 from Interpreter import Interpreter
-from Rule import Rule
+from Rule import NativeRule
 import RuleParser
 from Stack import Stack
 from StackPattern import StackPattern
 import StackPattern
 
 # TODO move call- and datastack validation into superclass.
-# The just call super.match(), or let ExternalWords.py call isSatisfied() and
-# only when this is True, then ExternalWords will call execute. This way the
+# The just call super.match(), or let NativeRules.py call isSatisfied() and
+# only when this is True, then NativeRules will call execute. This way the
 # check cannot be forgotten.
-# TODO add name attribute to ExternalWord, so that ExternalWordLoader can print
+# TODO add name attribute to NativeRule, so that NativeRuleLoader can print
 # the Word from rule
 
-# class AddToRuleSet(ExternalWord):
+# class AddToRuleSet(NativeRule):
 #     def execute(i: Interpreter):
 #         # TODO if a word is unkown, call read-word, which will move the word
 #         # over to the datastack
@@ -30,7 +29,7 @@ import StackPattern
 #         i.cs.pop(0)
 #         return True
 
-class Word(ExternalWord):
+class Word(NativeRule):
     def execute(i: Interpreter):
         if i.cs == [] or i.cs.peek() != "word":
             return False
@@ -43,7 +42,7 @@ class Word(ExternalWord):
         i.cs.pop(0)
         return True
 
-class Unword(ExternalWord):
+class Unword(NativeRule):
     def execute(i: Interpreter):
         if i.cs == [] or i.cs.peek() != "unword":
             return False
@@ -56,7 +55,7 @@ class Unword(ExternalWord):
         i.cs.pop(0)
         return True
 
-class Char(ExternalWord):
+class Char(NativeRule):
     def execute(i: Interpreter):
         """
         :return: New stack with the top most element being the interpreted
@@ -91,7 +90,7 @@ class Char(ExternalWord):
         i.cs.pop(0)
         return True
 
-class Print(ExternalWord):
+class Print(NativeRule):
     def execute(i: Interpreter):
         if i.cs == [] or i.cs.peek() != "print":
             return False
@@ -109,7 +108,7 @@ class Print(ExternalWord):
         i.cs.pop(0)
         return True
 
-class Flush(ExternalWord):
+class Flush(NativeRule):
     def execute(i: Interpreter):
         import sys
 
@@ -121,7 +120,7 @@ class Flush(ExternalWord):
         i.cs.pop(0)
         return True
 
-class Readline(ExternalWord):
+class Readline(NativeRule):
     def execute(i: Interpreter):
         if i.cs == [] or i.cs.peek() != "read-line":
             return False
@@ -130,7 +129,7 @@ class Readline(ExternalWord):
         i.cs.pop(0)
         return True
 
-class Slurp(ExternalWord):
+class Slurp(NativeRule):
     def execute(i: Interpreter):
         if i.cs == [] or i.cs.peek() != "slurp":
             return False
@@ -157,7 +156,7 @@ class Slurp(ExternalWord):
         i.cs.pop(0)
         return True
 
-class Spit(ExternalWord):
+class Spit(NativeRule):
     def execute(i: Interpreter):
         if i.cs == [] or i.cs.peek() != "spit":
             return False
@@ -182,7 +181,7 @@ class Spit(ExternalWord):
         i.cs.pop(0)
         return True
 
-class SpitOn(ExternalWord):
+class SpitOn(NativeRule):
     def execute(i: Interpreter):
         if i.cs == [] or i.cs.peek() != "spit-on":
             return False
@@ -206,7 +205,7 @@ class SpitOn(ExternalWord):
         i.cs.pop(0)
         return True
 
-class Uncomment(ExternalWord):
+class Uncomment(NativeRule):
     def execute(i: Interpreter):
         import re
 
@@ -221,7 +220,7 @@ class Uncomment(ExternalWord):
         i.cs.pop(0)
         return True
 
-class Tokenize(ExternalWord):
+class Tokenize(NativeRule):
     def execute(i: Interpreter):
         import re
 
@@ -237,7 +236,7 @@ class Tokenize(ExternalWord):
         i.cs.pop(0)
         return True
 
-class Undocument(ExternalWord):
+class Undocument(NativeRule):
     def execute(i: Interpreter):
         import re
 
@@ -254,7 +253,7 @@ class Undocument(ExternalWord):
         i.cs.pop(0)
         return True
 
-class CurrentTimeMilliSec(ExternalWord):
+class CurrentTimeMilliSec(NativeRule):
     def execute(i: Interpreter):
         import time
 
@@ -265,7 +264,7 @@ class CurrentTimeMilliSec(ExternalWord):
         i.cs.pop(0)
         return True
 
-class OperatingSystem(ExternalWord):
+class OperatingSystem(NativeRule):
     def execute(i: Interpreter):
         if i.cs == [] or i.cs.peek() != "operating-system":
             return False
@@ -275,7 +274,7 @@ class OperatingSystem(ExternalWord):
         i.cs.pop(0)
         return True
 
-class IsInteger(ExternalWord):
+class IsInteger(NativeRule):
     def execute(i: Interpreter):
         try:
             *rcs, cw = i.cs
@@ -297,7 +296,7 @@ class IsInteger(ExternalWord):
         i.ds = Stack(*rds, result)
         return True
 
-class Addition(ExternalWord):
+class Addition(NativeRule):
     def execute(i: Interpreter):
         try:
             *rcs, cw = i.cs
@@ -314,7 +313,7 @@ class Addition(ExternalWord):
         i.ds = Stack(*rds, result)
         return True
 
-class Subtraction(ExternalWord):
+class Subtraction(NativeRule):
     def execute(i: Interpreter):
         try:
             *rcs, cw = i.cs
@@ -331,7 +330,7 @@ class Subtraction(ExternalWord):
         i.ds = Stack(*rds, result)
         return True
 
-class Multiplication(ExternalWord):
+class Multiplication(NativeRule):
     def execute(i: Interpreter):
         try:
             *rcs, cw = i.cs
@@ -348,7 +347,7 @@ class Multiplication(ExternalWord):
         i.ds = Stack(*rds, result)
         return True
 
-class Devision(ExternalWord):
+class Devision(NativeRule):
     def execute(i: Interpreter):
         try:
             *rcs, cw = i.cs
@@ -365,7 +364,7 @@ class Devision(ExternalWord):
         i.ds = Stack(*rds, result)
         return True
 
-class Modulus(ExternalWord):
+class Modulus(NativeRule):
     def execute(i: Interpreter):
         try:
             *rcs, cw = i.cs
@@ -382,7 +381,7 @@ class Modulus(ExternalWord):
         i.ds = Stack(*rds, result)
         return True
 
-class LessThan(ExternalWord):
+class LessThan(NativeRule):
     def execute(i: Interpreter):
         try:
             *rcs, cw = i.cs
@@ -401,7 +400,7 @@ class LessThan(ExternalWord):
         i.ds = Stack(*rds, result)
         return True
 
-class MoreThan(ExternalWord):
+class MoreThan(NativeRule):
     def execute(i: Interpreter):
         try:
             *rcs, cw = i.cs
@@ -420,7 +419,7 @@ class MoreThan(ExternalWord):
         i.ds = Stack(*rds, result)
         return True
 
-class MoreThanEqual(ExternalWord):
+class MoreThanEqual(NativeRule):
     def execute(i: Interpreter):
         try:
             *rcs, cw = i.cs
@@ -439,7 +438,7 @@ class MoreThanEqual(ExternalWord):
         i.ds = Stack(*rds, result)
         return True
 
-class LessThanEqual(ExternalWord):
+class LessThanEqual(NativeRule):
     def execute(i: Interpreter):
         try:
             *rcs, cw = i.cs
@@ -457,18 +456,3 @@ class LessThanEqual(ExternalWord):
         i.cs = Stack(*rcs)
         i.ds = Stack(*rds, result)
         return True
-
-# class Reverse(ExternalWord):
-#     def execute(i: Interpreter):
-
-#         if i.cs == [] or i.cs.peek() != "reverse":
-#             return False
-
-#         if i.ds == []:
-#             return False
-
-#         *rest, word = i.ds
-#         word.reverse()
-#         i.ds = Stack(*rest, word)
-#         i.cs.pop(0)
-#         return True
