@@ -15,12 +15,14 @@ class Test(unittest.TestCase):
 
     def __init__(self, methodName: str = "runTest") -> None:
         super().__init__(methodName)
-        i = Interpreter()
+        i = Interpreter(native_rule_module_dir="external-words")
         i.replace_ruleset("consize.ruleset")
         self.consize_ruleset = i.ruleset
+        self.native_rules = i.native_rules
 
     def __test(self, ds, cs, result_ds, result_cs=None):
         i = Interpreter(ruleset=self.consize_ruleset, cs=cs, ds=ds)
+        i.native_rules = self.native_rules
         i.run(interactive=False)
         self.assertEqual(i.ds, result_ds)
         if result_cs:
