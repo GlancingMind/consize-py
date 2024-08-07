@@ -45,33 +45,33 @@ class Interpreter:
             elif user_input.startswith('+'):
                 ruleDesc = user_input.removeprefix("+").strip()
                 if ruleDesc == "":
-                    print("No rule description given.", file=stderr)
+                    self.print_error("No rule description given.")
                 self.add_rule(ruleDesc)
             elif user_input.startswith('-'):
                 ruleDesc = user_input.removeprefix("-").strip()
                 if ruleDesc == "":
-                    print("No rule description given.", file=stderr)
+                    self.print_error("No rule description given.")
                 self.remove_rule(ruleDesc)
             elif user_input.startswith('save'):
                 path = user_input.removeprefix("save").strip()
                 if path == "":
-                    print("No path given.", file=stderr)
+                    self.print_error("No path given.")
                 else:
                     self.save_ruleset(path)
             elif user_input.startswith('load'):
                 path = user_input.removeprefix("load").strip()
                 if path == "":
-                    print("No path given.", file=stderr)
+                    self.print_error("No path given.")
                 else:
                     self.replace_ruleset(path)
             elif user_input.startswith('append ruleset'):
                 path = user_input.removeprefix("append ruleset").strip()
                 if path == "":
-                    print("No path given.", file=stderr)
+                    self.print_error("No path given.")
                 else:
                     self.append_ruleset(path)
             else:
-                print("This seems to be a wrong comment. Please try again.")
+                self.print_error("This seems to be a wrong comment. Please try again.")
 
     def make_step(self):
         if self.displayReasoningChain:
@@ -102,15 +102,11 @@ class Interpreter:
         status                  Shows current evaluation state.
         rules                   Shows all current rules.
         + <Rule Description>    Add rule to current ruleset.
-        - <Rule Description>    Remove rule from current ruleset.
+        - <Rule Description>    Remove rule from current ruleset. (Not yet implemented)
         save <path>             Save the current ruleset into the given file.
         load <path>             Replaces the current ruleset with the one in the given file.
         append ruleset <path>   Load the given ruleset into the current one.
         """, file=stderr)
-
-    def eval(self):
-        print("Unfortunately, this isn't currently implemented.")
-        pass
 
     def show_ruleset(self):
         print(f"{TEC.BLUE}{self.ruleset}{TEC.END}", file=stderr)
@@ -119,22 +115,22 @@ class Interpreter:
         rule = RuleParser.parse(ruleDesc)
         err = self.ruleset.add(rule)
         if err:
-            print(err.msg, file=stderr)
+            self.print_error(err.msg)
 
     def remove_rule(self, ruleDesc: str):
         # TODO
-        print("Unfortunately, this isn't currently implemented.")
+        self.print_error("Unfortunately, this isn't currently implemented.")
 
     def save_ruleset(self, path: str):
         try:
             with open(path, "w") as file:
                 file.write(str(self.ruleset))
         except FileNotFoundError:
-            print("File not found:", path)
+            self.print_error(f"File not found: {path}")
         except PermissionError:
-            print("Permission denied to write file:", path)
+            print(f"Permission denied to write file: {path}")
         except IOError as e:
-            print("An error occurred while writing the file:", e)
+            print(f"An error occurred while writing the file: {e}")
 
     def replace_ruleset(self, path: str):
         try:

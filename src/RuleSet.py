@@ -39,7 +39,7 @@ class RuleSet:
         self.rules.insert(idx, rule)
 
     def append(self, ruleset: 'RuleSet'):
-        for rule in ruleset:
+        for rule in ruleset.rules:
             self.add(rule)
 
     def remove(self, rule: IRule):

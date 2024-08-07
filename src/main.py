@@ -17,11 +17,15 @@ def main():
     args, cs_args = parser.parse_known_args()
 
     ruleset = RuleSet([])
-    try:
-        ruleset = RuleSet.load(args.ruleset)
-    except FileNotFoundError as e:
+    if args.ruleset:
+        try:
+            ruleset = RuleSet.load(args.ruleset)
+        except FileNotFoundError as e:
+            print(f"Could not find {args.ruleset}, exiting...", file=sys.stderr)
+            return 1
+    else:
         print(f"Could not find {args.ruleset}, exiting...", file=sys.stderr)
-        return 1
+
 
     interpreter = Interpreter(
         ruleset=ruleset,
