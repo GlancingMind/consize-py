@@ -1,36 +1,48 @@
 from dataclasses import dataclass
 from typing import SupportsIndex
 
-from Rule import Rule
-from RuleParser import RuleParser
-
-@dataclass
-class Error():
-    msg: str
+from Rule import IRule
+import RuleParser
 
 @dataclass
 class RuleSet:
-    def __init__(self, parser: RuleParser, *ruleStrings: str, rules: list[Rule]=[]):
-        self.ruleStrings = ruleStrings
-        self.rules: list[Rule] = []
+    rules: list[IRule]
 
-        for ruleStr in ruleStrings:
-            self.rules.append(parser.parse(ruleStr))
+    @staticmethod
+    def load(path: str):
+        # TODO maybe take an additional callback, which is called for
+        # encountered errors.
+        content = ""
+        with open(path, "r") as file:
+            content = file.read()
 
-        self.rules += rules
+        # remove all comments
+        import re
+        content = re.sub(r"(?m)\s*%.*$", "", content)
+        lines = content.splitlines()
 
-    def add(self, rule: Rule) -> None|Error:
+        rs = RuleSet([])
+
+        for line in lines:
+            if line != "":
+                rule = RuleParser.parse(line)
+                rs.add(rule)
+
+        return rs
+
+    def add(self, rule: IRule):
         return self.add_by_index(rule)
 
-    def add_by_index(self, rule: Rule, idx: SupportsIndex=-1) -> None|Error:
-        # TODO check if rule can be added to ruleset => Might be ambiguise
-        try:
-            self.rules.insert(idx, rule)
-        except Exception as e:
-            return Error(f"The rule could not be added to the ruleset. Reason: {str(e)}")
-        return None
+    def add_by_index(self, rule: IRule, idx: SupportsIndex=0):
+        # TODO check for ambiguity of rule befor adding to ruleset
+        # Or add a validate methode, to validate whole RuleSet by some validator
+        self.rules.insert(idx, rule)
 
-    def remove(self, rule: Rule):
+    def append(self, ruleset: 'RuleSet'):
+        for rule in ruleset:
+            self.add(rule)
+
+    def remove(self, rule: IRule):
         self.remove(self.rules.index(rule))
 
     def remove_by_index(self, idx: SupportsIndex):

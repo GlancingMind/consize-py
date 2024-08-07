@@ -1,11 +1,34 @@
-from ExternalWords import ExternalWord
+from CommandLoader import ExternalWord
 from Interpreter import Interpreter
+from Rule import Rule
+import RuleParser
 from Stack import Stack
+from StackPattern import StackPattern
+import StackPattern
 
 # TODO move call- and datastack validation into superclass.
 # The just call super.match(), or let ExternalWords.py call isSatisfied() and
 # only when this is True, then ExternalWords will call execute. This way the
 # check cannot be forgotten.
+# TODO add name attribute to ExternalWord, so that ExternalWordLoader can print
+# the Word from rule
+
+# class AddToRuleSet(ExternalWord):
+#     def execute(i: Interpreter):
+#         # TODO if a word is unkown, call read-word, which will move the word
+#         # over to the datastack
+#         rule = RuleParser.parse(" | ; -> ")
+#         matches = rule.matches(i)
+#         if not matches:
+#             return False
+
+#         rule = matches["@RULE"]
+#         i.add_rule1(rule)
+
+#         *rest, wordstack = i.ds
+#         i.ds = StackPattern
+#         i.cs.pop(0)
+#         return True
 
 class Word(ExternalWord):
     def execute(i: Interpreter):

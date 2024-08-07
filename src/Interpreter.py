@@ -1,65 +1,42 @@
 from sys import stderr
-from RuleParser import RuleParser
+import RuleParser as RuleParser
 from RuleSet import RuleSet
 from Stack import Stack
 from TerminalEscsapeCodes import TerminalEscapeCodes as TEC
 
 class Interpreter:
 
-    def __init__(self, ruleset: RuleSet, cs: Stack = Stack(), ds: Stack = Stack(), maxRecursionDepth=20, trunkPrintOfStackToLength=0):
+    def __init__(self,
+            ruleset: RuleSet,
+            cs: Stack = Stack(),
+            ds: Stack = Stack(),
+            trunkPrintOfStackToLength=0,
+            displayReasoningChain=True):
         self.ds = ds
         self.cs = cs
-        self.maxRecursionDepth=maxRecursionDepth
         self.trunkPrintOfStackToLength=trunkPrintOfStackToLength
         self.ruleset = ruleset
+        self.displayReasoningChain = displayReasoningChain
 
     def run(self, interactive=False):
-        print('\n\nSteps:',file=stderr)
-        counter = 0
-        while(True):
-            self.log_state()
-            counter = counter + 1
-            if counter == self.maxRecursionDepth:
-                print("Stop due to print length", file=stderr)
-                break
-
-            # TODO these could be a generator, return a rule that matches, if no
-            # rule is returned, exit.
-            someRuleMatched = False
-            for rule in self.ruleset.rules:
-                someRuleMatched = rule.execute(self)
-                if someRuleMatched:
-                    break
-
-            if not someRuleMatched:
-                print(f"{TEC.RED}No applicative rules found{TEC.END}", file=stderr)
-                if not interactive:
-                    break
-                else:
-                    stopExecution = self.__meta_loop()
-                    if stopExecution:
-                        break
-        return self
-
-    def __meta_loop(self):
-        stopExecution = False
-        while not stopExecution:
+        while True:
             try:
                 # TODO use readline instead of input for history and autocompletion
                 user_input = input("Enter something (or 'exit' to quit and '?' for help):\n> ").strip()
             except EOFError:
-                stopExecution=True
                 break
-
-            # TODO could parse user_input as stack and use StackPattern to match.
-            # Or implement this functions completely via ExternalWords-Modules.
-            # Should be possible as everyone gets an interpreter reference.
             if user_input.startswith('exit'):
-                stopExecution = True
                 break
+            elif user_input.startswith('step'):
+                if not self.make_step():
+                    print(f"{TEC.RED}No applicative rules found{TEC.END}", file=stderr)
             elif user_input.startswith('continue'):
-                break
-            if user_input.startswith('?'):
+                while self.make_step():
+                    pass
+                print(f"{TEC.RED}No applicative rules found{TEC.END}", file=stderr)
+                if not interactive:
+                    break
+            elif user_input.startswith('?'):
                 self.show_help()
             elif user_input.startswith('status'):
                 self.log_state()
@@ -75,11 +52,6 @@ class Interpreter:
                 if ruleDesc == "":
                     print("No rule description given.", file=stderr)
                 self.remove_rule(ruleDesc)
-            elif user_input.startswith('try'):
-                ruleDesc = user_input.removeprefix("try").strip()
-                if ruleDesc == "":
-                    print("No rule description given.", file=stderr)
-                self.remove_rule(ruleDesc)
             elif user_input.startswith('save'):
                 path = user_input.removeprefix("save").strip()
                 if path == "":
@@ -91,10 +63,27 @@ class Interpreter:
                 if path == "":
                     print("No path given.", file=stderr)
                 else:
-                    self.save_ruleset(path)
+                    self.replace_ruleset(path)
+            elif user_input.startswith('append ruleset'):
+                path = user_input.removeprefix("append ruleset").strip()
+                if path == "":
+                    print("No path given.", file=stderr)
+                else:
+                    self.append_ruleset(path)
             else:
-                print("Sorry, I dont understand.")
-        return stopExecution
+                print("This seems to be a wrong comment. Please try again.")
+
+    def make_step(self):
+        if self.displayReasoningChain:
+            self.log_state()
+
+        for rule in self.ruleset.rules:
+            if rule.execute(self):
+                return True # some rule matched
+        return False
+
+    def print_error(self, msg: str):
+        print(f"{TEC.RED}{TEC.BOLD}{msg}{TEC.END}", file=stderr)
 
     def log_state(self):
         datastack=self.ds.toString(addEnclosingParenthesis=False, trunkLength=self.trunkPrintOfStackToLength)
@@ -108,14 +97,15 @@ class Interpreter:
         Commands:
         ?                       Shows this help.
         exit                    Quits the program.
+        step                    Try next execution step.
         continue                Continues rule evaluation.
         status                  Shows current evaluation state.
         rules                   Shows all current rules.
         + <Rule Description>    Add rule to current ruleset.
         - <Rule Description>    Remove rule from current ruleset.
-        try <Rule Description>  Calls the given rule, but won't add it to the ruleset.
         save <path>             Save the current ruleset into the given file.
         load <path>             Replaces the current ruleset with the one in the given file.
+        append ruleset <path>   Load the given ruleset into the current one.
         """, file=stderr)
 
     def eval(self):
@@ -123,11 +113,10 @@ class Interpreter:
         pass
 
     def show_ruleset(self):
-        print(str(self.ruleset), file=stderr)
+        print(f"{TEC.BLUE}{self.ruleset}{TEC.END}", file=stderr)
 
-    def add_rule(self, ruleDesc: str) -> bool:
-        parser = RuleParser()
-        rule = parser.parse(ruleDesc)
+    def add_rule(self, ruleDesc: str):
+        rule = RuleParser.parse(ruleDesc)
         err = self.ruleset.add(rule)
         if err:
             print(err.msg, file=stderr)
@@ -137,9 +126,35 @@ class Interpreter:
         print("Unfortunately, this isn't currently implemented.")
 
     def save_ruleset(self, path: str):
-        # TODO
-        print("Unfortunately, this isn't currently implemented.")
+        try:
+            with open(path, "w") as file:
+                file.write(str(self.ruleset))
+        except FileNotFoundError:
+            print("File not found:", path)
+        except PermissionError:
+            print("Permission denied to write file:", path)
+        except IOError as e:
+            print("An error occurred while writing the file:", e)
 
     def replace_ruleset(self, path: str):
-        # TODO
-        print("Unfortunately, this isn't currently implemented.")
+        try:
+            rs = RuleSet.load(path)
+        except FileNotFoundError:
+            self.print_error(f"File not found: {path}")
+        except PermissionError:
+            self.print_error(f"Permission denied to read file: {path}")
+        except IOError as e:
+            self.print_error(f"An error occurred while reading the file: {e}")
+
+        self.ruleset = rs
+
+    def append_ruleset(self, path: str):
+        try:
+            rs = RuleSet.load(path=path)
+        except FileNotFoundError:
+            self.print_error(f"File not found: {path}")
+        except PermissionError:
+            self.print_error(f"Permission denied to read file: {path}")
+        except IOError as e:
+            self.print_error(f"An error occurred while reading the file: {e}")
+        self.ruleset.append(rs)

@@ -74,16 +74,8 @@ def match(pattern: StackPattern, stack: StackElement, topOfStackIsLeft=False):
 
     return foundMatches
 
-def instantiate(pattern: StackPattern, data: dict|bool):
+def instantiate(pattern: StackPattern, data: dict):
     stk = Stack()
-
-    # When match doesn't match, 'f' is returned.
-    # But instantiate requires a dictionary as data,
-    # therefore we will propagate the error upwards.
-    # This also has the adventage, that the equal?-rule:
-    # Will implicitly return 'f' when the compared values wont match.
-    if not data:
-        return 'f'
 
     for matcher in pattern:
         match matcher:

@@ -1,9 +1,15 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
 import StackPattern
 
+class IRule(ABC):
+    @abstractmethod
+    def execute(self, i) -> bool|dict:
+        pass
+
 @dataclass
-class Rule():
+class Rule(IRule):
     dsp: StackPattern
     csp: StackPattern
     dst: StackPattern
@@ -15,12 +21,22 @@ class Rule():
             return self.rule_desc
         return f"{self.dsp} | {self.csp} -> {self.dst} | {self.cst}"
 
-    def execute(self, interpreter):
+    def matches(self, interpreter):
         csm = StackPattern.match(self.csp, interpreter.cs, topOfStackIsLeft=True)
         dsm = StackPattern.match(self.dsp, interpreter.ds)
         if not csm or not dsm:
             return False
-        matches = csm | dsm
-        interpreter.cs = StackPattern.instantiate(self.cst, matches)
-        interpreter.ds = StackPattern.instantiate(self.dst, matches)
+        return csm | dsm
+
+    def execute(self, interpreter):
+        matches = self.matches(interpreter)
+        if matches == False:
+            return False
+        return self.instantiate(matches, interpreter)
+
+    def instantiate(self, data: dict, interpreter):
+        if data == False:
+            return False
+        interpreter.cs = StackPattern.instantiate(self.cst, data)
+        interpreter.ds = StackPattern.instantiate(self.dst, data)
         return True

@@ -1,0 +1,46 @@
+@RDS | clear @RCS => | @RCS
+| run -> | load call
+| load -> | slurp uncomment tokenize
+[ @Q ] | call -> | @Q
+@RDS [ @DS ] [ @CS ] | continue @RCS => @DS | @CS
+@RDS [ @Q ] | call/cc @RCS => [ @RDS ] [ @RCS ] | @Q
+{ @M1 } { } | merge -> { @M1 }
+{ @M1 } { #K #V @M2 } | merge -> #V #K { @M1 } { @M2 } | merge assoc
+#K { @KVPs #K2 #V } #DEFAULT | get -> #K { @KVPs } #DEFAULT | get
+#K { @KVPs #K #V } #DEFAULT | get -> #V
+#K { } #DEFAULT | get -> #DEFAULT
+#K { #K2 #V2 @REM } | dissoc -> #V2 #K2 #K { @REM } | dissoc assoc'
+#K { #K  #_  @REM } | dissoc -> { @REM }
+#K { } | dissoc -> { }
+#V #K { @KVPs } | assoc' -> { #K #V @KVPs }
+#V #K { #K2 #V2 @REM } | assoc -> #V2 #K2 #V #K { @REM } | assoc assoc'
+#V #K { #K  #_  @REM } | assoc -> #V  #K { @REM } | assoc assoc'
+#V #K { } | assoc -> #V #K { } | assoc'
+{ #K #V @R } | keys -> [ #K ] { @R } | keys concat
+{ } | keys -> [ ]
+{ @KVP } | unmap -> [ @KVP ]
+[ @KVP ] | mapping -> { @KVP }
+[ #H @T ] | reverse -> [ @T ] | reverse [ #H ] concat
+[ ] | reverse -> [ ]
+[ @T ] -> [ @T ]
+\ #H -> #H
+[ @S ] [ #H @T ] | concat -> [ @S #H ] [ @T ] | concat
+[ @S ] [ ] | concat -> [ @S ]
+# "[ @S1 ] [ @S2 ] | concat -> [ @S1 @S2 ]
+[ #H @T ] | unpush -> [ @T ] #H
+[ ] | unpush -> [ ] nil
+[ ] | pop -> [ ]
+[ #H @T ] | pop -> [ @T ]
+nil | top -> nil
+[ ] | top -> nil
+[ #H @T ] | top -> #H
+[ @S ] #X | push -> [ #X @S ]
+emptystack -> [ ]
+#X #Y | identical? -> f
+#X #X | identical? -> t
+#X #Y | equal? -> f
+#X #X | equal? -> t
+#X #Y #Z | rot -> #Z #X #Y
+#F | drop ->
+#X | dup -> #X #X
+#X #Y | swap -> #Y #X

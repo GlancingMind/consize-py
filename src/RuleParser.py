@@ -1,50 +1,58 @@
+from dataclasses import dataclass
 import re
 from Rule import Rule
 from Stack import Stack
+import StackParser
+import StackPattern
 from StackPattern import StackPattern
-from StackParser import parse
 
-class RuleParser:
-    def parse(self, ruleStr: str):
-        # TODO use regex pattern matching groups
-        # TODO convert to Module. We will never need multiple instances.
+@dataclass
+class ParseError():
+    msg: str
 
-        trimmedRuleStr = ruleStr.strip()
-        if "->" in trimmedRuleStr:
-            lhs, rhs = re.split(r"\s*->\s*", ruleStr, 1)
-            autoAppendRestMatcher = True
-        elif "=>" in trimmedRuleStr:
-            lhs, rhs = re.split(r"\s*=>\s*", ruleStr, 1)
-            autoAppendRestMatcher = False
+def parse(ruleStr: str):
+    # TODO maybe use regex pattern matching groups
+    # ^(?P<lhs>((?P<dsp>(\w+\s+)*)\|\s+)?(?P<csp>(\w+\s+)*))(?P<operator>->|=>)(?P<rhs>(?P<dst>(\s+\w+)+)\s+\|(?P<cst>(\s+\w+)*))$
 
-        m_ds_pat, m_cs_pat = self._parse_lh_ruleside(lhs, autoAppendRestMatcher)
-        i_ds_pat, i_cs_pat = self._parse_rh_ruleside(rhs, autoAppendRestMatcher)
-        return Rule(dsp=m_ds_pat, csp= m_cs_pat, dst=i_ds_pat, cst=i_cs_pat, rule_desc=trimmedRuleStr)
+    trimmedRuleStr = ruleStr.strip()
+    if "->" in trimmedRuleStr:
+        lhs, rhs = re.split(r"\s*->\s*", ruleStr, 1)
+        autoAppendRestMatcher = True
+    elif "=>" in trimmedRuleStr:
+        lhs, rhs = re.split(r"\s*=>\s*", ruleStr, 1)
+        autoAppendRestMatcher = False
+    else:
+        return ParseError(f"The rule `{ruleStr}` description is syntacically wrong")
 
-    def _parse_lh_ruleside(self, sideStr: str, autoAppendRestMatcher=False):
-        *dspStr, cspStr = re.split(r"\s*\|\s+", sideStr)
-        dsp = parse(dspStr[0] if dspStr != [] else "")
-        csp = parse(cspStr)
 
-        if autoAppendRestMatcher:
-            if not any(word.startswith("@") for word in dsp if isinstance(word, str)):
-                dsp = Stack("@RDS", *dsp)
+    m_ds_pat, m_cs_pat = _parse_lh_ruleside(lhs, autoAppendRestMatcher)
+    i_ds_pat, i_cs_pat = _parse_rh_ruleside(rhs, autoAppendRestMatcher)
+    return Rule(dsp=m_ds_pat, csp= m_cs_pat, dst=i_ds_pat, cst=i_cs_pat, rule_desc=trimmedRuleStr)
 
-            if not any(word.startswith("@") for word in csp if isinstance(word, str)):
-                csp = Stack(*csp, "@RCS")
+def _parse_lh_ruleside(sideStr: str, autoAppendRestMatcher=False):
+    *dspStr, cspStr = re.split(r"\s*\|\s+", sideStr)
+    dsp = StackParser.parse(dspStr[0] if dspStr != [] else "")
+    csp = StackParser.parse(cspStr)
 
-        return StackPattern(dsp), StackPattern(csp)
+    if autoAppendRestMatcher:
+        if not any(word.startswith("@") for word in dsp if isinstance(word, str)):
+            dsp = Stack("@RDS", *dsp)
 
-    def _parse_rh_ruleside(self, sideStr: str, autoAppendRestMatcher=False):
-        dspStr, *cspStr = re.split(r"\s*\|\s+", sideStr)
-        dsp = parse(dspStr)
-        csp = parse(cspStr[0] if cspStr != [] else "")
+        if not any(word.startswith("@") for word in csp if isinstance(word, str)):
+            csp = Stack(*csp, "@RCS")
 
-        if autoAppendRestMatcher:
-            if not any(word.startswith("@") for word in dsp if isinstance(word, str)):
-                dsp = Stack("@RDS", *dsp)
+    return StackPattern(dsp), StackPattern(csp)
 
-            if not any(word.startswith("@") for word in csp if isinstance(word, str)):
-                csp = Stack(*csp, "@RCS")
+def _parse_rh_ruleside(sideStr: str, autoAppendRestMatcher=False):
+    dspStr, *cspStr = re.split(r"\s*\|\s+", sideStr)
+    dsp = StackParser.parse(dspStr)
+    csp = StackParser.parse(cspStr[0] if cspStr != [] else "")
 
-        return StackPattern(dsp), StackPattern(csp)
+    if autoAppendRestMatcher:
+        if not any(word.startswith("@") for word in dsp if isinstance(word, str)):
+            dsp = Stack("@RDS", *dsp)
+
+        if not any(word.startswith("@") for word in csp if isinstance(word, str)):
+            csp = Stack(*csp, "@RCS")
+
+    return StackPattern(dsp), StackPattern(csp)
