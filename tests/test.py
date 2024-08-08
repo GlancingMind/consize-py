@@ -358,3 +358,16 @@ class Test(unittest.TestCase):
         self.__test(cs=Stack("sum"), ds=Stack(Stack("2")), result_ds=Stack("2"))
         self.__test(cs=Stack("sum"), ds=Stack(Stack("1","2")), result_ds=Stack("3"))
         self.__test(cs=Stack("sum"), ds=Stack(Stack("1","2","3","4")), result_ds=Stack("10"))
+
+    def test_my_size(self):
+        self.__test(cs=Stack("my-size"), ds=Stack(Stack()), result_ds=Stack("0"))
+        self.__test(cs=Stack("my-size"), ds=Stack(Stack("2")), result_ds=Stack("1"))
+        self.__test(cs=Stack("my-size"), ds=Stack(Stack("1","2")), result_ds=Stack("2"))
+        self.__test(cs=Stack("my-size"), ds=Stack(Stack("1","2","3","4")), result_ds=Stack("4"))
+
+    def test_my_reverse(self):
+        self.__test(cs=Stack("my-reverse"), ds=Stack(Stack()), result_ds=Stack(Stack()))
+        self.__test(cs=Stack("my-reverse"), ds=Stack(Stack("2")), result_ds=Stack(Stack("2")))
+        self.__test(cs=Stack("my-reverse"), ds=Stack(Stack("1","2")), result_ds=Stack(Stack("2","1")))
+        self.__test(cs=Stack("my-reverse"), ds=Stack(Stack("2","1")), result_ds=Stack(Stack("1","2")))
+        self.__test(cs=Stack("my-reverse"), ds=Stack(Stack("1","2","3","4")), result_ds=Stack(Stack("4","3","2","1")))

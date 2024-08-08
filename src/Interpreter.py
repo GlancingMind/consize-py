@@ -1,8 +1,10 @@
 import importlib
 import importlib.util
 import os
+import subprocess
 from sys import stderr
 import sys
+import tempfile
 from Rule import NativeRule
 import RuleParser as RuleParser
 from RuleSet import RuleSet
@@ -88,6 +90,8 @@ class Interpreter:
                     self.append_ruleset(path)
             elif user_input.startswith('rediscover'):
                 self.discover_native_rules()
+            elif user_input.startswith('edit'):
+                self.edit_ruleset()
             else:
                 self.print_error("This seems to be a wrong comment. Please try again.")
 
@@ -146,6 +150,7 @@ class Interpreter:
         rules                   Shows all current rules.
         + <Rule Description>    Add rule to current ruleset.
         - <Rule Description>    Remove rule from current ruleset. (Not yet implemented)
+        edit                    Open the current ruleset within an editor and load it on save.
         save <path>             Save the current ruleset into the given file.
         load <path>             Replaces the current ruleset with the one in the given file.
         append ruleset <path>   Load the given ruleset into the current one.
@@ -201,3 +206,26 @@ class Interpreter:
         except IOError as e:
             self.print_error(f"An error occurred while reading the file: {e}")
         self.ruleset.append(rs)
+
+    def edit_ruleset(self):
+        encounteredError = False
+        # Create a temporary file
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.txt') as temp_file:
+            # Write the current ruleset to the temporary file
+            temp_file.write(str(self.ruleset).encode('utf-8'))
+            temp_file.close()  # Close the file to ensure it's saved
+
+            # Open the users prefered text-editor, otherwise nano
+            editor = os.environ.get('EDITOR', 'nano')  # Default to 'nano' if EDITOR is not set
+            try:
+                subprocess.run([editor, temp_file.name])
+            except Exception as e:
+                self.print_error(f"Failed to open the editor. Error: {e}")
+                encounteredError = True
+
+            # Read the content of the file after the editor is closed
+            if not encounteredError:
+                self.replace_ruleset(temp_file.name)
+
+        # Clean up the temporary file
+        os.remove(temp_file.name)

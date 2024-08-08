@@ -116,3 +116,5 @@ f [ @T ] [ @F ] | if* -> | @F
 [ #H @T ] #I [ @Q ] | reduce -> #I #H | @Q [ @T ] [ @Q ] each
 
 [ @NUMS ] | sum -> [ @NUMS ] | \ 0 [ + ] reduce
+[ @S ] | my-size -> [ @S ] | \ 0 [ drop \ 1 + ] reduce
+[ @S ] | my-reverse -> [ @S ] | [ ] [ push ] reduce
