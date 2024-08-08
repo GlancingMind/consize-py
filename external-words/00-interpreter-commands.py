@@ -62,14 +62,14 @@ class LiveEditCC(NativeRule):
         # i.make_step()
         i.cs = Stack("edit", *i.cs)
         i.make_step()
-        ccWrd = i.ds.pop()
-        ncs = StackParser.parse(ccWrd)
-        i.ds = Stack(*i.ds, *ncs)
+        ccLines, *rds = i.ds
+        ncc = StackParser.parse(ccLines[0])
+        i.ds = Stack(*rds, *ncc)
         return True
 
-class ReplaceCC(NativeRule):
+class SetCC(NativeRule):
     def execute(i: Interpreter):
-        if i.cs == [] or not i.cs.peek() == "rcc":
+        if i.cs == [] or not i.cs.peek() == "set-cc":
             return False
 
         if len(i.ds) <= 2:
@@ -173,6 +173,6 @@ class Edit(NativeRule):
         # Clean up the temporary file
         os.remove(temp_file.name)
 
-        i.ds = Stack(*rest, final_content)
+        i.ds = Stack(*rest, Stack(*[str(line) for line in final_content.splitlines()]))
         i.cs = Stack(*rcs)
         return True
