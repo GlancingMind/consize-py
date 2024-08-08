@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from itertools import groupby
 import re
 from Rule import Rule
 from Stack import Stack
@@ -30,9 +31,18 @@ def parse(ruleStr: str):
     return Rule(dsp=m_ds_pat, csp= m_cs_pat, dst=i_ds_pat, cst=i_cs_pat, rule_desc=trimmedRuleStr)
 
 def _parse_lh_ruleside(sideStr: str, autoAppendRestMatcher=False):
-    *dspStr, cspStr = re.split(r"\s*\|\s+", sideStr)
-    dsp = StackParser.parse(dspStr[0] if dspStr != [] else "")
-    csp = StackParser.parse(cspStr)
+    tokens = re.split(r"\s+", sideStr)
+    dsp = []
+    csp = []
+    if "|" in tokens:
+        index = tokens.index("|")
+        dsp = tokens[:index]
+        csp = tokens[index + 1:]
+    else:
+        csp = tokens
+
+    dsp, _ = StackParser.parse_stack(dsp)
+    csp, _ = StackParser.parse_stack(csp)
 
     if autoAppendRestMatcher:
         if not any(word.startswith("@") for word in dsp if isinstance(word, str)):
@@ -44,23 +54,24 @@ def _parse_lh_ruleside(sideStr: str, autoAppendRestMatcher=False):
     return StackPattern(dsp), StackPattern(csp)
 
 def _parse_rh_ruleside(sideStr: str, autoAppendRestMatcher=False):
-    dstStr = ""
-    cstStr = ""
-    matches = re.finditer(r"\s*(?P<dst>(\s*[^\s|]+)*)?(\s+\|(?P<cst>(\s+[^\s|]+)*))?", sideStr)
-    for match in matches:
-        if match.group("dst"):
-            dstStr += match.group("dst")
-        if match.group("cst"):
-            cstStr += match.group("cst")
-    # dspStr, *cspStr = re.split(r"\s+\|\s*", sideStr)
-    dsp = StackParser.parse(dstStr)
-    csp = StackParser.parse(cstStr)
+    tokens = re.split(r"\s+", sideStr)
+    dst = []
+    cst = []
+    if "|" in tokens:
+        index = tokens.index("|")
+        dst = tokens[:index]
+        cst = tokens[index + 1:]
+    else:
+        dst = tokens
+
+    dst, _ = StackParser.parse_stack(dst)
+    cst, _ = StackParser.parse_stack(cst)
 
     if autoAppendRestMatcher:
-        if not any(word.startswith("@") for word in dsp if isinstance(word, str)):
-            dsp = Stack("@RDS", *dsp)
+        if not any(word.startswith("@") for word in dst if isinstance(word, str)):
+            dst = Stack("@RDS", *dst)
 
-        if not any(word.startswith("@") for word in csp if isinstance(word, str)):
-            csp = Stack(*csp, "@RCS")
+        if not any(word.startswith("@") for word in cst if isinstance(word, str)):
+            cst = Stack(*cst, "@RCS")
 
-    return StackPattern(dsp), StackPattern(csp)
+    return StackPattern(dst), StackPattern(cst)

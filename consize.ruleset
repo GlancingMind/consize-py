@@ -1,116 +1,118 @@
-%#X #Y | swap -> #Y #X
-%#X | dup -> #X #X
-%#F | drop ->
-%#X #Y #Z | rot -> #Z #X #Y
-%#X #X | equal? -> t
-%#X #Y | equal? -> f
-%#X #X | identical? -> t
-%#X #Y | identical? -> f
-%emptystack -> [ ]
-%[ @S ] #X | push -> [ #X @S ]
-%[ #H @T ] | top -> #H
-%[ ] | top -> nil
-%nil | top -> nil
-%[ #H @T ] | pop -> [ @T ]
-%[ ] | pop -> [ ]
-%[ ] | unpush -> [ ] nil
-%[ #H @T ] | unpush -> [ @T ] #H
-%
-%# "[ @S1 ] [ @S2 ] | concat -> [ @S1 @S2 ]
-%[ @S ] [ ] | concat -> [ @S ]
-%[ @S ] [ #H @T ] | concat -> [ @S #H ] [ @T ] | concat
-%
-%% [ #H @T ] [ @S ] | concat -> [ @T ] [ @S ] | concat \ #H push
-%% [ ] [ @S ] | concat -> [ @S ]
-%
-%% Escape the word, which means the word is not interpreted on the callstack,
-%% therefore moved to the datastack.
-%\ #H -> #H
-%
-%% Move stacks/quatation which are on the callstack over to the datastack
-%[ @T ] -> [ @T ]
-%
-%% Reverse rules
-%[ ] | reverse -> [ ]
-%[ #H @T ] | reverse -> [ @T ] | reverse [ #H ] concat
-%
-%% [ ] | reverse -> [ ]
-%% [ @H #T ] | reverse -> [ @H ] | reverse \ #T push
-%
-%% [ ] | reverse -> [ ]
-%% [ @H #T ] | reverse -> [ #T ] [ @H ] | reverse concat
-%
-%% Dictionary rules
-%[ @KVP ] | mapping -> { @KVP }
-%{ @KVP } | unmap -> [ @KVP ]
-%{ } | keys -> [ ]
-%{ #K #V @R } | keys -> [ #K ] { @R } | keys concat
-%#V #K { } | assoc -> #V #K { } | assoc'
-%#V #K { #K  #_  @REM } | assoc -> #V  #K { @REM } | assoc assoc'
-%#V #K { #K2 #V2 @REM } | assoc -> #V2 #K2 #V #K { @REM } | assoc assoc'
-%#V #K { @KVPs } | assoc' -> { #K #V @KVPs }
-%#K { } | dissoc -> { }
-%#K { #K  #_  @REM } | dissoc -> { @REM }
-%#K { #K2 #V2 @REM } | dissoc -> #V2 #K2 #K { @REM } | dissoc assoc'
-%#K { } #DEFAULT | get -> #DEFAULT
-%#K { @KVPs #K #V } #DEFAULT | get -> #V
-%#K { @KVPs #K2 #V } #DEFAULT | get -> #K { @KVPs } #DEFAULT | get
-%{ @M1 } { #K #V @M2 } | merge -> #V #K { @M1 } { @M2 } | merge assoc
-%{ @M1 } { } | merge -> { @M1 }
-%@RDS [ @Q ] | call/cc @RCS => [ @RDS ] [ @RCS ] | @Q
-%@RDS [ @DS ] [ @CS ] | continue @RCS => @DS | @CS
+#X #Y | swap -> #Y #X
+#X | dup -> #X #X
+#F | drop ->
+#X #Y #Z | rot -> #Z #X #Y
+#X #X | equal? -> t
+#X #Y | equal? -> f
+#X #X | identical? -> t
+#X #Y | identical? -> f
+emptystack -> [ ]
+[ @S ] #X | push -> [ #X @S ]
+[ #H @T ] | top -> #H
+[ ] | top -> nil
+nil | top -> nil
+[ #H @T ] | pop -> [ @T ]
+[ ] | pop -> [ ]
+[ ] | unpush -> [ ] nil
+[ #H @T ] | unpush -> [ @T ] #H
+
+# "[ @S1 ] [ @S2 ] | concat -> [ @S1 @S2 ]
+[ @S ] [ ] | concat -> [ @S ]
+[ @S ] [ #H @T ] | concat -> [ @S #H ] [ @T ] | concat
+
+% [ #H @T ] [ @S ] | concat -> [ @T ] [ @S ] | concat \ #H push
+% [ ] [ @S ] | concat -> [ @S ]
+
+% Escape the word, which means the word is not interpreted on the callstack,
+% therefore moved to the datastack.
+\ #H -> #H
+
+% Move stacks/quatation which are on the callstack over to the datastack
+[ @T ] -> [ @T ]
+
+% Reverse rules
+[ ] | reverse -> [ ]
+[ #H @T ] | reverse -> [ @T ] | reverse [ #H ] concat
+
+% [ ] | reverse -> [ ]
+% [ @H #T ] | reverse -> [ @H ] | reverse \ #T push
+
+% [ ] | reverse -> [ ]
+% [ @H #T ] | reverse -> [ #T ] [ @H ] | reverse concat
+
+% Dictionary rules
+[ @KVP ] | mapping -> { @KVP }
+{ @KVP } | unmap -> [ @KVP ]
+{ } | keys -> [ ]
+{ #K #V @R } | keys -> [ #K ] { @R } | keys concat
+#V #K { } | assoc -> #V #K { } | assoc'
+#V #K { #K  #_  @REM } | assoc -> #V  #K { @REM } | assoc assoc'
+#V #K { #K2 #V2 @REM } | assoc -> #V2 #K2 #V #K { @REM } | assoc assoc'
+#V #K { @KVPs } | assoc' -> { #K #V @KVPs }
+#K { } | dissoc -> { }
+#K { #K  #_  @REM } | dissoc -> { @REM }
+#K { #K2 #V2 @REM } | dissoc -> #V2 #K2 #K { @REM } | dissoc assoc'
+#K { } #DEFAULT | get -> #DEFAULT
+#K { @KVPs #K #V } #DEFAULT | get -> #V
+#K { @KVPs #K2 #V } #DEFAULT | get -> #K { @KVPs } #DEFAULT | get
+{ @M1 } { #K #V @M2 } | merge -> #V #K { @M1 } { @M2 } | merge assoc
+{ @M1 } { } | merge -> { @M1 }
+@RDS [ @Q ] | call/cc @RCS => [ @RDS ] [ @RCS ] | @Q
+@RDS [ @DS ] [ @CS ] | continue @RCS => @DS | @CS
+[ @Q ] | blube ->
+[ @Q ] | blube -> |
+[ @Q ] | blube -> asd |
+[ @Q ] | blube -> asd | asd
 [ @Q ] | call -> | @Q
-%| load -> | slurp uncomment tokenize
-%| run -> | load call
-%
-%% Transcribed Prelude
-%@RDS | clear @RCS => | @RCS
-%
-%% Stackshuffler
-%#X [ @Q ] | dip -> @Q \ #X
-%#X #Y [ @Q ] | 2dip -> @Q \ #X \ #Y
-%
-%
-%#T #F | t -> #T
-%#T #F | f -> #F
-%true -> t
-%false -> f
-%
-%#W | lookup call -> | #W
-%
-%    f #T #F | choose -> #F
-%#ELSE #T #F | choose -> #T
-%
-%    f [ @T ] [ @F ] | if -> @F
-%#ELSE [ @T ] [ @F ] | if -> @T
-%
-%      [ ] [ @Q ] | each -> |
-%[ #H @T ] [ @Q ] | each -> #H | @Q [ @T ] [ @Q ] each
-%
-%% Map implementation with multiple reverse steps (inefficient)
-%% [ @S ] [ @Q ] | map -> [ ] [ @S ] [ @Q push ] | each reverse
-%
-%      [ ] [ @Q ] | map -> [ ]
-%[ #H @Q ] [ @Q ] | map -> [ ] #H | @Q push [ @T ] [ @Q ] map concat
-%
-%% Another map implementation which make currently not work due to () behaviour not being implemented.
-%%       [ ] [ @Q ] | map -> [ ]
-%% [ #H @T ] [ @Q ] | map -> | ( \ #H | @Q ) [ @T ] [ @Q ] map concat
-%
-%      [ ] | size ->        | \ 0
-%[ #H @T ] | size -> [ @T ] | size \ 1 +
-%
-%#X [ @Q ] | keep -> #X | @Q \ #X
-%
-%#X [ @P ] [ @Q ] | bi -> #X | @P \ #X @Q
-%
-%f [ @T ] [ @F ] | if* -> | @F
-%#ELSE [ @T ] [ @F ] | if* -> #ELSE | @T
-%
-%%   [ @S ] #I [ @Q ] | reduce -> #I [ @S ] [ @Q ] | each
-%[ #H @T ] #I [ @Q ] | reduce -> #I #H | @Q [ @T ] [ @Q ] each
-%      [ ] #I [ @Q ] | reduce -> |
-%
-%[ @NUMS ] | sum -> [ @NUMS ] | \ 0 [ + ] reduce
-%
-%
+| load -> | slurp uncomment tokenize
+| run -> | load call
+
+% Transcribed Prelude
+@RDS | clear @RCS => | @RCS
+
+% Stackshuffler
+#X [ @Q ] | dip -> @Q \ #X
+#X #Y [ @Q ] | 2dip -> @Q \ #X \ #Y
+
+
+#T #F | t -> #T
+#T #F | f -> #F
+true -> t
+false -> f
+
+#W | lookup call -> | #W
+
+    f #T #F | choose -> #F
+#ELSE #T #F | choose -> #T
+
+    f [ @T ] [ @F ] | if -> @F
+#ELSE [ @T ] [ @F ] | if -> @T
+
+      [ ] [ @Q ] | each -> |
+[ #H @T ] [ @Q ] | each -> #H | @Q [ @T ] [ @Q ] each
+
+% Map implementation with multiple reverse steps (inefficient)
+% [ @S ] [ @Q ] | map -> [ ] [ @S ] [ @Q push ] | each reverse
+
+      [ ] [ @Q ] | map -> [ ]
+[ #H @Q ] [ @Q ] | map -> [ ] #H | @Q push [ @T ] [ @Q ] map concat
+
+% Another map implementation which make currently not work due to () behaviour not being implemented.
+%       [ ] [ @Q ] | map -> [ ]
+% [ #H @T ] [ @Q ] | map -> | ( \ #H | @Q ) [ @T ] [ @Q ] map concat
+
+      [ ] | size ->        | \ 0
+[ #H @T ] | size -> [ @T ] | size \ 1 +
+
+#X [ @Q ] | keep -> #X | @Q \ #X
+
+#X [ @P ] [ @Q ] | bi -> #X | @P \ #X @Q
+
+f [ @T ] [ @F ] | if* -> | @F
+#ELSE [ @T ] [ @F ] | if* -> #ELSE | @T
+
+%   [ @S ] #I [ @Q ] | reduce -> #I [ @S ] [ @Q ] | each
+      [ ] #I [ @Q ] | reduce -> #I
+[ #H @T ] #I [ @Q ] | reduce -> #I #H | @Q [ @T ] [ @Q ] each
+
+[ @NUMS ] | sum -> [ @NUMS ] | \ 0 [ + ] reduce
