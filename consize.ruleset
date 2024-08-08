@@ -66,3 +66,37 @@ nil | top -> nil
 % Transcribed Prelude
 @RDS | clear @RCS => | @RCS
 
+% Stackshuffler
+#X [ @Q ] | dip -> @Q \ #X
+#X #Y [ @Q ] | 2dip -> @Q \ #X \ #Y
+
+
+#T #F | t -> #T
+#T #F | f -> #F
+true -> t
+false -> f
+
+#W | lookup call -> | #W
+
+    f #T #F | choose -> #F
+#ELSE #T #F | choose -> #T
+
+    f [ @T ] [ @F ] | if -> @F
+#ELSE [ @T ] [ @F ] | if -> @T
+
+      [ ] [ @Q ] | each -> |
+[ #H @T ] [ @Q ] | each -> #H | @Q [ @T ] [ @Q ] each
+
+% Map implementation with multiple reverse steps (inefficient)
+% [ @S ] [ @Q ] | map -> [ ] [ @S ] [ @Q push ] | each reverse
+
+      [ ] [ @Q ] | map -> [ ]
+[ #H @Q ] [ @Q ] | map -> [ ] #H | @Q push [ @T ] [ @Q ] map concat
+
+% Another map implementation which make currently not work due to () behaviour not being implemented.
+%       [ ] [ @Q ] | map -> [ ]
+% [ #H @T ] [ @Q ] | map -> | ( \ #H | @Q ) [ @T ] [ @Q ] map concat
+
+      [ ] | size ->        | \ 0
+[ #H @T ] | size -> [ @T ] | size \ 1 +
+

@@ -92,20 +92,22 @@ class Char(NativeRule):
 
 class Print(NativeRule):
     def execute(i: Interpreter):
-        if i.cs == [] or i.cs.peek() != "print":
+        try:
+            cw, *rcs = i.cs
+            *rest, word = i.ds
+        except ValueError:
             return False
 
-        if i.ds == []:
+        if cw != "print":
             return False
 
-        word, *rest = i.ds
         if not isinstance(word, str):
             return False
 
         print(word, end="")
 
         i.ds = Stack(*rest)
-        i.cs.pop(0)
+        i.cs = Stack(*rcs)
         return True
 
 class Flush(NativeRule):
@@ -122,22 +124,28 @@ class Flush(NativeRule):
 
 class Readline(NativeRule):
     def execute(i: Interpreter):
-        if i.cs == [] or i.cs.peek() != "read-line":
+        try:
+            cw, *rcs = i.cs
+        except ValueError:
             return False
 
-        i.ds.append(input())
-        i.cs.pop(0)
+        if cw != "read-line":
+            return False
+
+        i.ds = Stack(*i.ds, input())
+        i.cs = Stack(*rcs)
         return True
 
 class Slurp(NativeRule):
     def execute(i: Interpreter):
-        if i.cs == [] or i.cs.peek() != "slurp":
+        try:
+            cw, *rcs = i.cs
+            *rest, source = i.ds
+        except ValueError:
             return False
 
-        if i.ds == []:
+        if cw != "slurp":
             return False
-
-        *rest, source = i.ds
 
         # TODO reading of remote files isn't implemented, to reduce dependencies
         # to request library.
@@ -153,18 +161,19 @@ class Slurp(NativeRule):
             print("An error occurred while reading the file:", e)
 
         i.ds = Stack(*rest, content)
-        i.cs.pop(0)
+        i.cs = Stack(*rcs)
         return True
 
 class Spit(NativeRule):
     def execute(i: Interpreter):
-        if i.cs == [] or i.cs.peek() != "spit":
+        try:
+            cw, *rcs = i.cs
+            *rest, data, uri = i.ds
+        except ValueError:
             return False
 
-        if i.ds == []:
+        if cw != "spit":
             return False
-
-        *rest, data, uri = i.ds
 
         # seems to be not a valid URI. Will use local file read.
         try:
@@ -178,18 +187,19 @@ class Spit(NativeRule):
             print("An error occurred while writing the file:", e)
 
         i.ds = Stack(*rest)
-        i.cs.pop(0)
+        i.cs = Stack(*rcs)
         return True
 
 class SpitOn(NativeRule):
     def execute(i: Interpreter):
-        if i.cs == [] or i.cs.peek() != "spit-on":
+        try:
+            cw, *rcs = i.cs
+            *rest, data, uri = i.ds
+        except ValueError:
             return False
 
-        if i.ds == []:
+        if cw != "spit-on":
             return False
-
-        *rest, data, uri = i.ds
 
         try:
             with open(uri, "a") as file:
@@ -202,82 +212,94 @@ class SpitOn(NativeRule):
             print("An error occurred while writing the file:", e)
 
         i.ds = Stack(*rest)
-        i.cs.pop(0)
+        i.cs = Stack(*rcs)
         return True
 
 class Uncomment(NativeRule):
     def execute(i: Interpreter):
+        try:
+            cw, *rcs = i.cs
+            *rest, word = i.ds
+        except ValueError:
+            return False
+
+        if cw != "uncomment":
+            return False
+
         import re
-
-        if i.cs == [] or i.cs.peek() != "uncomment":
-            return False
-
-        if i.ds == []:
-            return False
-
-        *rest, word = i.ds
         i.ds = Stack(*rest, *[re.sub(r"(?m)\s*%.*$", "", word).strip()])
-        i.cs.pop(0)
+        i.cs = Stack(*rcs)
         return True
 
 class Tokenize(NativeRule):
     def execute(i: Interpreter):
+        try:
+            cw, *rcs = i.cs
+            *rest, word = i.ds
+        except ValueError:
+            return False
+
+        if cw != "tokenize":
+            return False
+
         import re
-
-        if i.cs == [] or i.cs.peek() != "tokenize":
-            return False
-
-        if i.ds == []:
-            return False
-
-        *rest, word = i.ds
         parts = re.split(r"\s+", word.strip())
         i.ds = Stack(*rest, Stack() if parts == [""] else Stack(*parts))
-        i.cs.pop(0)
+        i.cs = Stack(*rcs)
         return True
 
 class Undocument(NativeRule):
     def execute(i: Interpreter):
+        try:
+            cw, *rcs = i.cs
+            *rest, word = i.ds
+        except ValueError:
+            return False
+
+        if cw != "undocument":
+            return False
+
         import re
-
-        if i.cs == [] or i.cs.peek() != "undocument":
-            return False
-
-        if i.ds == []:
-            return False
-
-        *rest, word = i.ds
         parts = re.findall(r"(?m)^%?>> (.*)$", word)
-
         i.ds = Stack(*rest, Stack(r"\r\n".join(parts)))
-        i.cs.pop(0)
+        i.cs = Stack(*rcs)
         return True
 
 class CurrentTimeMilliSec(NativeRule):
     def execute(i: Interpreter):
-        import time
-
-        if i.cs == [] or i.cs.peek() != "current-time-millis":
+        try:
+            cw, *rcs = i.cs
+        except ValueError:
             return False
 
-        i.ds.append(int(time.time() * 1000))
-        i.cs.pop(0)
+        if cw != "current-time-millis":
+            return False
+
+        import time
+        i.ds = Stack(*i.ds, int(time.time() * 1000))
+        i.cs = Stack(*rcs)
         return True
 
 class OperatingSystem(NativeRule):
     def execute(i: Interpreter):
-        if i.cs == [] or i.cs.peek() != "operating-system":
+        try:
+            cw, *rcs = i.cs
+        except ValueError:
+            return False
+
+        if cw != "operating-system":
             return False
 
         import platform
-        i.ds.append(platform.platform())
-        i.cs.pop(0)
+
+        i.cs = Stack(*rcs)
+        i.ds = Stack(*i.ds, platform.platform())
         return True
 
 class IsInteger(NativeRule):
     def execute(i: Interpreter):
         try:
-            *rcs, cw = i.cs
+            cw, *rcs = i.cs
             *rds, num = i.ds
         except ValueError:
             return False
@@ -299,13 +321,13 @@ class IsInteger(NativeRule):
 class Addition(NativeRule):
     def execute(i: Interpreter):
         try:
-            *rcs, cw = i.cs
+            cw, *rcs = i.cs
             *rds, x, y = i.ds
 
             if cw != "+":
                 return False
 
-            result = int(x)+int(y)
+            result = str(int(x)+int(y))
         except (ValueError, TypeError):
             return False
 
@@ -316,13 +338,13 @@ class Addition(NativeRule):
 class Subtraction(NativeRule):
     def execute(i: Interpreter):
         try:
-            *rcs, cw = i.cs
+            cw, *rcs = i.cs
             *rds, x, y = i.ds
 
             if cw != "-":
                 return False
 
-            result = int(x)-int(y)
+            result = str(int(x)-int(y))
         except (ValueError, TypeError):
             return False
 
@@ -333,13 +355,13 @@ class Subtraction(NativeRule):
 class Multiplication(NativeRule):
     def execute(i: Interpreter):
         try:
-            *rcs, cw = i.cs
+            cw, *rcs = i.cs
             *rds, x, y = i.ds
 
             if cw != "*":
                 return False
 
-            result = int(x)*int(y)
+            result = str(int(x)*int(y))
         except (ValueError, TypeError):
             return False
 
@@ -350,13 +372,13 @@ class Multiplication(NativeRule):
 class Devision(NativeRule):
     def execute(i: Interpreter):
         try:
-            *rcs, cw = i.cs
+            cw, *rcs = i.cs
             *rds, x, y = i.ds
 
             if cw != "div":
                 return False
 
-            result = int(x)//int(y)
+            result = str(int(x)//int(y))
         except (ValueError, TypeError):
             return False
 
@@ -367,13 +389,13 @@ class Devision(NativeRule):
 class Modulus(NativeRule):
     def execute(i: Interpreter):
         try:
-            *rcs, cw = i.cs
+            cw, *rcs = i.cs
             *rds, x, y = i.ds
 
             if cw != "mod":
                 return False
 
-            result = int(x)%int(y)
+            result = str(int(x)%int(y))
         except (ValueError, TypeError):
             return False
 
@@ -384,7 +406,7 @@ class Modulus(NativeRule):
 class LessThan(NativeRule):
     def execute(i: Interpreter):
         try:
-            *rcs, cw = i.cs
+            cw, *rcs = i.cs
             *rds, x, y = i.ds
 
             if cw != "<":
@@ -403,7 +425,7 @@ class LessThan(NativeRule):
 class MoreThan(NativeRule):
     def execute(i: Interpreter):
         try:
-            *rcs, cw = i.cs
+            cw, *rcs = i.cs
             *rds, x, y = i.ds
 
             if cw != ">":
@@ -422,7 +444,7 @@ class MoreThan(NativeRule):
 class MoreThanEqual(NativeRule):
     def execute(i: Interpreter):
         try:
-            *rcs, cw = i.cs
+            cw, *rcs = i.cs
             *rds, x, y = i.ds
 
             if cw != ">=":
@@ -441,7 +463,7 @@ class MoreThanEqual(NativeRule):
 class LessThanEqual(NativeRule):
     def execute(i: Interpreter):
         try:
-            *rcs, cw = i.cs
+            cw, *rcs = i.cs
             *rds, x, y = i.ds
 
             if cw != "<=":
