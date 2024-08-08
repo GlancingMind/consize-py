@@ -176,3 +176,37 @@ class Edit(NativeRule):
         i.ds = Stack(*rest, Stack(*[str(line) for line in final_content.splitlines()]))
         i.cs = Stack(*rcs)
         return True
+
+class Step(NativeRule):
+    def execute(i: Interpreter):
+        if i.cs == [] or not i.cs.peek() == "step":
+            return False
+        i.cs.pop(0)
+        if not i.make_step():
+            i.print_error(f"No applicative rules found.")
+        return True
+
+class Continue(NativeRule):
+    def execute(i: Interpreter):
+        if i.cs == [] or not i.cs.peek() == "continue":
+            return False
+        i.cs.pop(0)
+        while i.make_step():
+            pass
+        return True
+
+class Status(NativeRule):
+    def execute(i: Interpreter):
+        if i.cs == [] or not i.cs.peek() == "status":
+            return False
+        i.cs.pop(0)
+        i.log_state()
+        return True
+
+class HaltRequest(NativeRule):
+    def execute(i: Interpreter):
+        if i.cs == [] or not (i.cs.peek() == "exit" or i.cs.peek() == "quit" or i.cs.peek() == ":q"):
+            return False
+        i.cs.pop(0)
+        i.halt = True
+        return True

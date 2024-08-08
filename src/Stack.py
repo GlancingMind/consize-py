@@ -14,10 +14,9 @@ class Stack(UserList):
         return result
 
     def toString(self, addEnclosingParenthesis=True, tosIsLeft=False, trunkLength=0):
-        # TODO print words with an underscore terminalcode
+        # TODO print words with an underscore terminalcode. Beaware that
+        # truncanate will remove terminalcodes and destroy the text decoration.
         stringifiedElements = [str(itm) for itm in self.data]
-        if tosIsLeft:
-            stringifiedElements.reverse()
 
         tc = (" ").join([*stringifiedElements])
         if trunkLength > 0:

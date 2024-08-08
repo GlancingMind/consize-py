@@ -31,48 +31,32 @@ class Interpreter:
         self.native_rules = RuleSet([])
         if self.native_rule_module_dir:
             self.discover_native_rules()
+        self.halt = False
 
     def run(self, interactive=False):
-        while True:
+        while not self.halt:
             if self.displayReasoningChain:
                 self.log_state()
             try:
                 if interactive:
                     # TODO use readline instead of input for history and autocompletion
                     user_input = input("Enter something (or 'exit' to quit and '?' for help):\n> ").strip()
+                    if user_input == "":
+                        # When user only pressed enter or nothing, then do a single step
+                        user_input = "step"
                 else:
                     # will skip to continue step, which evaluate all rules to the end.
                     user_input = "continue"
             except EOFError:
                 break
 
-            if user_input.startswith('exit'):
-                break
-            elif user_input.startswith('step') or user_input == "":
-                if not self.make_step():
-                    print(f"{TEC.RED}No applicative rules found{TEC.END}", file=stderr)
-            elif user_input.startswith('continue'):
-                while self.make_step():
-                    pass
-                print(f"{TEC.RED}No applicative rules found{TEC.END}", file=stderr)
-                if not interactive:
-                    break
-            elif user_input.startswith('?'):
+            if user_input.startswith('?'):
                 self.show_help()
-            elif user_input.startswith('status'):
-                self.log_state()
-            # elif user_input.startswith('rules'):
-            #     self.show_ruleset()
             elif user_input.startswith('+'):
                 ruleDesc = user_input.removeprefix("+").strip()
                 if ruleDesc == "":
                     self.print_error("No rule description given.")
                 self.add_rule(ruleDesc)
-            elif user_input.startswith('-'):
-                ruleDesc = user_input.removeprefix("-").strip()
-                if ruleDesc == "":
-                    self.print_error("No rule description given.")
-                self.remove_rule(ruleDesc)
             elif user_input.startswith('save'):
                 path = user_input.removeprefix("save").strip()
                 if path == "":
@@ -152,10 +136,10 @@ class Interpreter:
     def show_help(self):
         print(
         """
-        Commands:
+        Native Rules:
         ?                       Shows this help.
         exit                    Quits the program.
-        step                    Try next execution step.
+        step/enter              Try next execution step.
         continue                Continues rule evaluation.
         status                  Shows current evaluation state.
         rules                   Shows all current rules.
@@ -168,20 +152,11 @@ class Interpreter:
         rediscover              Rediscover native rules.
         """, file=stderr)
 
-    def show_ruleset(self):
-        print(f"{TEC.BLUE}{self.ruleset}{TEC.END}", file=stderr)
-        print(f"{TEC.BOLD}And following native rules:{TEC.END}")
-        print(f"{TEC.BLUE}{self.native_rules}{TEC.END}", file=stderr)
-
     def add_rule(self, ruleDesc: str):
         rule = RuleParser.parse(ruleDesc)
         err = self.ruleset.add(rule)
         if err:
             self.print_error(err.msg)
-
-    def remove_rule(self, ruleDesc: str):
-        # TODO
-        self.print_error("Unfortunately, this isn't currently implemented.")
 
     def save_ruleset(self, path: str):
         # TODO should probably also write the rule native rules as comments into
@@ -196,47 +171,3 @@ class Interpreter:
             print(f"Permission denied to write file: {path}")
         except IOError as e:
             print(f"An error occurred while writing the file: {e}")
-
-    def replace_ruleset(self, path: str):
-        try:
-            self.ruleset = RuleSet.load(path)
-        except FileNotFoundError:
-            self.print_error(f"File not found: {path}")
-        except PermissionError:
-            self.print_error(f"Permission denied to read file: {path}")
-        except IOError as e:
-            self.print_error(f"An error occurred while reading the file: {e}")
-
-    def append_ruleset(self, path: str):
-        try:
-            rs = RuleSet.load(path=path)
-        except FileNotFoundError:
-            self.print_error(f"File not found: {path}")
-        except PermissionError:
-            self.print_error(f"Permission denied to read file: {path}")
-        except IOError as e:
-            self.print_error(f"An error occurred while reading the file: {e}")
-        self.ruleset.append(rs)
-
-    def edit_ruleset(self):
-        encounteredError = False
-        # Create a temporary file
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.txt') as temp_file:
-            # Write the current ruleset to the temporary file
-            temp_file.write(str(self.ruleset).encode('utf-8'))
-            temp_file.close()  # Close the file to ensure it's saved
-
-            # Open the users prefered text-editor, otherwise nano
-            editor = os.environ.get('EDITOR', 'nano')  # Default to 'nano' if EDITOR is not set
-            try:
-                subprocess.run([editor, temp_file.name])
-            except Exception as e:
-                self.print_error(f"Failed to open the editor. Error: {e}")
-                encounteredError = True
-
-            # Read the content of the file after the editor is closed
-            if not encounteredError:
-                self.replace_ruleset(temp_file.name)
-
-        # Clean up the temporary file
-        os.remove(temp_file.name)
