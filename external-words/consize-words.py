@@ -1,33 +1,6 @@
 from Interpreter import Interpreter
 from Rule import NativeRule
-import RuleParser
 from Stack import Stack
-from StackPattern import StackPattern
-import StackPattern
-
-# TODO move call- and datastack validation into superclass.
-# The just call super.match(), or let NativeRules.py call isSatisfied() - see
-# specification pattern by evans and fowler - and only when this is True, then
-# NativeRules will call execute. This way the check cannot be forgotten.
-# TODO add name attribute to NativeRule, so that NativeRuleLoader can print
-# the Word from rule
-
-# class AddToRuleSet(NativeRule):
-#     def execute(i: Interpreter):
-#         # TODO if a word is unkown, call read-word, which will move the word
-#         # over to the datastack
-#         rule = RuleParser.parse(" | ; -> ")
-#         matches = rule.matches(i)
-#         if not matches:
-#             return False
-
-#         rule = matches["@RULE"]
-#         i.add_rule1(rule)
-
-#         *rest, wordstack = i.ds
-#         i.ds = StackPattern
-#         i.cs.pop(0)
-#         return True
 
 class Word(NativeRule):
     def execute(i: Interpreter):

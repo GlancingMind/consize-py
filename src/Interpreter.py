@@ -9,6 +9,7 @@ from Rule import NativeRule
 import RuleParser as RuleParser
 from RuleSet import RuleSet
 from Stack import Stack
+import StackParser
 from TerminalEscsapeCodes import TerminalEscapeCodes as TEC
 
 class Interpreter:
@@ -33,6 +34,8 @@ class Interpreter:
 
     def run(self, interactive=False):
         while True:
+            if self.displayReasoningChain:
+                self.log_state()
             try:
                 if interactive:
                     # TODO use readline instead of input for history and autocompletion
@@ -45,7 +48,7 @@ class Interpreter:
 
             if user_input.startswith('exit'):
                 break
-            elif user_input.startswith('step'):
+            elif user_input.startswith('step') or user_input == "":
                 if not self.make_step():
                     print(f"{TEC.RED}No applicative rules found{TEC.END}", file=stderr)
             elif user_input.startswith('continue'):
@@ -90,22 +93,29 @@ class Interpreter:
                     self.append_ruleset(path)
             elif user_input.startswith('rediscover'):
                 self.discover_native_rules()
-            elif user_input.startswith('edit'):
-                self.edit_ruleset()
             else:
-                self.print_error("This seems to be a wrong comment. Please try again.")
+                # No interpreter command given, treat input as data to call-/datastack
+                self.cs = Stack(*StackParser.parse(user_input), *self.cs)
+                self.make_step()
 
-    def make_step(self):
-        if self.displayReasoningChain:
-            self.log_state()
-
+    def make_step(self,):
+        some_rule_applied = False
         for rule in self.ruleset.rules:
             if rule.execute(self):
-                return True # some rule matched
+                some_rule_applied = True
+                break
         for rule in self.native_rules.rules:
             if rule.execute(self):
-                return True # some rule matched
-        return False
+                some_rule_applied = True
+                break
+
+        if not some_rule_applied:
+            # If word wasn't found, move it from the callstack to the datastack
+            wrd, *rcs = self.cs
+            self.ds.append(wrd)
+            self.cs = Stack(*rcs)
+
+        return some_rule_applied
 
     def discover_native_rules(self):
         # TODO does this also remove modules, which are no longer available?

@@ -14,6 +14,7 @@ class Stack(UserList):
         return result
 
     def toString(self, addEnclosingParenthesis=True, tosIsLeft=False, trunkLength=0):
+        # TODO print words with an underscore terminalcode
         stringifiedElements = [str(itm) for itm in self.data]
         if tosIsLeft:
             stringifiedElements.reverse()
