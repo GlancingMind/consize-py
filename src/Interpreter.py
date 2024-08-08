@@ -111,9 +111,10 @@ class Interpreter:
 
         if not some_rule_applied:
             # If word wasn't found, move it from the callstack to the datastack
-            wrd, *rcs = self.cs
-            self.ds.append(wrd)
-            self.cs = Stack(*rcs)
+            if self.cs != []:
+                wrd, *rcs = self.cs
+                self.ds.append(wrd)
+                self.cs = Stack(*rcs)
 
         return some_rule_applied
 
