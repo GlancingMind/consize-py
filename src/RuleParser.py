@@ -44,9 +44,17 @@ def _parse_lh_ruleside(sideStr: str, autoAppendRestMatcher=False):
     return StackPattern(dsp), StackPattern(csp)
 
 def _parse_rh_ruleside(sideStr: str, autoAppendRestMatcher=False):
-    dspStr, *cspStr = re.split(r"\s*\|\s+", sideStr)
-    dsp = StackParser.parse(dspStr)
-    csp = StackParser.parse(cspStr[0] if cspStr != [] else "")
+    dstStr = ""
+    cstStr = ""
+    matches = re.finditer(r"\s*(?P<dst>(\s*[^\s|]+)*)?(\s+\|(?P<cst>(\s+[^\s|]+)*))?", sideStr)
+    for match in matches:
+        if match.group("dst"):
+            dstStr += match.group("dst")
+        if match.group("cst"):
+            cstStr += match.group("cst")
+    # dspStr, *cspStr = re.split(r"\s+\|\s*", sideStr)
+    dsp = StackParser.parse(dstStr)
+    csp = StackParser.parse(cstStr)
 
     if autoAppendRestMatcher:
         if not any(word.startswith("@") for word in dsp if isinstance(word, str)):

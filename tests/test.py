@@ -349,6 +349,12 @@ class Test(unittest.TestCase):
         self.__test(cs=Stack("clear","RCS"), ds=Stack("1","2","3"), result_ds=Stack(), result_cs=Stack("RCS"))
 
     def test_size(self):
-        # self.__test(cs=Stack("size"), ds=Stack(Stack()), result_ds=Stack("0"))
-        # self.__test(cs=Stack("size"), ds=Stack(Stack("a")), result_ds=Stack("1"))
+        self.__test(cs=Stack("size"), ds=Stack(Stack()), result_ds=Stack("0"))
+        self.__test(cs=Stack("size"), ds=Stack(Stack("a")), result_ds=Stack("1"))
         self.__test(cs=Stack("size"), ds=Stack(Stack("a","b")), result_ds=Stack("2"))
+
+    def test_sum(self):
+        self.__test(cs=Stack("sum"), ds=Stack(Stack()), result_ds=Stack("0"))
+        self.__test(cs=Stack("sum"), ds=Stack(Stack("2")), result_ds=Stack("2"))
+        self.__test(cs=Stack("sum"), ds=Stack(Stack("1","2")), result_ds=Stack("3"))
+        self.__test(cs=Stack("sum"), ds=Stack(Stack("1","2","3","4")), result_ds=Stack("10"))
