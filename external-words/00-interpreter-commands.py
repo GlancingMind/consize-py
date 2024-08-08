@@ -3,7 +3,9 @@ import subprocess
 import tempfile
 
 from Interpreter import Interpreter
-from Rule import NativeRule
+from Rule import NativeRule, Rule
+import RuleParser
+from RuleSet import RuleSet
 from Stack import Stack
 import StackParser
 
@@ -13,6 +15,12 @@ import StackParser
 # NativeRules will call execute. This way the check cannot be forgotten.
 # TODO add name attribute to NativeRule, so that NativeRuleLoader can print
 # the Word from rule
+
+# TODO add alias rule `" <rulename> <wrd> <wrd>` -> `<rulename> -> | <wrd> <wrd>`
+# Use a new ruleclass for this, to print this rule in the simple form, not the converted one.
+# AND adjust the parser to also accept this type of rules from loading a file.
+# Or use `read-word`. Word is unkown, put it on DS and push read-word, which can
+# be implemented by the user
 
 # class AddToRuleSet(NativeRule):
 #     def execute(i: Interpreter):
@@ -33,7 +41,7 @@ import StackParser
 
 class CurrentContinuation(NativeRule):
     def execute(i: Interpreter):
-        if i.cs == [] or i.cs.peek() != "cc":
+        if i.cs == [] or not i.cs.peek() == "cc":
             return False
         i.cs.pop(0)
         i.ds = Stack(*i.ds, i.ds)
@@ -42,7 +50,7 @@ class CurrentContinuation(NativeRule):
 
 class LiveEditCC(NativeRule):
     def execute(i: Interpreter):
-        if i.cs == [] or i.cs.peek() != "ecc":
+        if i.cs == [] or not i.cs.peek() == "ecc":
             return False
         i.cs.pop(0)
         ccWrd = Stack(i.ds,i.cs).toString(addEnclosingParenthesis=False)
@@ -61,7 +69,7 @@ class LiveEditCC(NativeRule):
 
 class ReplaceCC(NativeRule):
     def execute(i: Interpreter):
-        if i.cs == [] or i.cs.peek() != "rcc":
+        if i.cs == [] or not i.cs.peek() == "rcc":
             return False
 
         if len(i.ds) <= 2:
@@ -75,27 +83,56 @@ class ReplaceCC(NativeRule):
 
 class Callstack(NativeRule):
     def execute(i: Interpreter):
-        if i.cs == [] or i.cs.peek() != "cs":
+        if i.cs == [] or not i.cs.peek() == "cs":
             return False
         i.cs.pop(0)
-        i.ds = Stack(*i.ds, str(i.cs.toString(addEnclosingParenthesis=False)))
+        i.ds = Stack(*i.ds, str(i.cs))
         return True
 
 class Datastack(NativeRule):
     def execute(i: Interpreter):
-        if i.cs == [] or i.cs.peek() != "ds":
+        if i.cs == [] or not i.cs.peek() == "ds":
             return False
         i.cs.pop(0)
-        i.ds = Stack(*i.ds, str(i.ds.toString(addEnclosingParenthesis=False)))
+        i.ds = Stack(*i.ds, str(i.ds))
         return True
 
-class Ruleset(NativeRule):
+class DumpRuleset(NativeRule):
     def execute(i: Interpreter):
-        if i.cs == [] or i.cs.peek() != "ruleset":
+        if i.cs == [] or not i.cs.peek() == "rules":
             return False
 
-        i.ds = Stack(i.ds.rest, str(i.ruleset))
+        i.ds = Stack(*i.ds, Stack(*[Stack(rule) for rule in i.ruleset]))
         i.cs.pop(0)
+        return True
+
+class SetRules(NativeRule):
+    def execute(i: Interpreter):
+        try:
+            csw, *rcs = i.cs
+            *rds, rules = i.ds
+        except ValueError:
+            return False
+
+        if not csw == "set-rules":
+            return False
+
+        if not isinstance(rules, Stack):
+            return False
+
+        new_ruleset = RuleSet([])
+        for [rule] in rules:
+            if not isinstance(rule, Rule):
+                err, rule = RuleParser.parse(rule)
+                if err:
+                    i.print_error(err)
+                    return False
+            new_ruleset.add(rule)
+
+        i.ruleset = new_ruleset
+
+        i.ds = Stack(*rds)
+        i.cs = Stack(*rcs)
         return True
 
 class Edit(NativeRule):

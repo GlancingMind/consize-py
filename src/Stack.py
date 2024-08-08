@@ -21,9 +21,9 @@ class Stack(UserList):
 
         tc = (" ").join([*stringifiedElements])
         if trunkLength > 0:
-            tc = tc[:trunkLength]
+            tc = tc[:trunkLength] if tosIsLeft else tc[-trunkLength:]
             if len(tc) == trunkLength:
-                tc += "..."
+                tc = f"{tc}..." if tosIsLeft else f"...{tc}"
 
         if addEnclosingParenthesis:
             return (" ").join(["[",tc,"]"])

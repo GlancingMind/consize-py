@@ -49,5 +49,8 @@ class RuleSet:
     def remove_by_index(self, idx: SupportsIndex):
         self.rules.pop(idx)
 
+    def __iter__(self):
+        return self.rules.__iter__()
+
     def __repr__(self) -> str:
         return ("\n").join(str(rule) for rule in self.rules)

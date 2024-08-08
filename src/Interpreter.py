@@ -61,8 +61,8 @@ class Interpreter:
                 self.show_help()
             elif user_input.startswith('status'):
                 self.log_state()
-            elif user_input.startswith('rules'):
-                self.show_ruleset()
+            # elif user_input.startswith('rules'):
+            #     self.show_ruleset()
             elif user_input.startswith('+'):
                 ruleDesc = user_input.removeprefix("+").strip()
                 if ruleDesc == "":
@@ -100,11 +100,11 @@ class Interpreter:
 
     def make_step(self,):
         some_rule_applied = False
-        for rule in self.ruleset.rules:
+        for rule in self.ruleset:
             if rule.execute(self):
                 some_rule_applied = True
                 break
-        for rule in self.native_rules.rules:
+        for rule in self.native_rules:
             if rule.execute(self):
                 some_rule_applied = True
                 break
@@ -145,7 +145,7 @@ class Interpreter:
 
     def log_state(self):
         datastack=self.ds.toString(addEnclosingParenthesis=False, trunkLength=self.trunkPrintOfStackToLength)
-        callstack=self.cs.toString(addEnclosingParenthesis=False, trunkLength=self.trunkPrintOfStackToLength)
+        callstack=self.cs.toString(addEnclosingParenthesis=False, trunkLength=self.trunkPrintOfStackToLength, tosIsLeft=True)
         step =f"{datastack} {TEC.RED}{TEC.BOLD}|{TEC.END} {TEC.BLUE}{callstack}{TEC.END} {TEC.BOLD}{TEC.RED}-->{TEC.END}"
         print(step, file=stderr)
 
