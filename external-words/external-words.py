@@ -6,9 +6,9 @@ from StackPattern import StackPattern
 import StackPattern
 
 # TODO move call- and datastack validation into superclass.
-# The just call super.match(), or let NativeRules.py call isSatisfied() and
-# only when this is True, then NativeRules will call execute. This way the
-# check cannot be forgotten.
+# The just call super.match(), or let NativeRules.py call isSatisfied() - see
+# specification pattern by evans and fowler - and only when this is True, then
+# NativeRules will call execute. This way the check cannot be forgotten.
 # TODO add name attribute to NativeRule, so that NativeRuleLoader can print
 # the Word from rule
 

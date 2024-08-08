@@ -1,4 +1,5 @@
 import importlib
+import importlib.util
 import os
 from sys import stderr
 import sys
