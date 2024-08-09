@@ -29,32 +29,30 @@ class Interpreter:
         self.native_rules = RuleSet([])
         if self.native_rule_module_dir:
             self.discover_native_rules()
-        self.halt = False
+        self.haltRequested = False
 
     def halt(self):
-        self.halt = True
+        self.haltRequested = True
 
     def run(self, interactive=False):
-        while not self.halt:
+        while not self.haltRequested:
+            user_input = ""
             if self.displayReasoningChain:
                 self.log_state()
             try:
                 if interactive:
                     # TODO use readline instead of input for history and autocompletion
                     user_input = input("Enter '?' for help:\n> ").strip()
-                    if user_input == "":
-                        # When user only pressed enter or only whitespace, then do a single step
-                        self.make_step()
-                        continue
+                    if not user_input == "":
+                        # No interpreter command given, treat input as data to call-/datastack
+                        self.cs = Stack(*StackParser.parse(user_input), *self.cs)
+                    self.make_step()
                 else:
                     self.continue_to_end()
                     self.halt()
             except EOFError:
                 break
 
-            # No interpreter command given, treat input as data to call-/datastack
-            self.cs = Stack(*StackParser.parse(user_input), *self.cs)
-            self.make_step()
             # TODO if a word is unknown, call read-word, which will move the word
             # over to the datastack. Add an noop read-word impl.
             # Or add a some callback mechanismn, which a plugin could register for (observer).
@@ -82,7 +80,7 @@ class Interpreter:
     def make_steps_until_unknown_word(self):
         while self.make_step():
             pass
-        self.print_error(f"No applicative rules found. Unknown word encountered.")
+        self.print_error(f"No applicative rules found => Unknown word encountered.")
 
     def continue_to_end(self):
         while not self.cs == []:
