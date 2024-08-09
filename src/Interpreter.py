@@ -22,7 +22,7 @@ class Interpreter:
         ):
         self.ds = ds
         self.cs = cs
-        self.trunkPrintOfStackToLength=trunkPrintOfStackToLength
+        self.trunkPrintOfStackToLength = trunkPrintOfStackToLength
         self.displayReasoningChain = displayReasoningChain
         self.native_rule_module_dir = native_rule_module_dir
         self.ruleset = ruleset

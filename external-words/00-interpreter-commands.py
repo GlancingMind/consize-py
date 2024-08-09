@@ -22,7 +22,6 @@ import StackParser
 # Or use `read-word`. Word is unkown, put it on DS and push read-word, which can
 # be implemented by the user
 
-# TODO add name and description to rules
 # TODO Fix unit-test and main entrypoint, loading of rules
 # TODO Restructure native rules/move some rules from consize into this file
 # TODO add alias Rule (as seen above)
@@ -162,6 +161,40 @@ class Rules(NativeRule):
 
         interpreter.ds = Stack(*interpreter.ds, Stack(*[Stack(rule) for rule in interpreter.ruleset]))
         interpreter.cs.pop(0)
+        return True
+
+class LoadRules(NativeRule):
+    """
+    Tries to load a rulefile and put in on the DS. The rules on the DS should
+    be in a format, ready for consumption by set-rules.
+    """
+
+    def name(self) -> str:
+        return "load-rules"
+
+    def execute(self, interpreter):
+        try:
+            csw, *rcs = interpreter.cs
+            *rds, path = interpreter.ds
+        except ValueError:
+            return False
+
+        if not (csw == "load-rules" and isinstance(path, str)):
+            return False
+
+        try:
+            err, interpreter.ruleset = RuleSet.load(path)
+            if err:
+                interpreter.print_error(f"The ruleset seems to be in an invalid format: {err}")
+        except FileNotFoundError:
+            interpreter.print_error(f"File not found: {path}")
+        except PermissionError:
+            interpreter.print_error(f"Permission denied to read file: {path}")
+        except IOError as e:
+            interpreter.print_error(f"An error occurred while reading the file: {e}")
+
+        interpreter.ds = Stack(*rds)
+        interpreter.cs = Stack(*rcs)
         return True
 
 class SetRules(NativeRule):

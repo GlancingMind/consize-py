@@ -29,7 +29,7 @@ def main():
         print(f"{TEC.RED}Note: Currently are no rules specified. You can load some via command. See the help (?).{TEC.END}", file=sys.stderr)
 
     interpreter = Interpreter(
-        ruleset=ruleset,
+        # ruleset=ruleset,
         ds=Stack(),
         cs=parse((" ").join(cs_args)),
         native_rule_module_dir=args.external_words_dir,
