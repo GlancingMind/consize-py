@@ -22,7 +22,6 @@ import StackParser
 # Or use `read-word`. Word is unkown, put it on DS and push read-word, which can
 # be implemented by the user
 
-# TODO Fix unit-test and main entrypoint, loading of rules
 # TODO Restructure native rules/move some rules from consize into this file
 # TODO add alias Rule (as seen above)
 
