@@ -1,6 +1,7 @@
 #TODO ersetzte \emdash durch entsprechenden Wert.
+#TODO Achte darauf, den Begriff Umschreibsystem nicht falsch zu verwenden. Consize ist auch schon ein umschreibsystem.
 
-# Consize auf Basis eines Umschreibsystems
+# Implementierung von Consize mittels eines Pattern-Matching-Systems
 
 ## Übersicht
 
@@ -42,16 +43,17 @@ Anhand von `unpush` wird ein Problem deutlich. Um `unpush` zu verstehen, muss ei
 ```
 
 Each erwartet auf dem Datastack eine Quotierung $quot$ und darunter einen Stapel mit Wörtern $seq$. Für jedes Element aus $seq$ wird `each` die Quotierung $quot$ anwenden.
-Zur Veranschaulichung nehmen wir an, dass wir folgenden Datenstapel haben: `... [ 1 2 3 ] [ dup ]`, auf dem dessen `each` angewandt wird. Die Folge ist, dass `dup` auf `1`,`2` und `3` angewandt wird. Der Datenstapel nach `each` wäre entsprechend: `... 1 1 2 2 3 3`. Für Ungeübte wird die Definition von `each` schwer zu durchdringen sein. Die Stapeleffektdokumentation hilft hierbei auch nur bedingt \emdash Wären Sie auch darauf gekommen, dass die Elemente nicht mehr in einem Stapel liegen?
+Zur Veranschaulichung nehmen wir an, dass wir folgenden Datenstapel haben: `... [ 1 2 3 ] [ dup ]`, auf dem dessen `each` angewandt wird. Die Folge ist, dass `dup` auf `1`,`2` und `3` angewandt wird. Der Datenstapel nach `each` wäre entsprechend: `... 1 1 2 2 3 3`. Für Ungeübte wird die Definition von `each` schwer zu durchdringen sein. Die Stapeleffektdokumentation hilft hierbei auch nur bedingt \emdash Wären Sie auch darauf gekommen, dass die Elemente nicht mehr in einem Stapel liegen? Ich hatte das anfangs nicht erwartet.
 
-
-
-welche sich aus einem sehr kleinen Sprachkern zusammensetzt. Ihre Implementierung umfasst lediglich 160 Zeilen (mit Kommentaren) Clojure Code.
+Diese Problem ist dem Entwickler von Consize bekannt. In der Dokumentation zu Consize [Konkatenative Programmierung mit Consize](https://github.com/denkspuren/consize/blob/master/doc/Consize.pdf) wird daher im Anhang B eine alternative Notation für Stapeleffekte beschrieben, welche einerseits für Menschen verständlicher und andererseits von Maschinen auswertbar ist. Im nachfolgenden Abschnitt wird jene Notation beschrieben.
 
 
 # Pattern-Matching: Eine Stapeleffekt-Notation für Menschen
 
 
+
+Diese Notation, welche auf einem Mustererkennungssystem beschrieben, welches
+welche sich aus einem sehr kleinen Sprachkern zusammensetzt. Ihre Implementierung umfasst lediglich 160 Zeilen (mit Kommentaren) Clojure Code.
 trotz bzw. wegen ihrer syntaktischen Kompaktheit, um einiges schwieriger ist
 
 # Quellen:
