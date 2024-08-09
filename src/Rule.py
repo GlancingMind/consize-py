@@ -5,11 +5,11 @@ import StackPattern
 
 class IRule(ABC):
     @abstractmethod
-    def name() -> str:
+    def name(self) -> str:
         pass
 
     @abstractmethod
-    def description() -> str:
+    def description(self) -> str:
         pass
 
     @abstractmethod
@@ -17,15 +17,11 @@ class IRule(ABC):
         pass
 
 class NativeRule(IRule):
-    def name() -> str:
-        return ""
+    def name(self) -> str:
+        return self.__qualname__
 
-    def description() -> str:
-        return ""
-
-    @abstractmethod
-    def execute(self, interpreter) -> bool:
-        pass
+    def description(self) -> str:
+        return self.__doc__
 
 @dataclass
 class Rule(IRule):

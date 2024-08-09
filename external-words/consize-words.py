@@ -3,33 +3,33 @@ from Rule import NativeRule
 from Stack import Stack
 
 class Word(NativeRule):
-    def execute(i: Interpreter):
-        if i.cs == [] or i.cs.peek() != "word":
+    def execute(self, interpreter: Interpreter):
+        if interpreter.cs == [] or interpreter.cs.peek() != "word":
             return False
 
-        if i.ds == []:
+        if interpreter.ds == []:
             return False
 
-        *rest, wordstack = i.ds
-        i.ds = Stack(*rest, "".join(wordstack))
-        i.cs.pop(0)
+        *rest, wordstack = interpreter.ds
+        interpreter.ds = Stack(*rest, "".join(wordstack))
+        interpreter.cs.pop(0)
         return True
 
 class Unword(NativeRule):
-    def execute(i: Interpreter):
-        if i.cs == [] or i.cs.peek() != "unword":
+    def execute(self, interpreter: Interpreter):
+        if interpreter.cs == [] or interpreter.cs.peek() != "unword":
             return False
 
-        if i.ds == []:
+        if interpreter.ds == []:
             return False
 
-        *rest, word = i.ds
-        i.ds = Stack(*rest, [character for character in word])
-        i.cs.pop(0)
+        *rest, word = interpreter.ds
+        interpreter.ds = Stack(*rest, [character for character in word])
+        interpreter.cs.pop(0)
         return True
 
 class Char(NativeRule):
-    def execute(i: Interpreter):
+    def execute(self, interpreter: Interpreter):
         """
         :return: New stack with the top most element being the interpreted
         character.
@@ -40,34 +40,34 @@ class Char(NativeRule):
         E.g: char([r"\\u0040"]) will return ["@"]
             char([r"\\o100"]) will return ["@"]
         """
-        if i.cs == [] or i.cs.peek() != "char":
+        if interpreter.cs == [] or interpreter.cs.peek() != "char":
             return False
 
-        if i.ds == []:
+        if interpreter.ds == []:
             return False
 
-        *rest, characterCode = i.ds
+        *rest, characterCode = interpreter.ds
         match characterCode:
-            case r"\space":     i.ds = Stack(*rest, " ")
-            case r"\newline":   i.ds = Stack(*rest, "\n")
-            case r"\formfeed":  i.ds = Stack(*rest, "\f")
-            case r"\return":    i.ds = Stack(*rest, "\r")
-            case r"\backspace": i.ds = Stack(*rest, "\b")
-            case r"\tab":       i.ds = Stack(*rest, "\t")
+            case r"\space":     interpreter.ds = Stack(*rest, " ")
+            case r"\newline":   interpreter.ds = Stack(*rest, "\n")
+            case r"\formfeed":  interpreter.ds = Stack(*rest, "\f")
+            case r"\return":    interpreter.ds = Stack(*rest, "\r")
+            case r"\backspace": interpreter.ds = Stack(*rest, "\b")
+            case r"\tab":       interpreter.ds = Stack(*rest, "\t")
             case _ if characterCode.startswith(r"\o"):
-                i.ds = Stack(*rest, chr(int(characterCode[2:], 8)))
+                interpreter.ds = Stack(*rest, chr(int(characterCode[2:], 8)))
             case _ if characterCode.startswith(r"\u"):
-                i.ds = Stack(*rest, bytes(characterCode, "utf-8").decode("unicode_escape"))
+                interpreter.ds = Stack(*rest, bytes(characterCode, "utf-8").decode("unicode_escape"))
             case _:
-                i.ds = Stack(*rest, fr"error: {characterCode} isn't a valid character codec")
-        i.cs.pop(0)
+                interpreter.ds = Stack(*rest, fr"error: {characterCode} isn't a valid character codec")
+        interpreter.cs.pop(0)
         return True
 
 class Print(NativeRule):
-    def execute(i: Interpreter):
+    def execute(self, interpreter: Interpreter):
         try:
-            cw, *rcs = i.cs
-            *rest, word = i.ds
+            cw, *rcs = interpreter.cs
+            *rest, word = interpreter.ds
         except ValueError:
             return False
 
@@ -79,41 +79,41 @@ class Print(NativeRule):
 
         print(word, end="")
 
-        i.ds = Stack(*rest)
-        i.cs = Stack(*rcs)
+        interpreter.ds = Stack(*rest)
+        interpreter.cs = Stack(*rcs)
         return True
 
 class Flush(NativeRule):
-    def execute(i: Interpreter):
+    def execute(self, interpreter: Interpreter):
         import sys
 
-        if i.cs == [] or i.cs.peek() != "flush":
+        if interpreter.cs == [] or interpreter.cs.peek() != "flush":
             return False
 
         sys.stdout.flush()
 
-        i.cs.pop(0)
+        interpreter.cs.pop(0)
         return True
 
 class Readline(NativeRule):
-    def execute(i: Interpreter):
+    def execute(self, interpreter: Interpreter):
         try:
-            cw, *rcs = i.cs
+            cw, *rcs = interpreter.cs
         except ValueError:
             return False
 
         if cw != "read-line":
             return False
 
-        i.ds = Stack(*i.ds, input())
-        i.cs = Stack(*rcs)
+        interpreter.ds = Stack(*interpreter.ds, input())
+        interpreter.cs = Stack(*rcs)
         return True
 
 class Slurp(NativeRule):
-    def execute(i: Interpreter):
+    def execute(self, interpreter: Interpreter):
         try:
-            cw, *rcs = i.cs
-            *rest, source = i.ds
+            cw, *rcs = interpreter.cs
+            *rest, source = interpreter.ds
         except ValueError:
             return False
 
@@ -133,22 +133,22 @@ class Slurp(NativeRule):
         except IOError as e:
             print("An error occurred while reading the file:", e)
 
-        i.ds = Stack(*rest, content)
-        i.cs = Stack(*rcs)
+        interpreter.ds = Stack(*rest, content)
+        interpreter.cs = Stack(*rcs)
         return True
 
 class Spit(NativeRule):
-    def execute(i: Interpreter):
+    def execute(self, interpreter: Interpreter):
         try:
-            cw, *rcs = i.cs
-            *rest, data, uri = i.ds
+            cw, *rcs = interpreter.cs
+            *rest, data, uri = interpreter.ds
         except ValueError:
             return False
 
         if cw != "spit":
             return False
 
-        # seems to be not a valid URI. Will use local file read.
+        # seems to be not a valid URinterpreter. Will use local file read.
         try:
             with open(uri, "w") as file:
                 file.write(data)
@@ -159,15 +159,15 @@ class Spit(NativeRule):
         except IOError as e:
             print("An error occurred while writing the file:", e)
 
-        i.ds = Stack(*rest)
-        i.cs = Stack(*rcs)
+        interpreter.ds = Stack(*rest)
+        interpreter.cs = Stack(*rcs)
         return True
 
 class SpitOn(NativeRule):
-    def execute(i: Interpreter):
+    def execute(self, interpreter: Interpreter):
         try:
-            cw, *rcs = i.cs
-            *rest, data, uri = i.ds
+            cw, *rcs = interpreter.cs
+            *rest, data, uri = interpreter.ds
         except ValueError:
             return False
 
@@ -184,15 +184,15 @@ class SpitOn(NativeRule):
         except IOError as e:
             print("An error occurred while writing the file:", e)
 
-        i.ds = Stack(*rest)
-        i.cs = Stack(*rcs)
+        interpreter.ds = Stack(*rest)
+        interpreter.cs = Stack(*rcs)
         return True
 
 class Uncomment(NativeRule):
-    def execute(i: Interpreter):
+    def execute(self, interpreter: Interpreter):
         try:
-            cw, *rcs = i.cs
-            *rest, word = i.ds
+            cw, *rcs = interpreter.cs
+            *rest, word = interpreter.ds
         except ValueError:
             return False
 
@@ -200,15 +200,15 @@ class Uncomment(NativeRule):
             return False
 
         import re
-        i.ds = Stack(*rest, *[re.sub(r"(?m)\s*%.*$", "", word).strip()])
-        i.cs = Stack(*rcs)
+        interpreter.ds = Stack(*rest, *[re.sub(r"(?m)\s*%.*$", "", word).strip()])
+        interpreter.cs = Stack(*rcs)
         return True
 
 class Tokenize(NativeRule):
-    def execute(i: Interpreter):
+    def execute(self, interpreter: Interpreter):
         try:
-            cw, *rcs = i.cs
-            *rest, word = i.ds
+            cw, *rcs = interpreter.cs
+            *rest, word = interpreter.ds
         except ValueError:
             return False
 
@@ -217,15 +217,15 @@ class Tokenize(NativeRule):
 
         import re
         parts = re.split(r"\s+", word.strip())
-        i.ds = Stack(*rest, Stack() if parts == [""] else Stack(*parts))
-        i.cs = Stack(*rcs)
+        interpreter.ds = Stack(*rest, Stack() if parts == [""] else Stack(*parts))
+        interpreter.cs = Stack(*rcs)
         return True
 
 class Undocument(NativeRule):
-    def execute(i: Interpreter):
+    def execute(self, interpreter: Interpreter):
         try:
-            cw, *rcs = i.cs
-            *rest, word = i.ds
+            cw, *rcs = interpreter.cs
+            *rest, word = interpreter.ds
         except ValueError:
             return False
 
@@ -234,14 +234,14 @@ class Undocument(NativeRule):
 
         import re
         parts = re.findall(r"(?m)^%?>> (.*)$", word)
-        i.ds = Stack(*rest, Stack(r"\r\n".join(parts)))
-        i.cs = Stack(*rcs)
+        interpreter.ds = Stack(*rest, Stack(r"\r\n".join(parts)))
+        interpreter.cs = Stack(*rcs)
         return True
 
 class CurrentTimeMilliSec(NativeRule):
-    def execute(i: Interpreter):
+    def execute(self, interpreter: Interpreter):
         try:
-            cw, *rcs = i.cs
+            cw, *rcs = interpreter.cs
         except ValueError:
             return False
 
@@ -249,14 +249,14 @@ class CurrentTimeMilliSec(NativeRule):
             return False
 
         import time
-        i.ds = Stack(*i.ds, int(time.time() * 1000))
-        i.cs = Stack(*rcs)
+        interpreter.ds = Stack(*interpreter.ds, int(time.time() * 1000))
+        interpreter.cs = Stack(*rcs)
         return True
 
 class OperatingSystem(NativeRule):
-    def execute(i: Interpreter):
+    def execute(self, interpreter: Interpreter):
         try:
-            cw, *rcs = i.cs
+            cw, *rcs = interpreter.cs
         except ValueError:
             return False
 
@@ -265,15 +265,15 @@ class OperatingSystem(NativeRule):
 
         import platform
 
-        i.cs = Stack(*rcs)
-        i.ds = Stack(*i.ds, platform.platform())
+        interpreter.cs = Stack(*rcs)
+        interpreter.ds = Stack(*interpreter.ds, platform.platform())
         return True
 
 class IsInteger(NativeRule):
-    def execute(i: Interpreter):
+    def execute(self, interpreter: Interpreter):
         try:
-            cw, *rcs = i.cs
-            *rds, num = i.ds
+            cw, *rcs = interpreter.cs
+            *rds, num = interpreter.ds
         except ValueError:
             return False
 
@@ -287,15 +287,15 @@ class IsInteger(NativeRule):
 
         result = "t" if result != "f" else "f"
 
-        i.cs = Stack(*rcs)
-        i.ds = Stack(*rds, result)
+        interpreter.cs = Stack(*rcs)
+        interpreter.ds = Stack(*rds, result)
         return True
 
 class Addition(NativeRule):
-    def execute(i: Interpreter):
+    def execute(self, interpreter: Interpreter):
         try:
-            cw, *rcs = i.cs
-            *rds, x, y = i.ds
+            cw, *rcs = interpreter.cs
+            *rds, x, y = interpreter.ds
 
             if cw != "+":
                 return False
@@ -304,15 +304,15 @@ class Addition(NativeRule):
         except (ValueError, TypeError):
             return False
 
-        i.cs = Stack(*rcs)
-        i.ds = Stack(*rds, result)
+        interpreter.cs = Stack(*rcs)
+        interpreter.ds = Stack(*rds, result)
         return True
 
 class Subtraction(NativeRule):
-    def execute(i: Interpreter):
+    def execute(self, interpreter: Interpreter):
         try:
-            cw, *rcs = i.cs
-            *rds, x, y = i.ds
+            cw, *rcs = interpreter.cs
+            *rds, x, y = interpreter.ds
 
             if cw != "-":
                 return False
@@ -321,15 +321,15 @@ class Subtraction(NativeRule):
         except (ValueError, TypeError):
             return False
 
-        i.cs = Stack(*rcs)
-        i.ds = Stack(*rds, result)
+        interpreter.cs = Stack(*rcs)
+        interpreter.ds = Stack(*rds, result)
         return True
 
 class Multiplication(NativeRule):
-    def execute(i: Interpreter):
+    def execute(self, interpreter: Interpreter):
         try:
-            cw, *rcs = i.cs
-            *rds, x, y = i.ds
+            cw, *rcs = interpreter.cs
+            *rds, x, y = interpreter.ds
 
             if cw != "*":
                 return False
@@ -338,15 +338,15 @@ class Multiplication(NativeRule):
         except (ValueError, TypeError):
             return False
 
-        i.cs = Stack(*rcs)
-        i.ds = Stack(*rds, result)
+        interpreter.cs = Stack(*rcs)
+        interpreter.ds = Stack(*rds, result)
         return True
 
 class Devision(NativeRule):
-    def execute(i: Interpreter):
+    def execute(self, interpreter: Interpreter):
         try:
-            cw, *rcs = i.cs
-            *rds, x, y = i.ds
+            cw, *rcs = interpreter.cs
+            *rds, x, y = interpreter.ds
 
             if cw != "div":
                 return False
@@ -355,15 +355,15 @@ class Devision(NativeRule):
         except (ValueError, TypeError):
             return False
 
-        i.cs = Stack(*rcs)
-        i.ds = Stack(*rds, result)
+        interpreter.cs = Stack(*rcs)
+        interpreter.ds = Stack(*rds, result)
         return True
 
 class Modulus(NativeRule):
-    def execute(i: Interpreter):
+    def execute(self, interpreter: Interpreter):
         try:
-            cw, *rcs = i.cs
-            *rds, x, y = i.ds
+            cw, *rcs = interpreter.cs
+            *rds, x, y = interpreter.ds
 
             if cw != "mod":
                 return False
@@ -372,15 +372,15 @@ class Modulus(NativeRule):
         except (ValueError, TypeError):
             return False
 
-        i.cs = Stack(*rcs)
-        i.ds = Stack(*rds, result)
+        interpreter.cs = Stack(*rcs)
+        interpreter.ds = Stack(*rds, result)
         return True
 
 class LessThan(NativeRule):
-    def execute(i: Interpreter):
+    def execute(self, interpreter: Interpreter):
         try:
-            cw, *rcs = i.cs
-            *rds, x, y = i.ds
+            cw, *rcs = interpreter.cs
+            *rds, x, y = interpreter.ds
 
             if cw != "<":
                 return False
@@ -391,15 +391,15 @@ class LessThan(NativeRule):
 
         result = "t" if result else "f"
 
-        i.cs = Stack(*rcs)
-        i.ds = Stack(*rds, result)
+        interpreter.cs = Stack(*rcs)
+        interpreter.ds = Stack(*rds, result)
         return True
 
 class MoreThan(NativeRule):
-    def execute(i: Interpreter):
+    def execute(self, interpreter: Interpreter):
         try:
-            cw, *rcs = i.cs
-            *rds, x, y = i.ds
+            cw, *rcs = interpreter.cs
+            *rds, x, y = interpreter.ds
 
             if cw != ">":
                 return False
@@ -410,15 +410,15 @@ class MoreThan(NativeRule):
 
         result = "t" if result else "f"
 
-        i.cs = Stack(*rcs)
-        i.ds = Stack(*rds, result)
+        interpreter.cs = Stack(*rcs)
+        interpreter.ds = Stack(*rds, result)
         return True
 
 class MoreThanEqual(NativeRule):
-    def execute(i: Interpreter):
+    def execute(self, interpreter: Interpreter):
         try:
-            cw, *rcs = i.cs
-            *rds, x, y = i.ds
+            cw, *rcs = interpreter.cs
+            *rds, x, y = interpreter.ds
 
             if cw != ">=":
                 return False
@@ -429,15 +429,15 @@ class MoreThanEqual(NativeRule):
 
         result = "t" if result else "f"
 
-        i.cs = Stack(*rcs)
-        i.ds = Stack(*rds, result)
+        interpreter.cs = Stack(*rcs)
+        interpreter.ds = Stack(*rds, result)
         return True
 
 class LessThanEqual(NativeRule):
-    def execute(i: Interpreter):
+    def execute(self, interpreter: Interpreter):
         try:
-            cw, *rcs = i.cs
-            *rds, x, y = i.ds
+            cw, *rcs = interpreter.cs
+            *rds, x, y = interpreter.ds
 
             if cw != "<=":
                 return False
@@ -448,6 +448,6 @@ class LessThanEqual(NativeRule):
 
         result = "t" if result else "f"
 
-        i.cs = Stack(*rcs)
-        i.ds = Stack(*rds, result)
+        interpreter.cs = Stack(*rcs)
+        interpreter.ds = Stack(*rds, result)
         return True

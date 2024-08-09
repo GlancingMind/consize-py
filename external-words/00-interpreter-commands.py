@@ -1,7 +1,5 @@
-import importlib
 import os
 import subprocess
-import sys
 import tempfile
 
 from Interpreter import Interpreter
@@ -10,7 +8,6 @@ import RuleParser
 from RuleSet import RuleSet
 from Stack import Stack
 import StackParser
-from TerminalEscsapeCodes import TerminalEscapeCodes as TEC
 
 # TODO move call- and datastack validation into superclass.
 # The just call super.match(), or let NativeRules.py call isSatisfied() - see
@@ -25,79 +22,87 @@ from TerminalEscsapeCodes import TerminalEscapeCodes as TEC
 # Or use `read-word`. Word is unkown, put it on DS and push read-word, which can
 # be implemented by the user
 
+# TODO add name and description to rules
+# TODO Fix unit-test and main entrypoint, loading of rules
+# TODO Restructure native rules/move some rules from consize into this file
+# TODO add alias Rule (as seen above)
 
 class CurrentContinuation(NativeRule):
-    def execute(i: Interpreter):
-        if i.cs == [] or not i.cs.peek() == "cc":
+    """
+    Bebop
+    """
+
+    def execute(self, interpreter):
+        if interpreter.cs == [] or not interpreter.cs.peek() == "cc":
             return False
-        i.cs.pop(0)
-        i.ds = Stack(*i.ds, i.ds)
-        i.ds = Stack(*i.ds, i.cs)
+        interpreter.cs.pop(0)
+        interpreter.ds = Stack(*interpreter.ds, interpreter.ds)
+        interpreter.ds = Stack(*interpreter.ds, interpreter.cs)
         return True
 
 class LiveEditCC(NativeRule):
-    def execute(i: Interpreter):
-        if i.cs == [] or not i.cs.peek() == "ecc":
+    def execute(self, interpreter):
+        if interpreter.cs == [] or not interpreter.cs.peek() == "ecc":
             return False
-        i.cs.pop(0)
-        ccWrd = Stack(i.ds,i.cs).toString(addEnclosingParenthesis=False)
-        i.ds = Stack(*i.ds, ccWrd)
+        interpreter.cs.pop(0)
+        ccWrd = Stack(interpreter.ds,interpreter.cs).toString(addEnclosingParenthesis=False)
+        interpreter.ds = Stack(*interpreter.ds, ccWrd)
         # Could also execute "cc" - current continuation - (as seen below) but
         # then "edit" will only work on the callstack, as edit only takes the
         # top of datastack. Therefore we will wrap the continuation in a stack
-        # i.cs = Stack("cc", *i.cs)
-        # i.make_step()
-        i.cs = Stack("edit", *i.cs)
-        i.make_step()
-        ccLines, *rds = i.ds
+        # interpreter.cs = Stack("cc", *interpreter.cs)
+        # interpreter.make_step()
+        interpreter.cs = Stack("edit", *interpreter.cs)
+        interpreter.make_step()
+        ccLines, *rds = interpreter.ds
         ncc = StackParser.parse(ccLines[0])
-        i.ds = Stack(*rds, *ncc)
+        interpreter.ds = Stack(*rds, *ncc)
         return True
 
 class SetCC(NativeRule):
-    def execute(i: Interpreter):
-        if i.cs == [] or not i.cs.peek() == "set-cc":
+    def execute(self, interpreter):
+        if interpreter.cs == [] or not interpreter.cs.peek() == "set-cc":
             return False
 
-        if len(i.ds) <= 2:
-            i.print_error("No valid continuation found on DS.")
-        i.cs.pop(0)
+        if len(interpreter.ds) <= 2:
+            interpreter.print_error("No valid continuation found on DS.")
+        interpreter.cs.pop(0)
 
-        *rest, ds, cs = i.ds
-        i.ds = StackParser.parse(ds) if isinstance(ds, str) else ds
-        i.cs = StackParser.parse(cs) if isinstance(cs, str) else cs
+        *rest, ds, cs = interpreter.ds
+        interpreter.ds = StackParser.parse(ds) if isinstance(ds, str) else ds
+        interpreter.cs = StackParser.parse(cs) if isinstance(cs, str) else cs
         return True
 
 class Callstack(NativeRule):
-    def execute(i: Interpreter):
-        if i.cs == [] or not i.cs.peek() == "cs":
+    def execute(self, interpreter):
+        if interpreter.cs == [] or not interpreter.cs.peek() == "cs":
             return False
-        i.cs.pop(0)
-        i.ds = Stack(*i.ds, str(i.cs))
+        interpreter.cs.pop(0)
+        interpreter.ds = Stack(*interpreter.ds, str(interpreter.cs))
         return True
 
 class Datastack(NativeRule):
-    def execute(i: Interpreter):
-        if i.cs == [] or not i.cs.peek() == "ds":
+    def execute(self, interpreter):
+        if interpreter.cs == [] or not interpreter.cs.peek() == "ds":
             return False
-        i.cs.pop(0)
-        i.ds = Stack(*i.ds, str(i.ds))
+        interpreter.cs.pop(0)
+        interpreter.ds = Stack(*interpreter.ds, str(interpreter.ds))
         return True
 
 class DumpRuleset(NativeRule):
-    def execute(i: Interpreter):
-        if i.cs == [] or not i.cs.peek() == "rules":
+    def execute(self, interpreter):
+        if interpreter.cs == [] or not interpreter.cs.peek() == "rules":
             return False
 
-        i.ds = Stack(*i.ds, Stack(*[Stack(rule) for rule in i.ruleset]))
-        i.cs.pop(0)
+        interpreter.ds = Stack(*interpreter.ds, Stack(*[Stack(rule) for rule in interpreter.ruleset]))
+        interpreter.cs.pop(0)
         return True
 
 class SetRules(NativeRule):
-    def execute(i: Interpreter):
+    def execute(self, interpreter):
         try:
-            csw, *rcs = i.cs
-            *rds, rules = i.ds
+            csw, *rcs = interpreter.cs
+            *rds, rules = interpreter.ds
         except ValueError:
             return False
 
@@ -112,29 +117,29 @@ class SetRules(NativeRule):
             if not isinstance(rule, Rule):
                 err, rule = RuleParser.parse(rule)
                 if err:
-                    i.print_error(err)
+                    interpreter.print_error(err)
                     return False
             new_ruleset.add(rule)
 
-        i.ruleset = new_ruleset
+        interpreter.ruleset = new_ruleset
 
-        i.ds = Stack(*rds)
-        i.cs = Stack(*rcs)
+        interpreter.ds = Stack(*rds)
+        interpreter.cs = Stack(*rcs)
         return True
 
 class Edit(NativeRule):
-    def execute(i: Interpreter):
-        if i.cs == []:
+    def execute(self, interpreter):
+        if interpreter.cs == []:
             return False
 
-        cw, *rcs = i.cs
+        cw, *rcs = interpreter.cs
         if cw != "edit":
             return False
 
-        if i.ds != []:
-            *rest, word = i.ds
+        if interpreter.ds != []:
+            *rest, word = interpreter.ds
         else:
-            rest = i.ds
+            rest = interpreter.ds
             word = ""
 
         encounteredError = False
@@ -149,7 +154,7 @@ class Edit(NativeRule):
             try:
                 subprocess.run([editor, temp_file.name])
             except Exception as e:
-                i.print_error(f"Failed to open the editor. Error: {e}")
+                interpreter.print_error(f"Failed to open the editor. Error: {e}")
                 encounteredError = True
 
             # Read the content of the file after the editor is closed
@@ -160,91 +165,91 @@ class Edit(NativeRule):
         # Clean up the temporary file
         os.remove(temp_file.name)
 
-        i.ds = Stack(*rest, Stack(*[str(line) for line in final_content.splitlines()]))
-        i.cs = Stack(*rcs)
+        interpreter.ds = Stack(*rest, Stack(*[str(line) for line in final_content.splitlines()]))
+        interpreter.cs = Stack(*rcs)
         return True
 
 class Step(NativeRule):
-    def execute(i: Interpreter):
-        if i.cs == [] or not i.cs.peek() == "step":
+    def execute(self, interpreter):
+        if interpreter.cs == [] or not interpreter.cs.peek() == "step":
             return False
-        i.cs.pop(0)
-        if not i.make_step():
-            i.print_error(f"No applicative rules found.")
+        interpreter.cs.pop(0)
+        if not interpreter.make_step():
+            interpreter.print_error(f"No applicative rules found.")
         return True
 
 class Continue(NativeRule):
-    def execute(i: Interpreter):
-        if i.cs == [] or not i.cs.peek() == "continue":
+    def execute(self, interpreter):
+        if interpreter.cs == [] or not interpreter.cs.peek() == "continue":
             return False
-        i.cs.pop(0)
-        while i.make_step():
+        interpreter.cs.pop(0)
+        while interpreter.make_step():
             pass
         return True
 
 class Status(NativeRule):
-    def execute(i: Interpreter):
-        if i.cs == [] or not i.cs.peek() == "status":
+    def execute(self, interpreter):
+        if interpreter.cs == [] or not interpreter.cs.peek() == "status":
             return False
-        i.cs.pop(0)
-        i.log_state()
+        interpreter.cs.pop(0)
+        interpreter.log_state()
         return True
 
 class HaltRequest(NativeRule):
-    def execute(i: Interpreter):
-        if i.cs == [] or not (i.cs.peek() == "exit" or i.cs.peek() == "quit" or i.cs.peek() == ":q"):
+    def execute(self, interpreter):
+        if interpreter.cs == [] or not (interpreter.cs.peek() == "exit" or interpreter.cs.peek() == "quit" or interpreter.cs.peek() == ":q"):
             return False
-        i.cs.pop(0)
-        i.halt = True
+        interpreter.cs.pop(0)
+        interpreter.halt = True
         return True
 
 class AddToRuleSet(NativeRule):
-    def execute(i: Interpreter):
-        if i.cs == []:
+    def execute(self, interpreter):
+        if interpreter.cs == []:
             return False
 
-        cw, *rcs = i.cs
+        cw, *rcs = interpreter.cs
         if not cw == "add-rule":
             return False
 
-        if i.ds == []:
-            i.print_error("No rule description given.")
+        if interpreter.ds == []:
+            interpreter.print_error("No rule description given.")
             return False
 
-        *rds, ruleDesc = i.ds
+        *rds, ruleDesc = interpreter.ds
 
         if not isinstance(ruleDesc, str):
             return False
 
         err, rule = RuleParser.parse(ruleDesc)
         if err:
-            i.print_error(err.msg)
+            interpreter.print_error(err.msg)
             return False
-        err = i.ruleset.add(rule)
+        err = interpreter.ruleset.add(rule)
         if err:
-            i.print_error(err.msg)
+            interpreter.print_error(err.msg)
             return False
 
-        i.ds = Stack(*rds)
-        i.cs = Stack(*rcs)
+        interpreter.ds = Stack(*rds)
+        interpreter.cs = Stack(*rcs)
         return True
 
 class RedisoverNativeRules(NativeRule):
-    def execute(i: Interpreter):
-        if i.cs == [] or not i.cs.peek() == "rediscover":
+    def execute(self, interpreter):
+        if interpreter.cs == [] or not interpreter.cs.peek() == "rediscover":
             return False
-        i.discover_native_rules()
-        i.cs.pop(0)
+        interpreter.discover_native_rules()
+        interpreter.cs.pop(0)
         return True
 
 class Write(NativeRule):
     # TODO should probably also write the rule native rules as comments into
     # the ruleset. Just for information, that some rules might not be
     # available. Sharing the ruleset-file.
-    def execute(i: Interpreter):
+    def execute(self, interpreter):
         try:
-            csw, *rcs = i.cs
-            *rds, path = i.ds
+            csw, *rcs = interpreter.cs
+            *rds, path = interpreter.ds
         except ValueError:
             return False
 
@@ -253,50 +258,37 @@ class Write(NativeRule):
 
         try:
             with open(path, "w") as file:
-                file.write(str(i.ruleset))
+                file.write(str(interpreter.ruleset))
         except FileNotFoundError:
-            i.print_error(f"File not found: {path}")
+            interpreter.print_error(f"File not found: {path}")
             return False
         except PermissionError:
-            i.print_error(f"Permission denied to write file: {path}")
+            interpreter.print_error(f"Permission denied to write file: {path}")
             return False
         except IOError as e:
-            i.print_error(f"An error occurred while writing the file: {e}")
+            interpreter.print_error(f"An error occurred while writing the file: {e}")
             return False
 
-        i.ds = Stack(*rds)
-        i.cs = Stack(*rcs)
+        interpreter.ds = Stack(*rds)
+        interpreter.cs = Stack(*rcs)
         return True
 
 class ShowHelp(NativeRule):
-    def execute(i: Interpreter):
+    def execute(self, interpreter) -> bool | dict:
         try:
-            csw, *rcs = i.cs
+            csw, *rcs = interpreter.cs
         except ValueError:
             return False
 
-        if not csw == "help":
+        if not csw == "?":
             return False
 
-        help = ("\n").join(["Native Rules:", *[f"{rule.name()} {rule.description()}" for rule in i.native_rules]])
-        i.print(help)
-        i.cs = Stack(*rcs)
+        help = ""
+        for rule in interpreter.native_rules:
+            n = rule.__qualname__
+            d = rule.__doc__
+            help += f"{n} {d}\n"
+        # help = ("\n").join(["Native Rules:", *[f"{rule.name()} {rule.description()}" for rule in interpreter.native_rules]])
+        interpreter.print(help)
+        interpreter.cs = Stack(*rcs)
         return True
-
-# i.print(
-# """
-# Native Rules:
-# ?                       Shows this help.
-# exit                    Quits the program.
-# step/enter              Try next execution step.
-# continue                Continues rule evaluation.
-# status                  Shows current evaluation state.
-# rules                   Shows all current rules.
-# + <Rule Description>    Add rule to current ruleset.
-# - <Rule Description>    Remove rule from current ruleset. (Not yet implemented)
-# edit                    Open the current ruleset within an editor and load it on save.
-# save <path>             Save the current ruleset into the given file.
-# load <path>             Replaces the current ruleset with the one in the given file.
-# append ruleset <path>   Load the given ruleset into the current one.
-# rediscover              Rediscover native rules.
-# """)

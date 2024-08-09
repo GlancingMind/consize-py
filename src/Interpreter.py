@@ -1,10 +1,8 @@
 import importlib
 import importlib.util
 import os
-import subprocess
 from sys import stderr
 import sys
-import tempfile
 from Rule import NativeRule
 import RuleParser as RuleParser
 from RuleSet import RuleSet
@@ -52,18 +50,19 @@ class Interpreter:
 
     # TODO if a word is unkown, call read-word, which will move the word
     # over to the datastack. Add an noop read-word impl.
+    # Or add a some callback mechanismn, which a plugin could register for (observer).
             # No interpreter command given, treat input as data to call-/datastack
             self.cs = Stack(*StackParser.parse(user_input), *self.cs)
             self.make_step()
 
-    def make_step(self,):
+    def make_step(self):
         some_rule_applied = False
         for rule in self.ruleset:
-            if rule.execute(self):
+            if rule.execute(interpreter=self):
                 some_rule_applied = True
                 break
         for rule in self.native_rules:
-            if rule.execute(self):
+            if rule.execute(interpreter=self):
                 some_rule_applied = True
                 break
 
@@ -110,7 +109,8 @@ class Interpreter:
                 sys.modules[module] = module
                 spec.loader.exec_module(module)
                 for rule in NativeRule.__subclasses__():
-                    rs.add(rule)
+                    instance = rule()
+                    rs.add(instance)
         except FileNotFoundError:
             self.print_error(f"Could not load native rules from {self.native_rule_module_dir}. Directory does not exist.")
             return False
