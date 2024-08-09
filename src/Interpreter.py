@@ -34,7 +34,7 @@ class Interpreter:
     def halt(self):
         self.haltRequested = True
 
-    def run(self, interactive=False):
+    def run(self, interactive=False, untilUnknownWord=True):
         while not self.haltRequested:
             user_input = ""
             if self.displayReasoningChain:
@@ -48,7 +48,10 @@ class Interpreter:
                         self.cs = Stack(*StackParser.parse(user_input), *self.cs)
                     self.make_step()
                 else:
-                    self.continue_to_end()
+                    if untilUnknownWord:
+                        self.make_steps_until_unknown_word()
+                    else:
+                        self.continue_to_end()
                     self.halt()
             except EOFError:
                 break
@@ -57,7 +60,7 @@ class Interpreter:
             # over to the datastack. Add an noop read-word impl.
             # Or add a some callback mechanismn, which a plugin could register for (observer).
 
-    def make_step(self):
+    def make_step(self, pushUnknownWordToDS=True):
         some_rule_applied = False
         for rule in self.ruleset:
             if rule.execute(interpreter=self):
@@ -68,7 +71,7 @@ class Interpreter:
                 some_rule_applied = True
                 break
 
-        if not some_rule_applied:
+        if pushUnknownWordToDS and not some_rule_applied:
             # If word wasn't found, move it from the callstack to the datastack
             if self.cs != []:
                 wrd, *rcs = self.cs
@@ -78,9 +81,10 @@ class Interpreter:
         return some_rule_applied
 
     def make_steps_until_unknown_word(self):
-        while self.make_step():
+        while self.make_step(pushUnknownWordToDS=False):
             pass
-        self.print_error(f"No applicative rules found => Unknown word encountered.")
+        if self.displayReasoningChain:
+            self.print_error(f"No applicative rules found => Unknown word encountered.")
 
     def continue_to_end(self):
         while not self.cs == []:

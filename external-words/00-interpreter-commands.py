@@ -165,7 +165,7 @@ class Rules(NativeRule):
 
 class LoadRules(NativeRule):
     """
-    Tries to load a rulefile and put in on the DS. The rules on the DS should
+    Tries to load a rulefile and put it on the DS. The rules on the DS should
     be in a format, ready for consumption by set-rules.
     """
 
