@@ -21,7 +21,7 @@ def main():
     ruleset = RuleSet([])
     if args.ruleset:
         try:
-            ruleset = RuleSet.load(args.ruleset)
+            err, ruleset = RuleSet.load(args.ruleset)
         except FileNotFoundError as e:
             print(f"{TEC.RED}Could not find {args.ruleset}, exiting...{TEC.END}", file=sys.stderr)
             return 1

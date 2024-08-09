@@ -40,7 +40,7 @@ class Interpreter:
             try:
                 if interactive:
                     # TODO use readline instead of input for history and autocompletion
-                    user_input = input("Enter something (or 'exit' to quit and '?' for help):\n> ").strip()
+                    user_input = input("Enter '?' for help:\n> ").strip()
                     if user_input == "":
                         # When user only pressed enter or nothing, then do a single step
                         user_input = "step"
@@ -50,37 +50,11 @@ class Interpreter:
             except EOFError:
                 break
 
-            if user_input.startswith('?'):
-                self.show_help()
-            elif user_input.startswith('+'):
-                ruleDesc = user_input.removeprefix("+").strip()
-                if ruleDesc == "":
-                    self.print_error("No rule description given.")
-                self.add_rule(ruleDesc)
-            elif user_input.startswith('save'):
-                path = user_input.removeprefix("save").strip()
-                if path == "":
-                    self.print_error("No path given.")
-                else:
-                    self.save_ruleset(path)
-            elif user_input.startswith('load'):
-                path = user_input.removeprefix("load").strip()
-                if path == "":
-                    self.print_error("No path given.")
-                else:
-                    self.replace_ruleset(path)
-            elif user_input.startswith('append ruleset'):
-                path = user_input.removeprefix("append ruleset").strip()
-                if path == "":
-                    self.print_error("No path given.")
-                else:
-                    self.append_ruleset(path)
-            elif user_input.startswith('rediscover'):
-                self.discover_native_rules()
-            else:
-                # No interpreter command given, treat input as data to call-/datastack
-                self.cs = Stack(*StackParser.parse(user_input), *self.cs)
-                self.make_step()
+    # TODO if a word is unkown, call read-word, which will move the word
+    # over to the datastack. Add an noop read-word impl.
+            # No interpreter command given, treat input as data to call-/datastack
+            self.cs = Stack(*StackParser.parse(user_input), *self.cs)
+            self.make_step()
 
     def make_step(self,):
         some_rule_applied = False
@@ -102,8 +76,24 @@ class Interpreter:
 
         return some_rule_applied
 
+    def log_state(self):
+        datastack=self.ds.toString(addEnclosingParenthesis=False, trunkLength=self.trunkPrintOfStackToLength)
+        callstack=self.cs.toString(addEnclosingParenthesis=False, trunkLength=self.trunkPrintOfStackToLength, tosIsLeft=True)
+        step =f"{datastack} {TEC.RED}{TEC.BOLD}|{TEC.END} {TEC.BLUE}{callstack}{TEC.END} {TEC.BOLD}{TEC.RED}-->{TEC.END}"
+        self.print(step)
+
+    def print_error(self, msg: str):
+        print(f"{TEC.RED}{TEC.BOLD}{msg}{TEC.END}", file=stderr)
+
+    def print_warning(self, msg: str):
+        print(f"{TEC.YELLOW}{TEC.BOLD}{msg}{TEC.END}", file=stderr)
+
+    def print(self, msg: str):
+        print(msg, file=stderr)
+
     def discover_native_rules(self):
         # TODO does this also remove modules, which are no longer available?
+        # TODO should return error, the calle should handle printing of errors
         rs = RuleSet([])
         try:
             for module_name in os.listdir(self.native_rule_module_dir):
@@ -114,6 +104,7 @@ class Interpreter:
                 spec = importlib.util.spec_from_file_location(module_name, module_path)
                 if spec is None:
                     self.print_error(f"Cannot load module from {module_path}")
+                    return False
 
                 module = importlib.util.module_from_spec(spec)
                 sys.modules[module] = module
@@ -122,52 +113,7 @@ class Interpreter:
                     rs.add(rule)
         except FileNotFoundError:
             self.print_error(f"Could not load native rules from {self.native_rule_module_dir}. Directory does not exist.")
+            return False
+
         self.native_rules = rs
-
-    def print_error(self, msg: str):
-        print(f"{TEC.RED}{TEC.BOLD}{msg}{TEC.END}", file=stderr)
-
-    def log_state(self):
-        datastack=self.ds.toString(addEnclosingParenthesis=False, trunkLength=self.trunkPrintOfStackToLength)
-        callstack=self.cs.toString(addEnclosingParenthesis=False, trunkLength=self.trunkPrintOfStackToLength, tosIsLeft=True)
-        step =f"{datastack} {TEC.RED}{TEC.BOLD}|{TEC.END} {TEC.BLUE}{callstack}{TEC.END} {TEC.BOLD}{TEC.RED}-->{TEC.END}"
-        print(step, file=stderr)
-
-    def show_help(self):
-        print(
-        """
-        Native Rules:
-        ?                       Shows this help.
-        exit                    Quits the program.
-        step/enter              Try next execution step.
-        continue                Continues rule evaluation.
-        status                  Shows current evaluation state.
-        rules                   Shows all current rules.
-        + <Rule Description>    Add rule to current ruleset.
-        - <Rule Description>    Remove rule from current ruleset. (Not yet implemented)
-        edit                    Open the current ruleset within an editor and load it on save.
-        save <path>             Save the current ruleset into the given file.
-        load <path>             Replaces the current ruleset with the one in the given file.
-        append ruleset <path>   Load the given ruleset into the current one.
-        rediscover              Rediscover native rules.
-        """, file=stderr)
-
-    def add_rule(self, ruleDesc: str):
-        rule = RuleParser.parse(ruleDesc)
-        err = self.ruleset.add(rule)
-        if err:
-            self.print_error(err.msg)
-
-    def save_ruleset(self, path: str):
-        # TODO should probably also write the rule native rules as comments into
-        # the ruleset. Just for information, that some rules might not be
-        # available. Sharing the ruleset-file.
-        try:
-            with open(path, "w") as file:
-                file.write(str(self.ruleset))
-        except FileNotFoundError:
-            self.print_error(f"File not found: {path}")
-        except PermissionError:
-            print(f"Permission denied to write file: {path}")
-        except IOError as e:
-            print(f"An error occurred while writing the file: {e}")
+        return True

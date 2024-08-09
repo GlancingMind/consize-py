@@ -25,10 +25,12 @@ class RuleSet:
 
         for line in lines:
             if line != "":
-                rule = RuleParser.parse(line)
+                err, rule = RuleParser.parse(line)
+                if err:
+                    return err,None
                 rs.add(rule)
 
-        return rs
+        return None,rs
 
     def add(self, rule: IRule):
         return self.add_by_index(rule, len(self.rules))

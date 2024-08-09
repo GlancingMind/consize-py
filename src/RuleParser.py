@@ -22,12 +22,12 @@ def parse(ruleStr: str):
         lhs, rhs = re.split(r"\s*=>\s*", ruleStr, 1)
         autoAppendRestMatcher = False
     else:
-        return ParseError(f"The rule `{ruleStr}` description is syntacically wrong")
+        return ParseError(f"The rule `{ruleStr}` description is syntacically wrong"), None
 
 
     m_ds_pat, m_cs_pat = _parse_lh_ruleside(lhs, autoAppendRestMatcher)
     i_ds_pat, i_cs_pat = _parse_rh_ruleside(rhs, autoAppendRestMatcher)
-    return Rule(dsp=m_ds_pat, csp= m_cs_pat, dst=i_ds_pat, cst=i_cs_pat, rule_desc=trimmedRuleStr)
+    return None, Rule(dsp=m_ds_pat, csp= m_cs_pat, dst=i_ds_pat, cst=i_cs_pat, rule_desc=trimmedRuleStr)
 
 def _parse_lh_ruleside(sideStr: str, autoAppendRestMatcher=False):
     tokens = re.split(r"\s+", sideStr)

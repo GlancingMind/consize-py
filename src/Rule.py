@@ -5,10 +5,24 @@ import StackPattern
 
 class IRule(ABC):
     @abstractmethod
+    def name() -> str:
+        pass
+
+    @abstractmethod
+    def description() -> str:
+        pass
+
+    @abstractmethod
     def execute(self, interpreter) -> bool|dict:
         pass
 
 class NativeRule(IRule):
+    def name() -> str:
+        return ""
+
+    def description() -> str:
+        return ""
+
     @abstractmethod
     def execute(self, interpreter) -> bool:
         pass
@@ -20,6 +34,12 @@ class Rule(IRule):
     dst: StackPattern
     cst: StackPattern
     rule_desc: str
+
+    def name(self) -> str:
+        return ""
+
+    def description(self) -> str:
+        return ""
 
     def __repr__(self) -> str:
         if self.rule_desc:

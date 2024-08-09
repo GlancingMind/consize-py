@@ -1,5 +1,7 @@
+import importlib
 import os
 import subprocess
+import sys
 import tempfile
 
 from Interpreter import Interpreter
@@ -8,6 +10,7 @@ import RuleParser
 from RuleSet import RuleSet
 from Stack import Stack
 import StackParser
+from TerminalEscsapeCodes import TerminalEscapeCodes as TEC
 
 # TODO move call- and datastack validation into superclass.
 # The just call super.match(), or let NativeRules.py call isSatisfied() - see
@@ -22,22 +25,6 @@ import StackParser
 # Or use `read-word`. Word is unkown, put it on DS and push read-word, which can
 # be implemented by the user
 
-# class AddToRuleSet(NativeRule):
-#     def execute(i: Interpreter):
-#         # TODO if a word is unkown, call read-word, which will move the word
-#         # over to the datastack
-#         rule = RuleParser.parse(" | ; -> ")
-#         matches = rule.matches(i)
-#         if not matches:
-#             return False
-
-#         rule = matches["@RULE"]
-#         i.add_rule1(rule)
-
-#         *rest, wordstack = i.ds
-#         i.ds = StackPattern
-#         i.cs.pop(0)
-#         return True
 
 class CurrentContinuation(NativeRule):
     def execute(i: Interpreter):
@@ -210,3 +197,106 @@ class HaltRequest(NativeRule):
         i.cs.pop(0)
         i.halt = True
         return True
+
+class AddToRuleSet(NativeRule):
+    def execute(i: Interpreter):
+        if i.cs == []:
+            return False
+
+        cw, *rcs = i.cs
+        if not cw == "add-rule":
+            return False
+
+        if i.ds == []:
+            i.print_error("No rule description given.")
+            return False
+
+        *rds, ruleDesc = i.ds
+
+        if not isinstance(ruleDesc, str):
+            return False
+
+        err, rule = RuleParser.parse(ruleDesc)
+        if err:
+            i.print_error(err.msg)
+            return False
+        err = i.ruleset.add(rule)
+        if err:
+            i.print_error(err.msg)
+            return False
+
+        i.ds = Stack(*rds)
+        i.cs = Stack(*rcs)
+        return True
+
+class RedisoverNativeRules(NativeRule):
+    def execute(i: Interpreter):
+        if i.cs == [] or not i.cs.peek() == "rediscover":
+            return False
+        i.discover_native_rules()
+        i.cs.pop(0)
+        return True
+
+class Write(NativeRule):
+    # TODO should probably also write the rule native rules as comments into
+    # the ruleset. Just for information, that some rules might not be
+    # available. Sharing the ruleset-file.
+    def execute(i: Interpreter):
+        try:
+            csw, *rcs = i.cs
+            *rds, path = i.ds
+        except ValueError:
+            return False
+
+        if not (csw == "write" and isinstance(path, str)):
+            return False
+
+        try:
+            with open(path, "w") as file:
+                file.write(str(i.ruleset))
+        except FileNotFoundError:
+            i.print_error(f"File not found: {path}")
+            return False
+        except PermissionError:
+            i.print_error(f"Permission denied to write file: {path}")
+            return False
+        except IOError as e:
+            i.print_error(f"An error occurred while writing the file: {e}")
+            return False
+
+        i.ds = Stack(*rds)
+        i.cs = Stack(*rcs)
+        return True
+
+class ShowHelp(NativeRule):
+    def execute(i: Interpreter):
+        try:
+            csw, *rcs = i.cs
+        except ValueError:
+            return False
+
+        if not csw == "help":
+            return False
+
+        help = ("\n").join(["Native Rules:", *[f"{rule.name()} {rule.description()}" for rule in i.native_rules]])
+        i.print(help)
+        i.cs = Stack(*rcs)
+        return True
+
+# i.print(
+# """
+# Native Rules:
+# ?                       Shows this help.
+# exit                    Quits the program.
+# step/enter              Try next execution step.
+# continue                Continues rule evaluation.
+# status                  Shows current evaluation state.
+# rules                   Shows all current rules.
+# + <Rule Description>    Add rule to current ruleset.
+# - <Rule Description>    Remove rule from current ruleset. (Not yet implemented)
+# edit                    Open the current ruleset within an editor and load it on save.
+# save <path>             Save the current ruleset into the given file.
+# load <path>             Replaces the current ruleset with the one in the given file.
+# append ruleset <path>   Load the given ruleset into the current one.
+# rediscover              Rediscover native rules.
+# """)
