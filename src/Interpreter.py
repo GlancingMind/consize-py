@@ -31,6 +31,9 @@ class Interpreter:
             self.discover_native_rules()
         self.halt = False
 
+    def halt(self):
+        self.halt = True
+
     def run(self, interactive=False):
         while not self.halt:
             if self.displayReasoningChain:
@@ -40,20 +43,21 @@ class Interpreter:
                     # TODO use readline instead of input for history and autocompletion
                     user_input = input("Enter '?' for help:\n> ").strip()
                     if user_input == "":
-                        # When user only pressed enter or nothing, then do a single step
-                        user_input = "step"
+                        # When user only pressed enter or only whitespace, then do a single step
+                        self.make_step()
+                        continue
                 else:
-                    # will skip to continue step, which evaluate all rules to the end.
-                    user_input = "continue"
+                    self.continue_to_end()
+                    self.halt()
             except EOFError:
                 break
 
-    # TODO if a word is unkown, call read-word, which will move the word
-    # over to the datastack. Add an noop read-word impl.
-    # Or add a some callback mechanismn, which a plugin could register for (observer).
             # No interpreter command given, treat input as data to call-/datastack
             self.cs = Stack(*StackParser.parse(user_input), *self.cs)
             self.make_step()
+            # TODO if a word is unknown, call read-word, which will move the word
+            # over to the datastack. Add an noop read-word impl.
+            # Or add a some callback mechanismn, which a plugin could register for (observer).
 
     def make_step(self):
         some_rule_applied = False
@@ -74,6 +78,15 @@ class Interpreter:
                 self.cs = Stack(*rcs)
 
         return some_rule_applied
+
+    def make_steps_until_unknown_word(self):
+        while self.make_step():
+            pass
+        self.print_error(f"No applicative rules found. Unknown word encountered.")
+
+    def continue_to_end(self):
+        while not self.cs == []:
+            self.make_step()
 
     def log_state(self):
         datastack=self.ds.toString(addEnclosingParenthesis=False, trunkLength=self.trunkPrintOfStackToLength)

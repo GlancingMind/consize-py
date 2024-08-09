@@ -295,13 +295,28 @@ class Step(NativeRule):
         if interpreter.cs == [] or not interpreter.cs.peek() == "step":
             return False
         interpreter.cs.pop(0)
-        if not interpreter.make_step():
-            interpreter.print_error(f"No applicative rules found.")
+        interpreter.make_step()
+        return True
+
+class Steps(NativeRule):
+    """
+    Performs as many steps as possible, until an unknown word is encountered on
+    the callstack.
+    """
+
+    def name(self) -> str:
+        return "steps"
+
+    def execute(self, interpreter):
+        if interpreter.cs == [] or not interpreter.cs.peek() == "steps":
+            return False
+        interpreter.cs.pop(0)
+        interpreter.make_steps_until_unknown_word()
         return True
 
 class Continue(NativeRule):
     """
-    Performse as many steps as possible, until no rule cant be applied.
+    Performse as many steps as possible, until the callstack is empty.
     """
 
     def name(self) -> str:
@@ -311,8 +326,7 @@ class Continue(NativeRule):
         if interpreter.cs == [] or not interpreter.cs.peek() == "continue":
             return False
         interpreter.cs.pop(0)
-        while interpreter.make_step():
-            pass
+        interpreter.continue_to_end()
         return True
 
 class Status(NativeRule):
@@ -343,7 +357,7 @@ class HaltRequest(NativeRule):
         if interpreter.cs == [] or not (interpreter.cs.peek() == "exit" or interpreter.cs.peek() == "quit" or interpreter.cs.peek() == ":q"):
             return False
         interpreter.cs.pop(0)
-        interpreter.halt = True
+        interpreter.halt()
         return True
 
 class AddToRuleSet(NativeRule):

@@ -15,8 +15,8 @@ class Test(unittest.TestCase):
 
     def __init__(self, methodName: str = "runTest") -> None:
         super().__init__(methodName)
-        i = Interpreter(native_rule_module_dir="external-words")
-        i.replace_ruleset("consize.ruleset")
+        i = Interpreter(native_rule_module_dir="external-words", cs=Stack("consize.ruleset", "load-rules"))
+        i.run(interactive=False)
         self.consize_ruleset = i.ruleset
         self.native_rules = i.native_rules
 
