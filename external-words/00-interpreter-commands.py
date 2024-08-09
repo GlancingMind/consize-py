@@ -27,10 +27,36 @@ import StackParser
 # TODO Restructure native rules/move some rules from consize into this file
 # TODO add alias Rule (as seen above)
 
+class ShowHelp(NativeRule):
+    """
+    Displays this help.
+    """
+
+    def name(self) -> str:
+        return "?"
+
+    def execute(self, interpreter) -> bool | dict:
+        try:
+            csw, *rcs = interpreter.cs
+        except ValueError:
+            return False
+
+        if not csw == "?":
+            return False
+
+        help = ("\n").join(["Native Rules:", *[f"{rule.name()} {rule.description()}" for rule in interpreter.native_rules]])
+        interpreter.print(help)
+        interpreter.cs = Stack(*rcs)
+        return True
+
 class CurrentContinuation(NativeRule):
     """
-    Bebop
+    Puts the current continuation on the datastack.
+    [ DS ] [ CS ]
     """
+
+    def name(self) -> str:
+        return "cc"
 
     def execute(self, interpreter):
         if interpreter.cs == [] or not interpreter.cs.peek() == "cc":
@@ -41,6 +67,14 @@ class CurrentContinuation(NativeRule):
         return True
 
 class LiveEditCC(NativeRule):
+    """
+    Opens the current continuation within the editor for modification.
+    Upon save, the changed continuation will be put on the DS.
+    """
+
+    def name(self) -> str:
+        return "ecc"
+
     def execute(self, interpreter):
         if interpreter.cs == [] or not interpreter.cs.peek() == "ecc":
             return False
@@ -60,6 +94,14 @@ class LiveEditCC(NativeRule):
         return True
 
 class SetCC(NativeRule):
+    """
+    Replace the current continuation with one from the top of the DS.
+    The old one, will be no longer available.
+    """
+
+    def name(self) -> str:
+        return "set-cc"
+
     def execute(self, interpreter):
         if interpreter.cs == [] or not interpreter.cs.peek() == "set-cc":
             return False
@@ -74,6 +116,13 @@ class SetCC(NativeRule):
         return True
 
 class Callstack(NativeRule):
+    """
+    Puts the current callstack on top of the DS.
+    """
+
+    def name(self) -> str:
+        return "cs"
+
     def execute(self, interpreter):
         if interpreter.cs == [] or not interpreter.cs.peek() == "cs":
             return False
@@ -82,6 +131,13 @@ class Callstack(NativeRule):
         return True
 
 class Datastack(NativeRule):
+    """
+    Puts the datastack on top of the DS.
+    """
+
+    def name(self) -> str:
+        return "ds"
+
     def execute(self, interpreter):
         if interpreter.cs == [] or not interpreter.cs.peek() == "ds":
             return False
@@ -89,7 +145,17 @@ class Datastack(NativeRule):
         interpreter.ds = Stack(*interpreter.ds, str(interpreter.ds))
         return True
 
-class DumpRuleset(NativeRule):
+class Rules(NativeRule):
+    """
+    Puts the current rules on the datastack.
+    Every rule will be a Wrd wrapped within a Stack (which resembels lines)
+    which are also wrapped within a stack. E.g.
+    [ [ Rule ] [ Rule ] ... ]
+    """
+
+    def name(self) -> str:
+        return "rules"
+
     def execute(self, interpreter):
         if interpreter.cs == [] or not interpreter.cs.peek() == "rules":
             return False
@@ -99,6 +165,14 @@ class DumpRuleset(NativeRule):
         return True
 
 class SetRules(NativeRule):
+    """
+    Replaces the current rules with the rules taken from top of the datastack.
+    Rules must be given in the form of: [ [ RuleWrd ] [ RuleWrd ] ...]
+    """
+
+    def name(self) -> str:
+        return "set-rules"
+
     def execute(self, interpreter):
         try:
             csw, *rcs = interpreter.cs
@@ -128,6 +202,13 @@ class SetRules(NativeRule):
         return True
 
 class Edit(NativeRule):
+    """
+    Opens the top element on the stack in the editor, for live editing.
+    """
+
+    def name(self) -> str:
+        return "edit"
+
     def execute(self, interpreter):
         if interpreter.cs == []:
             return False
@@ -170,6 +251,13 @@ class Edit(NativeRule):
         return True
 
 class Step(NativeRule):
+    """
+    Performs a single rule substitution step.
+    """
+
+    def name(self) -> str:
+        return "step"
+
     def execute(self, interpreter):
         if interpreter.cs == [] or not interpreter.cs.peek() == "step":
             return False
@@ -179,6 +267,13 @@ class Step(NativeRule):
         return True
 
 class Continue(NativeRule):
+    """
+    Performse as many steps as possible, until no rule cant be applied.
+    """
+
+    def name(self) -> str:
+        return "continue"
+
     def execute(self, interpreter):
         if interpreter.cs == [] or not interpreter.cs.peek() == "continue":
             return False
@@ -188,6 +283,13 @@ class Continue(NativeRule):
         return True
 
 class Status(NativeRule):
+    """
+    Prints the current data- and callstack to the console.
+    """
+
+    def name(self) -> str:
+        return "status"
+
     def execute(self, interpreter):
         if interpreter.cs == [] or not interpreter.cs.peek() == "status":
             return False
@@ -196,6 +298,14 @@ class Status(NativeRule):
         return True
 
 class HaltRequest(NativeRule):
+    """
+    Will request the interpreter to terminate.
+    Can also use: quit and :q
+    """
+
+    def name(self) -> str:
+        return "exit"
+
     def execute(self, interpreter):
         if interpreter.cs == [] or not (interpreter.cs.peek() == "exit" or interpreter.cs.peek() == "quit" or interpreter.cs.peek() == ":q"):
             return False
@@ -204,6 +314,13 @@ class HaltRequest(NativeRule):
         return True
 
 class AddToRuleSet(NativeRule):
+    """
+    Adds a rule to the ruleset. The rule must be a word on top of the datastack.
+    """
+
+    def name(self) -> str:
+        return "add-rule"
+
     def execute(self, interpreter):
         if interpreter.cs == []:
             return False
@@ -235,6 +352,13 @@ class AddToRuleSet(NativeRule):
         return True
 
 class RedisoverNativeRules(NativeRule):
+    """
+    Tries to discover and add new native rules from the module directory.
+    """
+
+    def name(self) -> str:
+        return "rediscover"
+
     def execute(self, interpreter):
         if interpreter.cs == [] or not interpreter.cs.peek() == "rediscover":
             return False
@@ -243,6 +367,14 @@ class RedisoverNativeRules(NativeRule):
         return True
 
 class Write(NativeRule):
+    """
+    Takes the filepath from the top of datastack and writes the seconds element
+    from the datastack to the file, located at the filepath.
+    """
+
+    def name(self) -> str:
+        return "write"
+
     # TODO should probably also write the rule native rules as comments into
     # the ruleset. Just for information, that some rules might not be
     # available. Sharing the ruleset-file.
@@ -270,25 +402,5 @@ class Write(NativeRule):
             return False
 
         interpreter.ds = Stack(*rds)
-        interpreter.cs = Stack(*rcs)
-        return True
-
-class ShowHelp(NativeRule):
-    def execute(self, interpreter) -> bool | dict:
-        try:
-            csw, *rcs = interpreter.cs
-        except ValueError:
-            return False
-
-        if not csw == "?":
-            return False
-
-        help = ""
-        for rule in interpreter.native_rules:
-            n = rule.__qualname__
-            d = rule.__doc__
-            help += f"{n} {d}\n"
-        # help = ("\n").join(["Native Rules:", *[f"{rule.name()} {rule.description()}" for rule in interpreter.native_rules]])
-        interpreter.print(help)
         interpreter.cs = Stack(*rcs)
         return True

@@ -18,10 +18,13 @@ class IRule(ABC):
 
 class NativeRule(IRule):
     def name(self) -> str:
-        return self.__qualname__
+        return self.__class__.__name__.lower()
 
     def description(self) -> str:
-        return self.__doc__
+        return self.__class__.__doc__ or \
+        """
+        No description provided.
+        """
 
 @dataclass
 class Rule(IRule):
