@@ -1,12 +1,20 @@
-#TODO Verwende entweder Datastack oder Datenstapel, aber nicht beides und Diagramm verwendes DS und CS, sollte Englisch verwenden.
-
 # Implementierung von Consize mittels eines Pattern-Matching-Systems
 
 Diese Arbeit befasst sich mit der konkreten Implementierung der Programmiersprache Consize, auf Basis eines formalen Pattern-Matching-Systems, welches im Anhang B von [Konkatenative Programmierung mit Consize](https://github.com/denkspuren/consize/blob/master/doc/Consize.pdf) beschrieben ist. Im ersten Teil des Berichtes wird ein kurzer Überblick über die Sprache und Implementierung von Consize gegeben. Es wird Argumentiert, dass sowohl die Implementierung von, als auch die Entwicklung mit konkatenativen Programmiersprachen, durch die Verwendung eines formalen Pattern-Matching-Systems deutlich vereinfacht werden kann.
 
 Im ersten Abschnitt [Was ist Consize &mdash; Ein sehr kurzer Überblick](#was-ist-consize--ein-sehr-kurzer-überblick) wird kurz Consize und dessen Funktionsweise beschrieben. Anschließend wird im Abschnitt [Stapeleffekte: Notieren, Verstehen und richtig Interpretieren, garnicht so schwer oder...?](#stapeleffekte-notieren-verstehen-und-richtig-interpretieren-garnicht-so-schwer-oder) auf ein sehr menschliches Problem hingedeutet, dem die meisten konkatenativen Sprachen unterliegen. Danach wird in [Eine Stapeleffekt-Notation für Menschen](#eine-stapeleffekt-notation-für-menschen) eine Pattern-Matching Notation als Lösung zu diesem Problem vorgestellt. In den Nachfolgenden Abschnitten [1](#auswertung-der-umschreibregeln--eine-mögliche-implementierung-in-python)[2](#plugin-system-für-native-wörter) wird eine konkrete Implementierung zur maschinellen auswertung jener Notationen beschrieben; bevor in [Consize mittels Pattern-Matching](#implementierung-von-consize-mittels-eines-pattern-matching-systems) der derzeitige Fortschritt einer Consize Implementierung auf Basis des hier vorgestellten Systems wiedergibt. Nachdem ein Fazit und den möglichen zukünftigen Verbesserungen gezogen wird.
 
-TODO [TOC]
+1. [Was ist Consize &mdash; Ein sehr kurzer Überblick](#was-ist-consize--ein-sehr-kurzer-überblick)
+2. [Stapeleffekte: Notieren, Verstehen und richtig Interpretieren, garnicht so schwer oder...?](#stapeleffekte-notieren-verstehen-und-richtig-interpretieren-garnicht-so-schwer-oder)
+3. [Eine Stapeleffekt-Notation für Menschen](#eine-stapeleffekt-notation-für-menschen)
+4. [Auswertung der Umschreibregeln &mdash; eine mögliche Implementierung in Python](#auswertung-der-umschreibregeln--eine-mögliche-implementierung-in-python)
+- 4.1.  [Schritt 1. Regel Finden und Matching](#schritt-1-regel-finden-und-matching)
+- 4.2.  [Schritt 2. Regel Anwendung bzw. Instanziierung](#schritt-2-regel-anwendung-bzw-instanziierung)
+5. [Plugin System für native Wörter](#plugin-system-für-native-wörter)
+6. [Implementierung von Consize](#implementierung-von-consize)
+7. [Fazit](#fazit)
+8. [Zukünftige Verbesserungen](#zukünftige-verbesserungen)
+9. [Quellen](#quellen)
 
 
 # Was ist Consize &mdash; Ein sehr kurzer Überblick
@@ -22,11 +30,11 @@ Nun ist `dup` alleine nicht ausreichend, um ein vollständiges Programm zu besch
 Angenommen die obige Definition von `unpush` wäre im aktuellen Wörterbuch der Consize-VM vorhanden und `unpush` wäre das oberste Element auf dem Callstack. Dann würde die Consize-VM die Wörter `dup`,`pop`,`swap` und `top` auf den Callstack legen, so dass sie (wie hier angegeben) von links nach rechts einzeln Interpretiert und ausgeführt werden. Sprich zuerst würde `dup` ausgeführt werden, dann `pop` usw. Sollte die ausführung erfolgreich sein, bewirkt `unpush`, dass das oberste Element eines Stapels herausgenommen und als oberstes Element auf dem Datastack gelegt wird.
 
 ```
------------------------------------------------------------------
-DS vor unpush:  ... [ Moriarty Sherlock Watson ]  | unpush ... CS vor unpush
------------------------------------------------------------------
-DS nach unpush: ... [ Sherlock Watson ] Moriarty  | ...        CS nach unpush
------------------------------------------------------------------
+------------------------------------------------------------------------------
+DS vor unpush:  ... [ Moriarty Sherlock Watson ]  | unpush ...  CS vor unpush
+------------------------------------------------------------------------------
+DS nach unpush: ... [ Sherlock Watson ] Moriarty  |        ...  CS nach unpush
+------------------------------------------------------------------------------
 ```
 
 # Stapeleffekte: Notieren, Verstehen und richtig Interpretieren, garnicht so schwer oder...?
@@ -72,7 +80,7 @@ Wir nennen einen solchen Ausdruck Regel(-Beschreibung) und lesen wie folgt:
 
 Die Pattern setzten sich wiederum aus zwei Teilen zusammen:
 
-1. Dem Datenstapel-Pattern, welches alles links von einem `|`-Symbol ist und
+1. Dem Datastack-Pattern, welches alles links von einem `|`-Symbol ist und
 2. dem Callstack-Pattern, welches alles recht von einem `|`-Symbol.
 
 In Consize können wiederum drei Verschiedene Dinge auf einem Stapel auftauchen: andere Stapel, Wörterbücher und Wörter. Diese werden wie folgt in der Notation ausgedrückt.
@@ -81,30 +89,30 @@ In Consize können wiederum drei Verschiedene Dinge auf einem Stapel auftauchen:
 - Ein Wörterbuch beginnt mit einer öffnenden `{` und muss mit einer `}` enden. Es gilt zu beachten, dass sich Wörterbücher von Stapel darin unterscheiden, dass deren Elemente immer Wort-Paare sein müssen, welche wiederum Stapel, Wörterbücher und Wörter sein können. Das heißt, Wörterbücher mit ungerader Anzahl an Elementen (wie etwar `{ a }` oder `{ a b c }`) sind nicht zulassig &mdash; wie in Consize auch.
 - Alle anderen Zeichen sind Literale, mit Ausnahme von Worten, welche mit einem `#`-Symbol oder `@`-Symbol beginnen. Jene nennen wir Matcher. Bzw. Worte, welche mit einem `#`-Symbol beginnen, nennen wir Hash-Matcher; und Worte, welche mit einem `@`-Symbol beginnen, nennen wir AT-Matcher. Deren Semantik wird noch noch erläuter.
 
-Zuerst muss festgehalten werden, dass die obige Regel beschreibung eine vereinfachte Darstellen (zur Verbesserung der Lesbarkeit) ist. Denn, in dieser werden lediglich Elemente auf den Stapeln angegeben, welche von einen Umschreibschritt betroffen sind. Das wäre einmal das oberste Elemente auf dem Datanstapel und Callstack. Es wird jedoch keine Aussage darüber getroffen, was mit allen anderen Werten auf den Stapeln passiert, noch welches Element das erste auf einem Stapel ist (ist das erste `#X`, oder das zweite auf dem Zielstapel, das oberste Element auf dem neuen Datenstapel?). Dies geschieht implizit. Denn sobald `->` verwendet wird, muss die Regel wie folgt gelesen werden.
+Zuerst muss festgehalten werden, dass die obige Regel beschreibung eine vereinfachte Darstellen (zur Verbesserung der Lesbarkeit) ist. Denn, in dieser werden lediglich Elemente auf den Stapeln angegeben, welche von einen Umschreibschritt betroffen sind. Das wäre einmal das oberste Elemente auf dem Datanstapel und Callstack. Es wird jedoch keine Aussage darüber getroffen, was mit allen anderen Werten auf den Stapeln passiert, noch welches Element das erste auf einem Stapel ist (ist das erste `#X`, oder das zweite auf dem Zielstapel, das oberste Element auf dem neuen Datastack?). Dies geschieht implizit. Denn sobald `->` verwendet wird, muss die Regel wie folgt gelesen werden.
 
 ```
 @RDS #X | dup @RCS -> @RDS #X #X | @RCS
 ```
 
-Die AT-Matcher `@RDS` und `@RCS` stehen führ alle restlichen Elemente auf dem Datastack bzw. Callstack. Nun können wir sehen, dass das oberste Element vom Datenstapel immer rechts steht, während das oberste Element vom Callstack immer links steht. Außerdem, sehen wir, was mit den anderen Elementen auf dem Stapeln passiert, nachdem die Regel angewandt wurde.
-Ein Beispiel. Angenommen wir hätten folgenden Datenstapel `1 2` und den Callstack `dup +`:
+Die AT-Matcher `@RDS` und `@RCS` stehen führ alle restlichen Elemente auf dem Datastack bzw. Callstack. Nun können wir sehen, dass das oberste Element vom Datastack immer rechts steht, während das oberste Element vom Callstack immer links steht. Außerdem, sehen wir, was mit den anderen Elementen auf dem Stapeln passiert, nachdem die Regel angewandt wurde.
+Ein Beispiel. Angenommen wir hätten folgenden Datastack `1 2` und den Callstack `dup +`:
 
 ```
 1 2 | dup +
 ```
 
-Dann würde der Datenstapel und Callstack nach der Anwendung von `dup` folgendermaßen aussehen:
+Dann würde der Datastack und Callstack nach der Anwendung von `dup` folgendermaßen aussehen:
 
 ```
 1 2 2 | +
 ```
 
-Jetzt wird auch die Bedeutung der @- und #-Matcher deutlich. Ein #-Matcher ist im M-Pat ein Platzhalter, der für **ein** beliebiges Element stehen kann. Während ein @-Matcher eine beliebig lange Sequenz von Elementen zusammenfasst. Im obigen Beispiel stand `#X` für das Literal 2 und `@RDS` für alle restlichen Elemente des Datenstapels, also `[ 1 ]`.
+Jetzt wird auch die Bedeutung der @- und #-Matcher deutlich. Ein #-Matcher ist im M-Pat ein Platzhalter, der für **ein** beliebiges Element stehen kann. Während ein @-Matcher eine beliebig lange Sequenz von Elementen zusammenfasst. Im obigen Beispiel stand `#X` für das Literal 2 und `@RDS` für alle restlichen Elemente des Datastacks, also `[ 1 ]`.
 
 
-Das implizite Hinzufügen von @-Matchern macht die kurzform deutlich einfacher zu lesen, hat jedoch eine erhebliche Konsequenz. Regeln &mdash; wie bspw. `clear` &mdash; lassen sich nicht mit dieser Ausdrücken. Zur Verdeutlichung: In der vereinfachten Regelnotation würden wir `clear` so beschreiben: `| clear -> |`, was den Eindruck erweckt, dass `clear` den gesamten Datenstapel leert.
-In Wirklichkeit besagt die Regel jedoch, dass `clear` kein Element vom Datenstapel erwartet und auch nicht auf dem neuen Datenstapel veränder. Nach der Regeldefinition, wäre `clear` eine [NOP](https://en.wikipedia.org/wiki/NOP_(code)), es macht garnichts. Der Grund hierfür ist das implizite Hinzufügen von `@RDS` und `@RCS`. Die Regel ist: `@RDS | clear @RCS -> @RDS | @RCS`.
+Das implizite Hinzufügen von @-Matchern macht die kurzform deutlich einfacher zu lesen, hat jedoch eine erhebliche Konsequenz. Regeln &mdash; wie bspw. `clear` &mdash; lassen sich nicht mit dieser Ausdrücken. Zur Verdeutlichung: In der vereinfachten Regelnotation würden wir `clear` so beschreiben: `| clear -> |`, was den Eindruck erweckt, dass `clear` den gesamten Datastack leert.
+In Wirklichkeit besagt die Regel jedoch, dass `clear` kein Element vom Datastack erwartet und auch nicht auf dem neuen Datastack veränder. Nach der Regeldefinition, wäre `clear` eine [NOP](https://en.wikipedia.org/wiki/NOP_(code)), es macht garnichts. Der Grund hierfür ist das implizite Hinzufügen von `@RDS` und `@RCS`. Die Regel ist: `@RDS | clear @RCS -> @RDS | @RCS`.
 
 Wollen wir Regeln wie das Verhalten von `clear` beschreiben können, muss `=>`, anstelle von `->` verwendet werden. Mit `=>` wird ausgedrückt, dass keine @-Matcher implizit hinzugefügt werden sollen. Damit wäre die korrekte Regel für `clear`: `@RDS | clear @RCS => | @RCS`.
 
@@ -131,9 +139,9 @@ Das Pattern-Matching beginnt an oberster Stelle jeden Stapels und erfolgt rekurs
 - #-Matcher: Ist $e_p$ ein #-Matcher, wird $e_p$ mit $e_s$ assoziiert. D. h. sie werden in $Matches$ abgelegt, sofern für $e_p$ noch keine Zuordnung in $Matches$ existier. Existiert bereits eine Zurodnung, muss $e_s$ dem bereits zugeordneten Wert gleichen. Andernfalls, trifft das Pattern nicht zu.
 - @-Matcher: Ist $e_p$ ein @-Matcher, werden die Lesereihenfolge der Elemente im Pattern, sowie dem zu matchenden Stapel umgekehrt und das matching weiter forgeführt. Bis wieder zum @-Matcher angekommen wurde, woraufhin die verbleibenden Elemente dem @-Matcher zugeordnet werden.
 
-Der @-Matcher ist etwas kompliziert. Die Implementierung ist so umgesetzt, weil bspw. folgendes Pattern erlaubt sein: `#LAST 2 @MID #FIRST`. Hier würde `@MID` alle Elemente zwischen dem ersten und letzten Element eines Stapels zugeordnet bekommen. Wenn der @-Matcher einfach den kompletten Rest eines Stapels matchen würde, wäre er Greedy und der obige Ausdruck nicht mehr möglich. Nutzten wir das Pattern auch nochmal, um die Implementierung des Algorhtmus genauer zu verdeutlichen. Dazu nehmen wir an, dass das Pattern auf den Datastack `1 2 3 4` gematcht wird. Der Algorithmus wird zuerst `#FIRST` als $e_p$ zum matchen wählen, weil bei Datenstapel das erste Element rechts steht. Er findet auf den zu matchenden Stapel die `4` und ordnet damit `#FIRST` dem Element `4` zu und entfernt diesen vom Stapel. Nun folgt der @-Matcher `@MID`. Zuerst wird geprüft, ob bereits eine Zuordnung für `@MID` existiert, ist dies der Fall, beenden wird das Pattern-Matching und geben alle Zurodnungen/matches zurück. Andernfalls, wird diesem zunächst eine Referenz auf dem zu matchenden Stapel zugeordnet: Also `@MID=[ 1 2 3 ]`. Nun wird die Leserichtung gewechselt, auf links-nach-rechts. D. h. der nächste Matcher ist `#END`. Diesem wird das Element `1` zugewiesen und `1` anschließend vom Stack runtergenommen. Weil, `@MID` lediglich eine Referenz hat, sieht die zuordnung nun folgendermaßen aus: `@MID=[ 2 3 ]`. Im nächsten Schritt wird das Literal `2` gematcht; welches mit dem Literal `2` auf dem Datenstapel matcht. Die Folge: Beide Literale werden vom Stapel runtergenommen, womit sich `@MID` erneut aktualisiert auf `@MID=[ 3 ]`. Nun sind wir erneut bei `@MID` angekommen. Da bereits eine Zurodnung für `@MID` existiert, wird hier abgebrochen und alle Zuordnungen zurückgeliefert. &mdash; Die Implementierung des Matching Algorithmus befindet sich in der Datei *StackPattern.py*, Methode `match`.
+Der @-Matcher ist etwas kompliziert. Die Implementierung ist so umgesetzt, weil bspw. folgendes Pattern erlaubt sein: `#LAST 2 @MID #FIRST`. Hier würde `@MID` alle Elemente zwischen dem ersten und letzten Element eines Stapels zugeordnet bekommen. Wenn der @-Matcher einfach den kompletten Rest eines Stapels matchen würde, wäre er Greedy und der obige Ausdruck nicht mehr möglich. Nutzten wir das Pattern auch nochmal, um die Implementierung des Algorhtmus genauer zu verdeutlichen. Dazu nehmen wir an, dass das Pattern auf den Datastack `1 2 3 4` gematcht wird. Der Algorithmus wird zuerst `#FIRST` als $e_p$ zum matchen wählen, weil bei Datastack das erste Element rechts steht. Er findet auf den zu matchenden Stapel die `4` und ordnet damit `#FIRST` dem Element `4` zu und entfernt diesen vom Stapel. Nun folgt der @-Matcher `@MID`. Zuerst wird geprüft, ob bereits eine Zuordnung für `@MID` existiert, ist dies der Fall, beenden wird das Pattern-Matching und geben alle Zurodnungen/matches zurück. Andernfalls, wird diesem zunächst eine Referenz auf dem zu matchenden Stapel zugeordnet: Also `@MID=[ 1 2 3 ]`. Nun wird die Leserichtung gewechselt, auf links-nach-rechts. D. h. der nächste Matcher ist `#END`. Diesem wird das Element `1` zugewiesen und `1` anschließend vom Stack runtergenommen. Weil, `@MID` lediglich eine Referenz hat, sieht die zuordnung nun folgendermaßen aus: `@MID=[ 2 3 ]`. Im nächsten Schritt wird das Literal `2` gematcht; welches mit dem Literal `2` auf dem Datastack matcht. Die Folge: Beide Literale werden vom Stapel runtergenommen, womit sich `@MID` erneut aktualisiert auf `@MID=[ 3 ]`. Nun sind wir erneut bei `@MID` angekommen. Da bereits eine Zurodnung für `@MID` existiert, wird hier abgebrochen und alle Zuordnungen zurückgeliefert. &mdash; Die Implementierung des Matching Algorithmus befindet sich in der Datei *StackPattern.py*, Methode `match`.
 
-Beachte: Die derzeitige Implementierung setzt voraus, dass es niemals mehr als nur einen @-Matcher innerhalb eines M-Pat gibt. Andernfalls wären folgende Ausdrücke möglich: `[ @LEFT 3 @RIGHT ]`, welche nicht zulässig sind, weil es mehrere Lösungen gibt. So könnte bei einem Datenstapel mit den Elementen `1 3 3 3 7`, `@LEFT` die Literale `1 3 3` oder `1 3` oder nur `1` zugeordnet bekommen. Das Matching soll aber immer nur eine eindeutige Lösung erzeugen.
+Beachte: Die derzeitige Implementierung setzt voraus, dass es niemals mehr als nur einen @-Matcher innerhalb eines M-Pat gibt. Andernfalls wären folgende Ausdrücke möglich: `[ @LEFT 3 @RIGHT ]`, welche nicht zulässig sind, weil es mehrere Lösungen gibt. So könnte bei einem Datastack mit den Elementen `1 3 3 3 7`, `@LEFT` die Literale `1 3 3` oder `1 3` oder nur `1` zugeordnet bekommen. Das Matching soll aber immer nur eine eindeutige Lösung erzeugen.
 
 Ist das Pattern-Matching erfolgt sowohl für den Callstack und den Datastack. Ergeben beide matching vorgänge ein Zuordnung (also nicht $False$), kann die Regel angewandt werden.
 
@@ -145,7 +153,7 @@ Nach der Instanziierung und dem setzten der neuen Stacks, wird der Interpreter &
 
 # Plugin System für native Wörter
 
-Die Umschreibregeln sind lediglich für die Beschreibung von Stapeleffekten geeignet. Für ein sinnvolles Programm benötigt es jedoch mehr. So möchte man vlt. ein Berechnungsergebnis auf der Konsole ausgeben. Mit den Umschreibregeln ist dies nicht möglich. Es bedarf einer Schnittstelle, mit der das Pattern-Matching-System mit der Umwelt kommunizieren kann. In der Consize-VM erfolgt diese kommunikation über fest einprogrammierte Wörtern; wie etwar `slurp`, was einen Dateipfad auf dem Datenstapel erwartet und bei seiner Anwendung, die Datei einliest und deren Inhalt auf dem Datenstapel legt. Das selbige Prinzip ist auch in der vorliegenden Implementierung umgesetzt, allerdings noch etwas erweitert.
+Die Umschreibregeln sind lediglich für die Beschreibung von Stapeleffekten geeignet. Für ein sinnvolles Programm benötigt es jedoch mehr. So möchte man vlt. ein Berechnungsergebnis auf der Konsole ausgeben. Mit den Umschreibregeln ist dies nicht möglich. Es bedarf einer Schnittstelle, mit der das Pattern-Matching-System mit der Umwelt kommunizieren kann. In der Consize-VM erfolgt diese kommunikation über fest einprogrammierte Wörtern; wie etwar `slurp`, was einen Dateipfad auf dem Datastack erwartet und bei seiner Anwendung, die Datei einliest und deren Inhalt auf dem Datastack legt. Das selbige Prinzip ist auch in der vorliegenden Implementierung umgesetzt, allerdings noch etwas erweitert.
 
 Anstelle diese nativen Wörter fest im Regelwerk einzukodieren, werden diese über ein Pluginsystem, zur Laufzeit, geladen. Das hat den Vorteil, dass Wörter welche sich nicht über Umschreibregeln ausdrücken lassen auch nachträglich, ohne Anpassung des Interpreters, hinzufügen lassen. Das mag für Python keine Rolle spielen, weil es sich um eine interpretierte Sprache handelt, das Prinzip lässt sich aber auch in einer kompilierten Sprache umsetzten und dann muss der Interpreter nicht mehr erneut gebaut werden. Nachfolgend wird das laden jener nativen Wörtern beschrieben.
 
@@ -213,3 +221,4 @@ Bisher habe ich nur gehört, dass sich das hier beschriebene Pattern-Matching-Sy
 # Quellen:
 
 - [Konkatenative Programmierung mit Consize](https://github.com/denkspuren/consize/blob/master/doc/Consize.pdf)
+
