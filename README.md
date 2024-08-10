@@ -13,7 +13,7 @@ docker run -i -t consize-py
 
 This will start the interpreter in verbose and interactive mode and with the consize.ruleset preloaded.
 
-Or by invoking python directly:
+Or step into the container via `docker run -i -t --entrypoint /bin/bash consize-py` and invoke following command - which also is the command for a local python implementation.
 
 ```bash
 python src/main.py -i -v consize.ruleset load-rules
@@ -30,10 +30,10 @@ Note, it is recommended to always load the consize.ruleset, otherwise the interp
 # And how to run - The Tests?
 
 ```bash
-docker run -i -t consize-py "\ prelude/prelude.txt run \ prelude/prelude-test.txt run"
+docker run -i -t --entrypoint python consize-py -m unittest tests/*.py
 ```
 
-Or by invoking python directly:
+Or by invoking python directly (or within the container as in previous section):
 
 ```bash
 python -m unittest tests/*.py
