@@ -13,6 +13,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag consize-py
+    - name: Run unit-tests
       run: docker run -i consize-py "python -m unittest tests/test.py"
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v4
