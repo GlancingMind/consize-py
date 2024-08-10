@@ -2,9 +2,9 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "pattern-matching" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "pattern-matching" ]
 
 jobs:
   build:
@@ -13,8 +13,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag consize-py
-    - name: Run prelude tests
-      run: docker run -i consize-py "\ prelude/prelude.txt run \ prelude/prelude-test.txt run"
+      run: docker run -i consize-py "python -m unittest tests/test.py"
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v4
       with:

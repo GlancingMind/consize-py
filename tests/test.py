@@ -28,7 +28,7 @@ class Test(unittest.TestCase):
         self.native_rules = interpreter.native_rules
 
     def __test(self, ds, cs, result_ds, result_cs=None):
-        i = Interpreter(ruleset=self.consize_ruleset, cs=cs, ds=ds)
+        i = Interpreter(ruleset=self.consize_ruleset, cs=cs, ds=ds, displayReasoningChain=False)
         i.native_rules = self.native_rules
         i.run(interactive=False, untilUnknownWord=True)
         self.assertEqual(i.ds, result_ds)
