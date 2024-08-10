@@ -110,17 +110,68 @@ In Wirklichkeit besagt die Regel jedoch, dass `clear` kein Element vom Datenstap
 
 Wollen wir Regeln wie das Verhalten von `clear` beschreiben können, muss `=>`, anstelle von `->` verwendet werden. Mit `=>` wird ausgedrückt, dass keine @-Matcher implizit hinzugefügt werden sollen. Damit wäre die korrekte Regel für `clear`: `@RDS | clear @RCS => | @RCS`.
 
-Damit wären die wichtigsten Formalien zur Notation beschrieben. Im folgenden Abschnitt wird darauf eingegangen, wie das beschriebene Pattern-Matching-System in diesem Projekt implementiert zur Zeit ist.
+Damit wären die wichtigsten Formalien zur Notation der Umschreibregeln beschrieben. Im folgenden Abschnitt wird darauf eingegangen, wie das beschriebene Pattern-Matching-System in diesem Projekt zur Zeit implementiert ist.
 
 # Auswertung der Umschreibregeln \emdash eine mögliche Implementierung in Python
 
+Wenn wir Consize auf Basis der vorher eingeführten Regeln-Notation beschreiben und maschinell ausführen wollen, benötigen wir einen Interpreter der jene Regeln auswertet. Grundliegend muss dieser lediglich zwei Schritt wiederhohlt anwenden.
+
+1. Finde eine anwendbare Regel und
+2. wende jene Regel an.
+
+Für Schritt 1. gibt es verschiedene Ansätze \emdash siehe Abschnitt [Zukünftige Verbesserung](#lastreduktion-beim-finden-von-regeln-anwendbaren-regeln) für andere Ideen. In der vorliegenden Implementierung handelt es sich um einen sehr einfachen Ansatz. Zunächst gehen wir davon aus, dass dem Interpreter ausschließlich korrekte Regeln, in einer für ihn verarbeitbaren Form, vorliegen. Diese Regeln stehen in einem sog. Regelwerk, welches letztlich eine einfache Liste ist. Der Interpreter prüft, sequentiell, für jede Regel aus dem Regelwerk, ob diese Anwendbar ist. Ist dies nicht der Fall, prüft er die Anwendbarkeit der nächsten Regel. Sollte eine Regel anwendbar sein, wird er das Instantiation-Pattern (rechte Seite der Regel) der Regel umsetzten (Schritt 2.) und anschließend wieder vom Anfang des Regelwerks, alle Regeln durchprüfen. Dies wird solange wiederhohlt, bis keine Regel mehr anwendbar ist \emdash was dem Programmende gleichkommt, weil kein Fortschritt mehr erziehlt werden kann. Die Implementierung dieser Schleife und dem Matching sind in den Methoden `make_step` und `run` in der *Interpreter.py* Datei kodiert.
+
+Damit der Interpreter weiß, ob ein Pattern zutrifft, muss er den aktuellen Callstack und Datastack mit den Callstack bzw. Datastack vom M-Pat abgleichen. Auch hier gibt es wieder verschiedene Ansätze. Wir werden uns jetzt auf die aktuelle Implementierung fokusieren \emdash für andere Ansätze siehe Abschnitt [Alternative Pattern-Matching Strategien](#alternative-pattern-matching-strategien).
+
+Das Pattern-Matching beginnt an oberster Stelle jeden Stapels und erfolgt rekursiv, bis das Pattern vollständig zutrifft, oder nicht. Trifft ein Pattern nicht zu, wird dies mit $False$ angegeben. Andernfalls, muss aus dem Pattern-Matching ein Zuordnung $Matches$ hervorgehen von allen Werten, die von einem #- oder @-Matcher gematcht wurden \emdash wie wir das bereits im `dup` Beispiel gesehen haben. Der Algorithmus betrachtet das oberste Element von dem zu matchenden Stapel $e_s$ und dem angegeben Pattern $e_p$. Nun gibt es fünf Fälle zu beachten.
+
+- Literal: Ist $e_p$ ein Literal, muss $e_s$ das gleiche Literal sein. Trifft dies zu, wird mit den nächsten Elementen fortgefahren. Andernfalls, trifft das Pattern nicht zu.
+- Stapel: Ist $e_p$ ein Stapel, muss $e_s$ auch ein Stapel sein. Trifft dies zu, werden die Stapel miteinander gematcht. Dies geschieht rekursiv. Matcht der Stapel dem gegeben Stapelpattern, wird mit den nächsten Elementen fortgefahren.
+- Wörterbuch: Ist $e_p$ ein Wörterbuch, muss $e_s$ auch ein Wörterbuch sein. Trifft dies zu, werden beide Wörterbücher miteinander gematcht. Dies geschieht ebenfalls rekursiv. Hier sei angemerkt, dass die aktuelle Implementierung jedes Wörterbuch als eine Liste betrachtet. Dies ist zwar ineffizient, bietet allerdings die Möglichkeit, dass die Notation und Match-Logik zwischen Wörterbücher und Stapeln nicht unterscheiden.
+- #-Matcher: Ist $e_p$ ein #-Matcher, wird $e_p$ mit $e_s$ assoziiert. D. h. sie werden in $Matches$ abgelegt, sofern für $e_p$ noch keine Zuordnung in $Matches$ existier. Existiert bereits eine Zurodnung, muss $e_s$ dem bereits zugeordneten Wert gleichen. Andernfalls, trifft das Pattern nicht zu.
+- @-Matcher: Ist $e_p$ ein @-Matcher, werden die Lesereihenfolge der Elemente im Pattern, sowie dem zu matchenden Stapel umgekehrt und das matching weiter forgeführt. Bis wieder zum @-Matcher angekommen wurde, woraufhin die verbleibenden Elemente dem @-Matcher zugeordnet werden.
+
+Der @-Matcher ist etwas kompliziert. Die Implementierung ist so umgesetzt, weil bspw. folgendes Pattern erlaubt sein: `#LAST 2 @MID #FIRST`. Hier würde `@MID` alle Elemente zwischen dem ersten und letzten Element eines Stapels zugeordnet bekommen. Wenn der @-Matcher einfach den kompletten Rest eines Stapels matchen würde, wäre er Greedy und der obige Ausdruck nicht mehr möglich. Nutzten wir das Pattern auch nochmal, um die Implementierung des Algorhtmus genauer zu verdeutlichen. Dazu nehmen wir an, dass das Pattern auf den Datastack `1 2 3 4` gematcht wird. Der Algorithmus wird zuerst `#FIRST` als $e_p$ zum matchen wählen, weil bei Datenstapel das erste Element rechts steht. Er findet auf den zu matchenden Stapel die `4` und ordnet damit `#FIRST` dem Element `4` zu und entfernt diesen vom Stapel. Nun folgt der @-Matcher `@MID`. Zuerst wird geprüft, ob bereits eine Zuordnung für `@MID` existiert, ist dies der Fall, beenden wird das Pattern-Matching und geben alle Zurodnungen/matches zurück. Andernfalls, wird diesem zunächst eine Referenz auf dem zu matchenden Stapel zugeordnet: Also `@MID=[ 1 2 3 ]`. Nun wird die Leserichtung gewechselt, auf links-nach-rechts. D. h. der nächste Matcher ist `#END`. Diesem wird das Element `1` zugewiesen und `1` anschließend vom Stack runtergenommen. Weil, `@MID` lediglich eine Referenz hat, sieht die zuordnung nun folgendermaßen aus: `@MID=[ 2 3 ]`. Im nächsten Schritt wird das Literal `2` gematcht; welches mit dem Literal `2` auf dem Datenstapel matcht. Die Folge: Beide Literale werden vom Stapel runtergenommen, womit sich `@MID` erneut aktualisiert auf `@MID=[ 3 ]`. Nun sind wir erneut bei `@MID` angekommen. Da bereits eine Zurodnung für `@MID` existiert, wird hier abgebrochen und alle Zuordnungen zurückgeliefert.
 
 
-Wir können jetzt schon erkennen, dass `dup` ein Element auf dem Datastack erwartet und, dass nach `dup` dieses Element auf dem Datastack zweimal vorkommt.
+
+Die derzeitige Implementierung setzt voraus, dass es niemals mehr als nur einen @-Matcher innerhalb eines M-Pat gibt. Andernfalls wären folgende Ausdrücke
+
+
+Dazu muss die Auswertung der Regeln festgelegt werden. Im Grund Prinzip l
+
+Hierfür gibt es verschiedene
+
+ In der aktuellen Implementierung besitzt der Interpreter einen dedizierten Data- und Callstack.
+
+
+ dass es mehrere solcher Regeln geben wird. Diese Regeln werden in einem Regelwerk zusammengefasst.
+
+
+
+
 
 Diese Notation, welche auf einem Mustererkennungssystem beschrieben, welches
 welche sich aus einem sehr kleinen Sprachkern zusammensetzt. Ihre Implementierung umfasst lediglich 160 Zeilen (mit Kommentaren) Clojure Code.
 trotz bzw. wegen ihrer syntaktischen Kompaktheit, um einiges schwieriger ist
+
+# Zukünftige Verbesserungen
+
+## Lastreduktion beim finden von Regeln anwendbaren Regeln
+
+Anstelle jede Regel einzeln auf ihre Anwendbarkeit zu prüfen, können viele Regeln bereits vorzeitig ausgeschlossen werden, indem zunächst ausschließlich der Callstack betrachtet wird. Sollten umsetzbar sein:
+
+### 1. Hashmap mit Chaining: Matche auf callstack, um alle Regeln
+
+Konsequenz: Auf callstack darf immer nur eine bestimmte Anzahl an Elementen liegen, um matching entsprechend durchzuführen.
+
+### 2. Baum
+
+## Alternative Pattern-Matching Strategien
+
+### Pattern-Matching mit Python unpack-Operationen
+
+### Pattern-Matching via Reguläre Ausdrücke
 
 # Quellen:
 
