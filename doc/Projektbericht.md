@@ -153,17 +153,30 @@ Anstelle diese nativen Wörter fest im Regelwerk einzukodieren, werden diese üb
 
 Der Interpreter sucht in einem vordefinierten Verzeichnis *native-words* (konfigurierbar über Kommandozeilenargument) nach Python-Module und lädt diese \emdash der Quellcode hierzu befindet sich in *Interpreter.py*, Methode `discover_native_rules`. Das sind im Prinzip Python-Quellcode-Dateien. Beim Laden werden diese Interpretiert und deren Inhalt, der aktuellen Programmausführung zur verfügung gestellt. In diesen Python-Modulen sollten sich idealerweiße die Definitionen der nativen Wörter befinden.
 
-Jede Definition eines nativen Wortes muss natürlich einer, vom Interpreter vorgegebenen Schnittstellen entsprechen. Diese Schnittstelle ist die Klasse *NativeRule*, von der jedes native Wort letztlich abgeleitet sein muss, damit der Interpreter das native Wort finden, instanziieren und damit arbeiten kann. Das geht, indem man sich von Python alle Klassen geben lässt, welche von einer anderen Klasse abgeleitet sind \emdash `discover_native_rules`. Liegen Subklassen von *NativeRule* vor, wird der Interpreter eine Instanz von jeder dieser Klassen erzeugen und in seinem Regelwerk aufnehmen.
+Jede Definition eines nativen Wortes muss natürlich einer, vom Interpreter vorgegebenen Schnittstellen entsprechen. Diese Schnittstelle ist die Klasse *NativeRule*, von der jedes native Wort letztlich abgeleitet sein muss, damit der Interpreter das native Wort finden, instanziieren und damit arbeiten kann. Das geht, indem man sich von Python alle Klassen geben lässt, welche von einer anderen Klasse abgeleitet sind \emdash `discover_native_rules`. Liegen Subklassen von *NativeRule* vor, wird der Interpreter eine Instanz von jeder dieser Klassen erzeugen und in seinem Regelwerk aufnehmen, womit sie schließlich verwendbar werden.
 
 Instanzen der Klasse *NativeRule*, sind ebenfalls Unterklassen von *IRule*, welche allesamt das [Command-Pattern](https://en.wikipedia.org/wiki/Command_pattern) umsetzten. Sprich, jedes Wort hat eine `execute`-Methode, welche der Interpreter für jede Regel, für den Matching- und Instanziierenungsschritt, mit sich als Argument, aufruft.
-Über die übergebene Interpreter-Referenz an `execute`, hat jede Regel letztlich Zugriff auf den aktuellen Call- und Datastack. Wird `execute` vom Interpreter aufgerufen, prüft jede Regel für sich selbst, ob diese anwendbar ist. Ist dies der Fall, wird sie den Data- bzw. Callstack entsprechend ändern. Der Interpreter selbst ist somit völlig von der Implementierung der einzelnen Regeln entkoppelt.
+Über die übergebene Interpreter-Referenz an `execute`, hat jede Regel letztlich Zugriff auf den aktuellen Call- und Datastack. Wird `execute` vom Interpreter aufgerufen, prüft jede Regel für sich selbst, ob diese anwendbar ist. Ist dies der Fall, wird sie den Data- bzw. Callstack entsprechend ändern. Der Interpreter selbst ist somit völlig von der Implementierung der einzelnen Regeln entkoppelt. Sehr Vorteilhaft ist dies, wenn für jede Regel noch die Dokumentation mitgeliefert wird. Hier kann der Interpreter eine Hilfe selbstständig ausgeben \emdash siehe die Datei *native-words/00-interpreter-commands.py*.
 
+Mit der Unterstüzung von nativen Worten steht einer Implementierung von Consize auf dem Pattern-Matchting-System nichts mehr im Wege. Im folgenden Abschnitt wird der aktuelle der Implementierung beschrieben.
 
 # Implementierung von Consize
 
-Leider, noch nicht lauffähig.
+Eines sei vorweggenommen. Consize ist in seiner vollständigkeit noch nicht lauffähig. Die Grundlegenden primitiven Wörter, welche sich mit Umschreibregeln ausdrücken lassen, wurden alle in dieser ausgedrückt. Zufinden sind diese in der Datei *consize.ruleset*. Außerdem wurden Regeln für jene Wörter ergänzt, welche mit Wörterbüchern aggieren. Weiterhin wurden die nativen Wörter der Consize-VM imlementiert. Damit sollte ein minimale Arbeiten mit den gänigsten Operationen möglich sein. Die korrekte Funktion der Wörter sind von entsprechenden Unit-Tests abgedeckt.
+
+Zusätzlich wurde der Versuch unternommen, die Prelude zu laden, um die Consize-REPL zu betreten. Es scheint jedoch ein Problem mit dem laden des bootimages vorzuliegen. Weswegen Wortdefinitionen in folgender Form `: unpush dup pop swap top ;` nicht möglich sind, was wiederum das laden der Prelude verhindert. Schließlich sind alle Definitionen in der Prelude über Form definiert. Der Interpreter selbst unterstützt jedoch das hinzufügen von neuen Regeln über die native Implementierung von `def` \emdash siehe Ende von *consize-words.py*. Es können also Wort Konkatenationen/Redefinitionen vorgenommen werden.
+
+Es ist bis dato (10. August 2024) unklar, warum die in bootimage definierten Wörter \emdash insbesondere `:` und `scanf` nicht korrekt funktionieren. Es wurden explizit Wort-Definitionen herausgenommen, welche bereits mit den Umschreibregeln umgesetzt wurden. So, dass beim laden des bootimages bspw. nicht `def` mit der alten Implementierung überschrieben wird, welches wegen dem Fehlen von `get-dict` und `set-dict` in der neuen Implementierung, garnicht funktionieren kann. Außerdem wurden die letzten Worte des bootimages `mapping get-dict merge set-dict` entfernt. Das bootimage ließ sich letztlich erfolgreich laden, so dass die darin definierten Wörter im Regelwerk des Interpreters standen. Deren Aufruf allerdings nicht das gewünsche Ergebnis erzielten.
+
+# Fazit
+
+Leider konnte eine vollständige Consize Umgebung nicht erfolgreich umgesetzt werden. Jedoch ist mit dem funktionierenden Pattern-Matching-System und dem umgesetzten Plugin-System ein solides Fundament für eine zukünftige Umsetztung und Weiterentwicklung gesichert. Viele Verbesserungen oder Anregungen sind noch im nachfolgenden Abschnitt beschrieben.
 
 # Zukünftige Verbesserungen
+
+## Consize
+
+
 
 ## Validierung
 
@@ -186,6 +199,10 @@ Konsequenz: Auf callstack darf immer nur eine bestimmte Anzahl an Elementen lieg
 ### Pattern-Matching mit Python unpack-Operationen
 
 ### Pattern-Matching via Reguläre Ausdrücke
+
+## Pretty Print Words
+
+
 
 # Quellen:
 
