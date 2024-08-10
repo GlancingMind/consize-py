@@ -1,5 +1,6 @@
 #TODO ersetzte \emdash durch entsprechenden Wert.
 #TODO Achte darauf, den Begriff Umschreibsystem nicht falsch zu verwenden. Consize ist auch schon ein umschreibsystem.
+#TODO Verwende entweder Datastack oder Datenstapel, aber nicht beides und Diagramm verwendes DS und CS, sollte Englisch verwenden.
 
 # Implementierung von Consize mittels eines Pattern-Matching-Systems
 
@@ -66,29 +67,52 @@ Betrachten wir wieder das Wort `dup`. In der Stapeleffekt-Notation vom Anhang B,
 #X | dup -> #X #X |
 ```
 
-Wie lesen diesen Ausdruck wie folgt:
-
-1. Links vom Pfeil `->` ist der Zustand bevor `dup` ersetzt wird beschrieben und rechts vom Pfeil der Zustand nach der Ersetzung von `dup` \emdash Wir werden von nun an die linke Seite als Matching-Pattern (M-Pat), und die rechte Seite als Instantiation-Pattern (I-Pat) bezeichnen.
-2. Das M-Pat, als auch das I-Pat teilt sich wiederum in zwei Teile auf, welche mit `|` voneinander getrennt sind. Wobei alles links von `|` den Datastack beschreibt und alles rechts von `|` den Callstack.
-
-Wir können jetzt schon erkennen, dass `dup` ein Element auf dem Datastack erwartet und, dass nach `dup` dieses Element auf dem Datastack zweimal vorkommt.
-
-Es gibt aber noch weiter feinheiten, welche zu beachten sind.
-
+Wir nennen einen solchen Ausdruck Regel(-Beschreibung) und lesen wie folgt:
 
 - Alles links von einem Pfeil (`->` oder `=>`), nennen wir Matching-Pattern (M-Pat).
 - Alles recht von einem Pfeil (`->` oder `=>`), nennen wir Instantiation-Pattern (I-Pat).
 
 Die Pattern setzten sich wiederum aus zwei Teilen zusammen:
 
-1. Den Datenstapel-Pattern, welches alles links von einem `|`-Symbol ist und
-2. den Callstack-Pattern, welches alles recht von einem `|`-Symbol.
+1. Dem Datenstapel-Pattern, welches alles links von einem `|`-Symbol ist und
+2. dem Callstack-Pattern, welches alles recht von einem `|`-Symbol.
 
-Im Prinzip kann können in Consize es drei Verschiedene Dinge auf einem Stapel liegen: Stapel, Wörterbücher und Wörter. Diese werden wie folgt in der Notation ausgedrückt.
+In Consize können wiederum drei Verschiedene Dinge auf einem Stapel auftauchen: andere Stapel, Wörterbücher und Wörter. Diese werden wie folgt in der Notation ausgedrückt.
 
 - Ein Stapel beginnt mit einer öffnenden `[` und muss mit einer `]` enden \emdash auch hier gilt, dass innerhalb des Stapels wieder Stapel, Wörterbücher und Wörter erscheinen können.
-- Ein Wörterbuch beginnt mit einer öffnenden `{` und muss mit einer `}` enden \emdash Beachte, dass sich Wörterbücher von Stapel darin unterscheiden, dass deren Elemente immer Wort-Paare sein müssen, welche wiederum Stapel, Wörterbücher und Wörter sein können.
-- Alle anderen Zeichen sind Literale, bisauf Worte, welche mit einem `#`-Symbol oder `@`-Symbol beginnen. Jene nennen wir Matcher. Bzw. Worte, welche mit einem `#`-Symbol beginnen, nennen wir #-Matcher; und Worte, welche mit einem `@`-Symbol beginnen, nennen wir @-Matcher.
+- Ein Wörterbuch beginnt mit einer öffnenden `{` und muss mit einer `}` enden. Es gilt zu beachten, dass sich Wörterbücher von Stapel darin unterscheiden, dass deren Elemente immer Wort-Paare sein müssen, welche wiederum Stapel, Wörterbücher und Wörter sein können. Das heißt, Wörterbücher mit ungerader Anzahl an Elementen (wie etwar `{ a }` oder `{ a b c }`) sind nicht zulassig \emdash wie in Consize auch.
+- Alle anderen Zeichen sind Literale, mit Ausnahme von Worten, welche mit einem `#`-Symbol oder `@`-Symbol beginnen. Jene nennen wir Matcher. Bzw. Worte, welche mit einem `#`-Symbol beginnen, nennen wir Hash-Matcher; und Worte, welche mit einem `@`-Symbol beginnen, nennen wir AT-Matcher. Deren Semantik wird noch noch erläuter.
+
+Zuerst muss festgehalten werden, dass die obige Regel beschreibung eine vereinfachte Darstellen (zur Verbesserung der Lesbarkeit) ist. Denn, in dieser werden lediglich Elemente auf den Stapeln angegeben, welche von einen Umschreibschritt betroffen sind. Das wäre einmal das oberste Elemente auf dem Datanstapel und Callstack. Es wird jedoch keine Aussage darüber getroffen, was mit allen anderen Werten auf den Stapeln passiert, noch welches Element das erste auf einem Stapel ist (ist das erste `#X`, oder das zweite auf dem Zielstapel, das oberste Element auf dem neuen Datenstapel?). Dies geschieht implizit. Denn sobald `->` verwendet wird, muss die Regel wie folgt gelesen werden.
+
+```
+@RDS #X | dup @RCS -> @RDS #X #X | @RCS
+```
+
+Die AT-Matcher `@RDS` und `@RCS` stehen führ alle restlichen Elemente auf dem Datastack bzw. Callstack. Nun können wir sehen, dass das oberste Element vom Datenstapel immer rechts steht, während das oberste Element vom Callstack immer links steht. Außerdem, sehen wir, was mit den anderen Elementen auf dem Stapeln passiert, nachdem die Regel angewandt wurde.
+Ein Beispiel. Angenommen wir hätten folgenden Datenstapel `1 2` und den Callstack `dup +`:
+
+```
+1 2 | dup +
+```
+
+Dann würde der Datenstapel und Callstack nach der Anwendung von `dup` folgendermaßen aussehen:
+
+```
+1 2 2 | +
+```
+
+Jetzt wird auch die Bedeutung der @- und #-Matcher deutlich. Ein #-Matcher ist im M-Pat ein Platzhalter, der für **ein** beliebiges Element stehen kann. Während ein @-Matcher eine beliebig lange Sequenz von Elementen zusammenfasst. Im obigen Beispiel stand `#X` für das Literal 2 und `@RDS` für alle restlichen Elemente des Datenstapels, also `[ 1 ]`.
+
+
+Das implizite Hinzufügen von @-Matchern macht die kurzform deutlich einfacher zu lesen, hat jedoch eine erhebliche Konsequenz. Regeln \emdash wie bspw. `clear` \emdash lassen sich nicht mit dieser Ausdrücken. Zur Verdeutlichung: In der vereinfachten Regelnotation würden wir `clear` so beschreiben: `| clear -> |`, was den Eindruck erweckt, dass `clear` den gesamten Datenstapel leert.
+In Wirklichkeit besagt die Regel jedoch, dass `clear` kein Element vom Datenstapel erwartet und auch nicht auf dem neuen Datenstapel veränder. Nach der Regeldefinition, wäre `clear` eine [NOP](https://en.wikipedia.org/wiki/NOP_(code)), es macht garnichts. Der Grund hierfür ist das implizite Hinzufügen von `@RDS` und `@RCS`. Die Regel ist: `@RDS | clear @RCS -> @RDS | @RCS`.
+
+Wollen wir Regeln wie das Verhalten von `clear` beschreiben können muss `=>` anstelle von `->` verwendet werden. Mit `=>` wird ausgedrückt, dass keine @-Matcher implizit hinzugefügt werden sollen. Damit wäre die korrekte Regel für `clear`: `@RDS | clear @RCS => | @RCS`.
+
+
+
+Wir können jetzt schon erkennen, dass `dup` ein Element auf dem Datastack erwartet und, dass nach `dup` dieses Element auf dem Datastack zweimal vorkommt.
 
 Diese Notation, welche auf einem Mustererkennungssystem beschrieben, welches
 welche sich aus einem sehr kleinen Sprachkern zusammensetzt. Ihre Implementierung umfasst lediglich 160 Zeilen (mit Kommentaren) Clojure Code.
