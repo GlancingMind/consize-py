@@ -141,29 +141,35 @@ Ist das Pattern-Matching erfolgt sowohl für den Callstack und den Datastack. Er
 
 ## Schritt 2. Regel Anwendung bzw. Instanziierung
 
-Die Regelanwendung ist trivial. Für beide Instantiation-Pattern (Datastack und Callstack) werden die ie Instanziierung vorgenommen und deren Ergebnis sind der neue Data- bzw. Callstack. Dies erfolgt für ein Pattern wie folgt: Gehe über das Instanziierungs-Pattern und ersetzte jeden Matcher mit den Werten, welche diesem zugeordnet wurde. Fertig.
+Die Regelanwendung ist trivial. Für beide Instantiation-Pattern (Datastack und Callstack) werden die ie Instanziierung vorgenommen und deren Ergebnis sind der neue Data- bzw. Callstack. Dies erfolgt für ein Pattern wie folgt: Gehe über das Instanziierungs-Pattern und ersetzte jeden Matcher mit den Werten, welche diesem zugeordnet wurde. Fertig. \emdash Die Implementierung des Instantiation Algorithmus befindet sich ebenfalls in der Datei *StackPattern.py*.
+
+Nach der Instanziierung und dem setzten der neuen Stacks, wird der Interpreter \emdash wie bereits beschrieben \emdash erneut versuchen eine Regel zu finden, welcher er anwenden kann. Damit wäre die grundlegende Funktion des Interpreters abgedeckt. Im nachfolgenden Abschnitt wird noch ein wichtiges Problem von dem Pattern-Matching-System erläutert, welches gelöst werden muss, bevor Consize überhaupt auf dem diesem Aufgebaut werden kann.
+
+# Plugin System für native Wörter
+
+Die Umschreibregeln sind lediglich für die Beschreibung von Stapeleffekten geeignet. Für ein sinnvolles Programm benötigt es jedoch mehr. So möchte man vlt. ein Berechnungsergebnis auf der Konsole ausgeben. Mit den Umschreibregeln ist dies nicht möglich. Es bedarf einer Schnittstelle, mit der das Pattern-Matching-System mit der Umwelt kommunizieren kann. In der Consize-VM erfolgt diese kommunikation über fest einprogrammierte Wörtern; wie etwar `slurp`, was einen Dateipfad auf dem Datenstapel erwartet und bei seiner Anwendung, die Datei einliest und deren Inhalt auf dem Datenstapel legt. Das selbige Prinzip ist auch in der vorliegenden Implementierung umgesetzt, allerdings noch etwas erweitert.
+
+Anstelle diese nativen Wörter fest im Regelwerk einzukodieren, werden diese über ein Pluginsystem, zur Laufzeit, geladen. Das hat den Vorteil, dass Wörter welche sich nicht über Umschreibregeln ausdrücken lassen auch nachträglich, ohne Anpassung des Interpreters, hinzufügen lassen. Das mag für Python keine Rolle spielen, weil es sich um eine interpretierte Sprache handelt, das Prinzip lässt sich aber auch in einer kompilierten Sprache umsetzten und dann muss der Interpreter nicht mehr erneut gebaut werden. Nachfolgend wird das laden jener nativen Wörtern beschrieben.
+
+Der Interpreter sucht in einem vordefinierten Verzeichnis *native-words* (konfigurierbar über Kommandozeilenargument) nach Python-Module und lädt diese \emdash der Quellcode hierzu befindet sich in *Interpreter.py*, Methode `discover_native_rules`. Das sind im Prinzip Python-Quellcode-Dateien. Beim Laden werden diese Interpretiert und deren Inhalt, der aktuellen Programmausführung zur verfügung gestellt. In diesen Python-Modulen sollten sich idealerweiße die Definitionen der nativen Wörter befinden.
+
+Jede Definition eines nativen Wortes muss natürlich einer, vom Interpreter vorgegebenen Schnittstellen entsprechen. Diese Schnittstelle ist die Klasse *NativeRule*, von der jedes native Wort letztlich abgeleitet sein muss, damit der Interpreter das native Wort finden, instanziieren und damit arbeiten kann. Das geht, indem man sich von Python alle Klassen geben lässt, welche von einer anderen Klasse abgeleitet sind \emdash `discover_native_rules`. Liegen Subklassen von *NativeRule* vor, wird der Interpreter eine Instanz von jeder dieser Klassen erzeugen und in seinem Regelwerk aufnehmen.
+
+Instanzen der Klasse *NativeRule*, sind ebenfalls Unterklassen von *IRule*, welche allesamt das [Command-Pattern](https://en.wikipedia.org/wiki/Command_pattern) umsetzten. Sprich, jedes Wort hat eine `execute`-Methode, welche der Interpreter für jede Regel, für den Matching- und Instanziierenungsschritt, mit sich als Argument, aufruft.
+Über die übergebene Interpreter-Referenz an `execute`, hat jede Regel letztlich Zugriff auf den aktuellen Call- und Datastack. Wird `execute` vom Interpreter aufgerufen, prüft jede Regel für sich selbst, ob diese anwendbar ist. Ist dies der Fall, wird sie den Data- bzw. Callstack entsprechend ändern. Der Interpreter selbst ist somit völlig von der Implementierung der einzelnen Regeln entkoppelt.
 
 
-#
+# Implementierung von Consize
 
-Dazu muss die Auswertung der Regeln festgelegt werden. Im Grund Prinzip l
-
-Hierfür gibt es verschiedene
-
- In der aktuellen Implementierung besitzt der Interpreter einen dedizierten Data- und Callstack.
-
-
- dass es mehrere solcher Regeln geben wird. Diese Regeln werden in einem Regelwerk zusammengefasst.
-
-
-
-
-
-Diese Notation, welche auf einem Mustererkennungssystem beschrieben, welches
-welche sich aus einem sehr kleinen Sprachkern zusammensetzt. Ihre Implementierung umfasst lediglich 160 Zeilen (mit Kommentaren) Clojure Code.
-trotz bzw. wegen ihrer syntaktischen Kompaktheit, um einiges schwieriger ist
+Leider, noch nicht lauffähig.
 
 # Zukünftige Verbesserungen
+
+## Validierung
+
+- Ungültige Regeln nicht erlauben
+- Erkennen, ob mehrere Regeln anwendbar sind bzw. andere überschatten. Generic zuerst etc.
+   Noch ein Hinweiß: Da die Regeln nach einer Reihenfolge abgearbeitet werden, ist es wichtig, diese auch in einer validen Reihenfolge anzugeben. Eine Regel wie `@DS | @CS -> foo | bar` würde immer matchen und alle nachfolgenden Regeln würden niemals angewandt werden.
 
 ## Lastreduktion beim finden von Regeln anwendbaren Regeln
 

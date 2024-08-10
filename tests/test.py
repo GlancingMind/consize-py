@@ -20,7 +20,7 @@ class Test(unittest.TestCase):
         global interpreter
         if not interpreter:
             interpreter = Interpreter(
-                native_rule_module_dir="external-words",
+                native_rule_module_dir="native-words",
                 displayReasoningChain=False,
                 cs=Stack("consize.ruleset", "load-rules"))
             interpreter.run(interactive=False, untilUnknownWord=False)
