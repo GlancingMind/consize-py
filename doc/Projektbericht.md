@@ -108,7 +108,11 @@ Jetzt wird auch die Bedeutung der @- und #-Matcher deutlich. Ein #-Matcher ist i
 Das implizite Hinzufügen von @-Matchern macht die kurzform deutlich einfacher zu lesen, hat jedoch eine erhebliche Konsequenz. Regeln \emdash wie bspw. `clear` \emdash lassen sich nicht mit dieser Ausdrücken. Zur Verdeutlichung: In der vereinfachten Regelnotation würden wir `clear` so beschreiben: `| clear -> |`, was den Eindruck erweckt, dass `clear` den gesamten Datenstapel leert.
 In Wirklichkeit besagt die Regel jedoch, dass `clear` kein Element vom Datenstapel erwartet und auch nicht auf dem neuen Datenstapel veränder. Nach der Regeldefinition, wäre `clear` eine [NOP](https://en.wikipedia.org/wiki/NOP_(code)), es macht garnichts. Der Grund hierfür ist das implizite Hinzufügen von `@RDS` und `@RCS`. Die Regel ist: `@RDS | clear @RCS -> @RDS | @RCS`.
 
-Wollen wir Regeln wie das Verhalten von `clear` beschreiben können muss `=>` anstelle von `->` verwendet werden. Mit `=>` wird ausgedrückt, dass keine @-Matcher implizit hinzugefügt werden sollen. Damit wäre die korrekte Regel für `clear`: `@RDS | clear @RCS => | @RCS`.
+Wollen wir Regeln wie das Verhalten von `clear` beschreiben können, muss `=>`, anstelle von `->` verwendet werden. Mit `=>` wird ausgedrückt, dass keine @-Matcher implizit hinzugefügt werden sollen. Damit wäre die korrekte Regel für `clear`: `@RDS | clear @RCS => | @RCS`.
+
+Damit wären die wichtigsten Formalien zur Notation beschrieben. Im folgenden Abschnitt wird darauf eingegangen, wie das beschriebene Pattern-Matching-System in diesem Projekt implementiert zur Zeit ist.
+
+# Auswertung der Umschreibregeln \emdash eine mögliche Implementierung in Python
 
 
 
