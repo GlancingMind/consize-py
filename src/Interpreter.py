@@ -42,7 +42,7 @@ class Interpreter:
             try:
                 if interactive:
                     # TODO use readline instead of input for history and autocompletion
-                    user_input = input("Enter '?' for help:\n> ").strip()
+                    user_input = input("Enter <?> for help. <Enter> to perform a single step:\n> ").strip()
                     if not user_input == "":
                         # No interpreter command given, treat input as data to call-/datastack
                         self.cs = Stack(*StackParser.parse(user_input), *self.cs)
