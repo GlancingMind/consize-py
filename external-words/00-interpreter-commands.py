@@ -1,4 +1,5 @@
 import os
+from pprint import pprint
 import subprocess
 import tempfile
 
@@ -6,24 +7,15 @@ from Interpreter import Interpreter
 from Rule import NativeRule, Rule
 import RuleParser
 from RuleSet import RuleSet
-from Stack import Stack
+from Stack import Dictionary, Stack
 import StackParser
 
 # TODO move call- and datastack validation into superclass.
 # The just call super.match(), or let NativeRules.py call isSatisfied() - see
 # specification pattern by evans and fowler - and only when this is True, then
 # NativeRules will call execute. This way the check cannot be forgotten.
-# TODO add name attribute to NativeRule, so that NativeRuleLoader can print
-# the Word from rule
-
-# TODO add alias rule `" <rulename> <wrd> <wrd>` -> `<rulename> -> | <wrd> <wrd>`
-# Use a new ruleclass for this, to print this rule in the simple form, not the converted one.
-# AND adjust the parser to also accept this type of rules from loading a file.
-# Or use `read-word`. Word is unkown, put it on DS and push read-word, which can
-# be implemented by the user
 
 # TODO Restructure native rules/move some rules from consize into this file
-# TODO add alias Rule (as seen above)
 
 class ShowHelp(NativeRule):
     """
@@ -236,6 +228,8 @@ class SetRules(NativeRule):
 class Edit(NativeRule):
     """
     Opens the top element on the stack in the editor, for live editing.
+    When the changed file content is saved, then the DS will have a stack as top
+    element, which will contain every line of the file encoded as Word.
     """
 
     def name(self) -> str:
@@ -278,6 +272,11 @@ class Edit(NativeRule):
         # Clean up the temporary file
         os.remove(temp_file.name)
 
+        if final_content == word:
+            return True
+            # when filecontent hasn't changed, keep the data on the
+            # datastack.
+
         interpreter.ds = Stack(*rest, Stack(*[str(line) for line in final_content.splitlines()]))
         interpreter.cs = Stack(*rcs)
         return True
@@ -319,10 +318,10 @@ class Continue(NativeRule):
     """
 
     def name(self) -> str:
-        return "continue"
+        return "cuntinue-running"
 
     def execute(self, interpreter):
-        if interpreter.cs == [] or not interpreter.cs.peek() == "continue":
+        if interpreter.cs == [] or not interpreter.cs.peek() == "continue-running":
             return False
         interpreter.cs.pop(0)
         interpreter.continue_to_end()
@@ -446,6 +445,31 @@ class Write(NativeRule):
         except IOError as e:
             interpreter.print_error(f"An error occurred while writing the file: {e}")
             return False
+
+        interpreter.ds = Stack(*rds)
+        interpreter.cs = Stack(*rcs)
+        return True
+
+class PPrintDict(NativeRule):
+
+    def name(self) -> str:
+        return "pp"
+
+    def execute(self, interpreter):
+        try:
+            csw, *rcs = interpreter.cs
+            *rds, d = interpreter.ds
+        except ValueError:
+            return False
+
+        if not csw == "pp":
+            return False
+
+        for i in range(0, len(d), 2):
+            if i + 1 < len(d):  # Check if there is a second element
+                first_element = d[i]
+                second_element = d[i + 1]
+                print(f"{first_element}   {second_element}")
 
         interpreter.ds = Stack(*rds)
         interpreter.cs = Stack(*rcs)

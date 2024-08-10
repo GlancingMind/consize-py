@@ -43,17 +43,17 @@
   current-time-millis swap dip current-time-millis swap - ;
 
 : nil ( -- nil ) ( ) top ;
-% : lookup ( word -- item ) get-dict nil get ;
-% : delete ( itm -- ) get-dict dissoc set-dict ;
+: lookup ( word -- item ) get-dict nil get ;
+: delete ( itm -- ) get-dict dissoc set-dict ;
 : values ( dict -- seq ) dup keys swap [ nil get ] cons map ;
 
 % CALL A QUOTATION (ANONYMOUS ABSTRACTION)
 % http://docs.factorcode.org/content/article-combinators.html
 % http://docs.factorcode.org/content/article-call.html
 
-% : call ( [ quot & ds ] cs -- ds quot cs concat )
+: call ( [ quot & ds ] cs -- ds quot cs concat )
   [ swap unpush rot concat continue ] call/cc ;
-% : fcall ( quot -- seq ) get-dict func ( ) swap apply reverse ;
+: fcall ( quot -- seq ) get-dict func ( ) swap apply reverse ;
 
 % BOOLEAN VALUES, BOOLEAN CHOICE
 % http://docs.factorcode.org/content/article-booleans.html
@@ -282,7 +282,7 @@ SYMBOL: :else
 
 % WRITE PROGRAMS, DEFINE WORDS
 
-% : def ( wrd itm -- ) swap get-dict assoc set-dict ;
+: def ( wrd itm -- ) swap get-dict assoc set-dict ;
 : def+ ( wrd [ effect ] [ body ] -- ) swap drop def ;
 
 : : ( | ... '; -- quot )

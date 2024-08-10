@@ -59,10 +59,6 @@ nil | top -> nil
 { @M1 } { } | merge -> { @M1 }
 @RDS [ @Q ] | call/cc @RCS => [ @RDS ] [ @RCS ] | @Q
 @RDS [ @DS ] [ @CS ] | continue @RCS => @DS | @CS
-[ @Q ] | blube ->
-[ @Q ] | blube -> |
-[ @Q ] | blube -> asd |
-[ @Q ] | blube -> asd | asd
 [ @Q ] | call -> | @Q
 | load -> | slurp uncomment tokenize
 | run -> | load call
@@ -118,3 +114,10 @@ f [ @T ] [ @F ] | if* -> | @F
 [ @NUMS ] | sum -> [ @NUMS ] | \ 0 [ + ] reduce
 [ @S ] | my-size -> [ @S ] | \ 0 [ drop \ 1 + ] reduce
 [ @S ] | my-reverse -> [ @S ] | [ ] [ push ] reduce
+
+% Could place this two rules also in the native def command
+{ #NAME #BODY @KVP } | def -> { @KVP } #NAME #BODY | def def
+{ } | def ->
+
+@RDS [ @V #OP ] | fcall -> [ @RDS ] @V | #OP fcall'
+[ @RDS ] @V | fcall' -> @RDS [ @V ]

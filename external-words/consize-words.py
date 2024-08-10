@@ -1,5 +1,6 @@
 from Interpreter import Interpreter
-from Rule import NativeRule
+from Rule import AliasRule, NativeRule
+import RuleParser
 from Stack import Stack
 
 class Word(NativeRule):
@@ -450,4 +451,34 @@ class LessThanEqual(NativeRule):
 
         interpreter.cs = Stack(*rcs)
         interpreter.ds = Stack(*rds, result)
+        return True
+
+class DefineAliasRule(NativeRule):
+    """
+    Define an alias rule and add it to the ruleset.
+    """
+
+    def name(self) -> str:
+        return "def"
+
+    def execute(self, interpreter):
+        _, r = RuleParser.parse("#ALIAS [ @BODY ] | def ->")
+        m = r.matches(interpreter=interpreter)
+        if not m:
+            _, r = RuleParser.parse("#ALIAS #WRD | def ->")
+            m = r.matches(interpreter=interpreter)
+            if not m:
+                return False
+
+        alias = m["#ALIAS"]
+        body = m["@BODY"] if "@BODY" in m else Stack(m["#WRD"])
+
+        nr = AliasRule(alias=alias, words=body)
+        err = interpreter.ruleset.prepand(nr)
+        if err:
+            interpreter.print_error(err.msg)
+            return False
+
+        # Apply changes to stacks
+        r.instantiate(data=m, interpreter=interpreter)
         return True

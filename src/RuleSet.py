@@ -35,6 +35,9 @@ class RuleSet:
     def add(self, rule: IRule):
         return self.add_by_index(rule, len(self.rules))
 
+    def prepand(self, rule: IRule):
+        return self.add_by_index(rule, 0)
+
     def add_by_index(self, rule: IRule, idx: SupportsIndex):
         # TODO check for ambiguity of rule befor adding to ruleset
         # Or add a validate methode, to validate whole RuleSet by some validator

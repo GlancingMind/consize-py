@@ -42,8 +42,8 @@
             "request": "launch",
             "program": "src/main.py",
             "console": "integratedTerminal",
-            "args": "-i -v consize.ruleset load-rules 1 2 swap"
-            // "args": "\\\\ /Users/sascha/workspace/studium/module/pkr/consize-py/src/consize.ruleset slurp uncomment tokenize add_to_ruleset \\\\ 1 \\\\ 2 swap"
+            "args": "-i -v consize.ruleset load-rules prelude/prelude-plain.txt run"
+            // "args": "-i -v consize.ruleset load-rules 1 2 swap"
         },
     ]
 }

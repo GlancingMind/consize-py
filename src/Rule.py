@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
+import Stack
 import StackPattern
 
 class IRule(ABC):
@@ -23,7 +24,7 @@ class NativeRule(IRule):
     def description(self) -> str:
         return self.__class__.__doc__ or \
         """
-        No description provided.
+        No Description Provided.
         """
 
 @dataclass
@@ -64,3 +65,24 @@ class Rule(IRule):
         interpreter.cs = StackPattern.instantiate(self.cst, data)
         interpreter.ds = StackPattern.instantiate(self.dst, data)
         return True
+
+class AliasRule(IRule):
+    def __init__(self, alias: str, words: Stack.Stack):
+        self.alias = alias
+        self.words = words
+
+    def name(self) -> str:
+        return self.alias
+
+    def description(self) -> str:
+        return f"{self.alias} -> | {self.words.toString(addEnclosingParenthesis=False)}"
+
+    def execute(self, interpreter) -> bool:
+        if interpreter.cs != [] and interpreter.cs.peek() == self.alias:
+            interpreter.cs.pop(0)
+            interpreter.cs = Stack.Stack(*self.words, *interpreter.cs)
+            return True
+        return False
+
+    def __repr__(self) -> str:
+        return self.description()
