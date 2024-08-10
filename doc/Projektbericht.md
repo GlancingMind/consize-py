@@ -205,11 +205,12 @@ Im Abschnit [Regel finden und Matching](#schritt-1-regel-finden-und-matching) wu
 
 ### Pattern-Matching mit Python unpack-Operationen
 
-
+Python unterstützt das unpacken von Listen mit einer sog. unpack-expression, welche sehr stark der Pattern-Matching Notation von dem hier beschriebenen System ähnelt. Steht bei einer Zuweisung in Python auf der rechten Seite eine Liste, können auf der linken Seite mehrere Variablen angegeben werden.
+Die Variablen erhalten dann die einzelnen Werte der Liste genauso wie sie bei unserer Pattern-Notation mit #-Matcher beschrieben wurde. Auch der @-Matcher ist vertreten, indem vor einer Variable `*` angegeben wird. Die Idee: Nehme unsere die Pattern-Beschreibung und schreibe diese so um, dass sie aussieht wie eine Python unpack-expression. Bsp. aus dem Pattern `#F [ 2 @GREETING [ #NUM ] 4 ] #L` wird folgender String: `H_F, ( _2, *AT_GREETING, ( H_NUM ,) _4 ,), H_L`. Diesen kann man über `exec` Python interpretieren lassen  exec(f"{pattern} = {stk}")`. Anschließend lässt man sich alle Variablen geben und schreibt deren Zugewiesene Werte mit den Ursprünglichen Namen zurück in eine Map. Die Implementierung ist deutlich kürzer und leicher verständlich. Der Nachteil ist jedoch, sie ist stark Python abhängig und nicht in andere Sprachen überführbar. Deswegen ist dies derzeit nicht die Standardimplementierung. Außerdem wurde sie noch nicht ausreichen genug getestet. Es wäre jedoch Interessant zu sehen, ob diese Implementierung genauso robust und evtl. schneller ist als die derzeitige.
 
 ### Pattern-Matching via Reguläre Ausdrücke
 
-
+Bisher habe ich nur gehört, dass sich das hier beschriebene Pattern-Matching-System nicht mit regulären Ausdrücken umsetzten lässt. Ein schwerwiegendes Argument ist, dass die balansierte Klammerung nicht mit einem regulären Ausdruck beschrieben werden kann. Ich bin allerdings auch RegEx-Engines gestoßen, welche rekursive Patternaufrufe unterstützten. Diese werden u.a. dafür verwendet, um balansierte Klammer auszudrücken. Es wäre sehr Interessant zu erfahren, ob das System mit solch einer Engine nicht doch umsetzbar wäre.
 
 # Quellen:
 
