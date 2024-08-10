@@ -164,47 +164,53 @@ Mit der Unterstüzung von nativen Worten steht einer Implementierung von Consize
 
 Eines sei vorweggenommen. Consize ist in seiner vollständigkeit noch nicht lauffähig. Die Grundlegenden primitiven Wörter, welche sich mit Umschreibregeln ausdrücken lassen, wurden alle in dieser ausgedrückt. Zufinden sind diese in der Datei *consize.ruleset*. Außerdem wurden Regeln für jene Wörter ergänzt, welche mit Wörterbüchern aggieren. Weiterhin wurden die nativen Wörter der Consize-VM imlementiert. Damit sollte ein minimale Arbeiten mit den gänigsten Operationen möglich sein. Die korrekte Funktion der Wörter sind von entsprechenden Unit-Tests abgedeckt.
 
-Zusätzlich wurde der Versuch unternommen, die Prelude zu laden, um die Consize-REPL zu betreten. Es scheint jedoch ein Problem mit dem laden des bootimages vorzuliegen. Weswegen Wortdefinitionen in folgender Form `: unpush dup pop swap top ;` nicht möglich sind, was wiederum das laden der Prelude verhindert. Schließlich sind alle Definitionen in der Prelude über Form definiert. Der Interpreter selbst unterstützt jedoch das hinzufügen von neuen Regeln über die native Implementierung von `def` \emdash siehe Ende von *consize-words.py*. Es können also Wort Konkatenationen/Redefinitionen vorgenommen werden.
+Zusätzlich wurde der Versuch unternommen, die Prelude zu laden, um die Consize REPL zu betreten. Es scheint jedoch ein Problem mit dem laden des bootimages vorzuliegen. Weswegen Wortdefinitionen in folgender Form `: unpush dup pop swap top ;` nicht möglich sind, was wiederum das laden der Prelude verhindert. Schließlich sind alle Definitionen in der Prelude über Form definiert. Der Interpreter selbst unterstützt jedoch das hinzufügen von neuen Regeln über die native Implementierung von `def` \emdash siehe Ende von *consize-words.py*. Es können also Wort Konkatenationen/Redefinitionen vorgenommen werden.
 
 Es ist bis dato (10. August 2024) unklar, warum die in bootimage definierten Wörter \emdash insbesondere `:` und `scanf` nicht korrekt funktionieren. Es wurden explizit Wort-Definitionen herausgenommen, welche bereits mit den Umschreibregeln umgesetzt wurden. So, dass beim laden des bootimages bspw. nicht `def` mit der alten Implementierung überschrieben wird, welches wegen dem Fehlen von `get-dict` und `set-dict` in der neuen Implementierung, garnicht funktionieren kann. Außerdem wurden die letzten Worte des bootimages `mapping get-dict merge set-dict` entfernt. Das bootimage ließ sich letztlich erfolgreich laden, so dass die darin definierten Wörter im Regelwerk des Interpreters standen. Deren Aufruf allerdings nicht das gewünsche Ergebnis erzielten.
 
 # Fazit
 
-Leider konnte eine vollständige Consize Umgebung nicht erfolgreich umgesetzt werden. Jedoch ist mit dem funktionierenden Pattern-Matching-System und dem umgesetzten Plugin-System ein solides Fundament für eine zukünftige Umsetztung und Weiterentwicklung gesichert. Viele Verbesserungen oder Anregungen sind noch im nachfolgenden Abschnitt beschrieben.
+Leider konnte eine vollständige Consize Umgebung nicht erfolgreich umgesetzt werden. Jedoch ist mit dem funktionierenden Pattern-Matching-System und dem umgesetzten Plugin-System ein solides Fundament für eine zukünftige Umsetztung und Weiterentwicklung gesichert. Einige Verbesserungen oder Anregungen sind noch im nachfolgenden Abschnitt beschrieben.
 
 # Zukünftige Verbesserungen
 
-## Consize
+## Zur Consize Umsetztung
 
+Zunächst wäre es schön eine funktionierende Consize REPL zu haben. Dann könnte das Rechnen, welches zur Zeit mit nativen Wörtern implementiert ist, auf Umschreibregeln umgesetzt werden. Das ist zwar langsam, aber das Rechnen mit Umschreibregeln wäre ein schöne Demonstration von formalen Systemen.
+Außerdem können noch einige Wörter aus der Prelude in den Umschreibregeln umformuliert werden.
 
+## Pretty Print Words
 
-## Validierung
+Was bisher nicht erwähnt wurde ist, dass der Interpreter die einzelnen Ersetzungsschritte als eine *Chain of Reasoning* \emdash siehe Anhang B von [Konkatenative Programmierung mit Consize](https://github.com/denkspuren/consize/blob/master/doc/Consize.pdf) \emdash ausgeben kann. Diese Ausgabe verwendet bereits Farbkodierung, um Wörter auf dem Callstack, oder den Stacktrenner, farblich hervorzuheben. Interessant wäre es, wenn Wörter mit einem Unterstrich markiert wären. Daran könnte schnell gesehen werden, ob auf dem Stack mehrere einzelne Wörter liegen oder ein Wort, welches whitespace enthält. Bei letzterem würde der whitespace auch unterstrichen werden.
 
-- Ungültige Regeln nicht erlauben
-- Erkennen, ob mehrere Regeln anwendbar sind bzw. andere überschatten. Generic zuerst etc.
-   Noch ein Hinweiß: Da die Regeln nach einer Reihenfolge abgearbeitet werden, ist es wichtig, diese auch in einer validen Reihenfolge anzugeben. Eine Regel wie `@DS | @CS -> foo | bar` würde immer matchen und alle nachfolgenden Regeln würden niemals angewandt werden.
+## Validierung und Analyse von Regeln
+
+Momentan gibt es keine semantische Validierung. Somit können Regeln formuliert werden, welche nicht erlaubt sind. Bspw. dürfen nicht mehrere @-Matcher in einem Pattern vorkommen. Mit einen Validierungsschritt könnten solche Regeln ausgeschlossen werden.
+
+Weiterhin könnte eine erweiterte Analyse durchgeführt werden, ob bestimmte Regeln jemals anwendbar sind oder andere überschatten. Hilfreich könnte hierfür das Specification Pattern sein, wie es [hier](https://martinfowler.com/apsupp/spec.pdf) von Eric Evans und Martin Fowler beschrieben ist.
 
 ## Lastreduktion beim finden von Regeln anwendbaren Regeln
 
-Anstelle jede Regel einzeln auf ihre Anwendbarkeit zu prüfen, können viele Regeln bereits vorzeitig ausgeschlossen werden, indem zunächst ausschließlich der Callstack betrachtet wird. Sollten umsetzbar sein:
+Anstelle jede Regel einzeln auf ihre Anwendbarkeit zu prüfen, können viele Regeln bereits vorzeitig ausgeschlossen werden, indem zunächst ausschließlich der Callstack betrachtet wird. D. h., wenn das Wort `dup` auf dem Callstack liegt, müssen auch nur die Regeln geprüft werden, welche `dup` auf dem CS-Pattern hat.
 
-### 1. Hashmap mit Chaining: Matche auf callstack, um alle Regeln
+Eine HashMap könnte das Wort als Key verwenden und als Value eine Liste von Regeln, die jenes Wort als oberstes Element auf dem Callstack haben. Dafür müssten alle Regeln so umgeschrieben werden, dass jede Regel nur ein Element auf dem Callstack im M-Pattern aufweißt. Diese Umformung sollte vom Interpreter intern vorgenommen werden, sodass der Nutzer nicht eingeschränkt wird. Für das Escape-Word `\`, dessen CS-Pattern `\ #H` ist, kann evtl. keine Umformung gefunden werden \emdash hierfür müsste ich nochmal nachdenken.
 
-Konsequenz: Auf callstack darf immer nur eine bestimmte Anzahl an Elementen liegen, um matching entsprechend durchzuführen.
-
-### 2. Baum
+Es könnten auch alle Wörter, welche auf dem Callstack im Instantiation-Pattern vorkommen zu Funktionen transformiert werden. Diese Funktionen sind dann keine Regeln mehr die nachgeschlagen werden müssen, sondern einfach Funktionen die vom Interpreter direkt aufgerufen werden. Dabei sollte beachtet werden, dass eine solche Funktion nicht ihre Subfunktionen selbst aufruft, da sonst der Callstack u. U. nicht ausreichen wird.
+Außer die Aufruftiefe wird begrenzt, indem Funktionen in Packete gepackt werden, welche Garantieren, dass eine bestimmte Aufrufstiefe niemals erreicht wird.
+Oder einfacher, jede Funktion legt ihre Unterfunktionen auf den Callstack des Interpreters und dieser führt sie nacheinander durch. Somit ist immereine Aufrufstiefe von 1 gegeben. Das ist letztlich das Prinzip, nachdem die Wortkonkatenationen im aktuellen System funktionieren.
 
 ## Alternative Pattern-Matching Strategien
 
+Im Abschnit [Regel finden und Matching](#schritt-1-regel-finden-und-matching) wurde die Implementierung des Pattern-Matching-Algorithmus beschrieben. Dieser könnte auch anders funktioneren. Eine weitere prototypische Implementierung liegt bereits in der Datei *playground/ultra-small-matching-function.py* vor. Deren Ansatz hier noch kurz beschrieben werden soll.
+
 ### Pattern-Matching mit Python unpack-Operationen
 
-### Pattern-Matching via Reguläre Ausdrücke
 
-## Pretty Print Words
+
+### Pattern-Matching via Reguläre Ausdrücke
 
 
 
 # Quellen:
 
 - [Konkatenative Programmierung mit Consize](https://github.com/denkspuren/consize/blob/master/doc/Consize.pdf)
-- Sowie alle verlinkten Seiten in diesem Bericht. [TODO]
